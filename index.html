@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>متجر - ترحيب</title>
+    <meta name="theme-color" content="#d63384">
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/d02y6Ytq/inbound8433832874347338360.png">
+    <style>
+        :root {
+            --primary-color: #d63384;
+            --secondary-color: #ff69b4;
+            --accent-color: #ff1493;
+            --light-color: #fff0f6;
+            --text-color: #4a1e35;
+            --success-color: #28a745;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html { 
+            margin:0; 
+            padding:0; 
+            width:100%; 
+            height:100%; 
+            display:flex; 
+            justify-content:center; 
+            align-items:center; 
+            background: linear-gradient(270deg, #fff0f6, #ffd6e8, #f9c1dc, #ffd6e8, #fff0f6); 
+            background-size:1000% 1000%; 
+            animation: gradientBG 15s ease infinite; 
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position:0% 50%; }
+            50% { background-position:100% 50%; }
+            100% { background-position:0% 50%; }
+        }
+
+        .splash-screen { 
+            text-align:center; 
+            position: relative;
+            max-width: 90%;
+            width: 100%;
+        }
+
+        .logo-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 30px;
+        }
+
+        .logo { 
+            width:150px; 
+            height: 150px;
+            margin-bottom:20px; 
+            transform: scale(0); 
+            animation: popIn 1.5s forwards; 
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(214, 51, 132, 0.3);
+            object-fit: cover;
+        }
+
+        @keyframes popIn {
+            0% { transform:scale(0); opacity:0; }
+            50% { transform:scale(1.2); opacity:1; }
+            100% { transform:scale(1); opacity:1; }
+        }
+
+        .welcome-text { 
+            font-size:clamp(1.4rem, 4vw, 2rem); 
+            font-weight:bold; 
+            color:var(--text-color); 
+            margin-bottom:30px; 
+            opacity:0; 
+            animation: textPop 1.5s forwards; 
+            animation-delay:1s; 
+            text-shadow:0 0 6px rgba(255, 105, 180, 0.5), 0 0 12px rgba(255, 20, 147, 0.3);
+            line-height: 1.6;
+        }
+
+        @keyframes textPop {
+            0% { opacity:0; transform:scale(0) translateY(20px); }
+            60% { opacity:1; transform:scale(1.1) translateY(0); }
+            100% { opacity:1; transform:scale(1) translateY(0); }
+        }
+
+        .login-btn { 
+            padding:14px 35px; 
+            font-size:1.3rem; 
+            font-weight:bold; 
+            color:white; 
+            background-color:var(--primary-color); 
+            border:none; 
+            border-radius:50px; 
+            cursor:pointer; 
+            opacity:0; 
+            transform: scale(0) translateY(20px); 
+            transition: all 0.5s ease; 
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(214, 51, 132, 0.4);
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .login-btn.show { 
+            opacity:1; 
+            transform:scale(1) translateY(0);
+        }
+
+        .login-btn:focus {
+            outline: 2px solid white;
+            outline-offset: 2px;
+        }
+
+        .login-btn:hover {
+            transform: scale(1.05);
+            background-color: #c22574;
+        }
+
+        @keyframes glow {
+            0% { box-shadow:0 0 10px var(--primary-color), 0 0 20px var(--secondary-color); }
+            100% { box-shadow:0 0 25px var(--secondary-color), 0 0 50px var(--accent-color); }
+        }
+
+        /* تسجيل الدخول */
+        .login-form {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-radius: 30px 30px 0 0;
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
+            padding: 30px 20px;
+            transition: bottom 0.5s ease;
+            z-index: 100;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .login-form.active {
+            bottom: 0;
+        }
+
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        .save-btn:hover {
+            background: #c22574;
+        }
+
+        /* خيارات */
+        .options-btn {
+            padding:14px 35px; 
+            font-size:1.3rem; 
+            font-weight:bold; 
+            color:white; 
+            background-color:var(--success-color); 
+            border:none; 
+            border-radius:50px; 
+            cursor:pointer; 
+            opacity:0; 
+            transform: scale(0) translateY(20px); 
+            transition: all 0.5s ease; 
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+            display: none;
+        }
+
+        .options-btn.show { 
+            opacity:1; 
+            transform:scale(1) translateY(0);
+            display: inline-block;
+        }
+
+        .options-btn:hover {
+            transform: scale(1.05);
+            background-color: #218838;
+        }
+
+        .options-menu {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-radius: 30px 30px 0 0;
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
+            padding: 30px 20px;
+            transition: bottom 0.5s ease;
+            z-index: 100;
+            text-align: center;
+        }
+
+        .options-menu.active {
+            bottom: 0;
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option-btn:hover {
+            background: #c22574;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.secondary {
+            background: #6c757d;
+        }
+
+        .option-btn.secondary:hover {
+            background: #545b62;
+        }
+
+        /* تنبيهات */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #f8d7da;
+            color: #721c24;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.4s ease;
+            max-width: 300px;
+        }
+
+        .alert.show {
+            transform: translateX(0);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* تحسينات للجوال */
+        @media (max-width: 480px) {
+            .logo { 
+                width: 120px; 
+                height: 120px; 
+            }
+            
+            .welcome-text { 
+                font-size: 1.3rem; 
+                margin-bottom: 25px;
+            }
+            
+            .login-btn, .options-btn { 
+                padding: 12px 25px; 
+                font-size: 1.1rem; 
+            }
+            
+            .login-form, .options-menu {
+                padding: 25px 15px;
+            }
+            
+            .form-title {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* منع التحديد والنقر المزدوج */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        input, textarea {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        /* تحسين الأداء على iOS */
+        .logo, .login-btn, .options-btn {
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+        }
+    </style>
+</head>
+<body>
+
+<div class="splash-screen">
+    <div class="logo-container">
+        <img src="https://i.postimg.cc/d02y6Ytq/inbound8433832874347338360.png" class="logo" alt="متجر" loading="eager">
+    </div>
+    <div class="welcome-text">✨ أهلاً وسهلاً بكِ في متجرك ✨</div>
+    <button class="login-btn" id="loginBtn">تسجيل الدخول</button>
+    <button class="options-btn" id="optionsBtn">خيارات</button>
+</div>
+
+<!-- نموذج تسجيل الدخول -->
+<div class="login-form" id="loginForm">
+    <div class="form-header">
+        <h2 class="form-title">تسجيل الدخول</h2>
+        <button class="close-btn" id="closeLoginForm">&times;</button>
+    </div>
+    <div class="form-group">
+        <label for="name" class="form-label">الاسم الكامل</label>
+        <input type="text" id="name" class="form-input" placeholder="أدخل اسمك الكامل">
+    </div>
+    <div class="form-group">
+        <label for="phone" class="form-label">رقم الهاتف</label>
+        <input type="tel" id="phone" class="form-input" placeholder="أدخل رقم هاتفك">
+    </div>
+    <div class="form-group">
+        <label for="city" class="form-label">المدينة</label>
+        <input type="text" id="city" class="form-input" placeholder="أدخل مدينتك">
+    </div>
+    <div class="form-group">
+        <label for="address" class="form-label">العنوان</label>
+        <input type="text" id="address" class="form-input" placeholder="أدخل عنوانك بالتفصيل">
+    </div>
+    <button class="save-btn" id="saveBtn">حفظ البيانات</button>
+</div>
+
+<!-- قائمة الخيارات -->
+<div class="options-menu" id="optionsMenu">
+    <div class="form-header">
+        <h2 class="form-title">خيارات</h2>
+        <button class="close-btn" id="closeOptionsMenu">&times;</button>
+    </div>
+    <button class="option-btn" id="goToShopBtn">الانتقال للمتجر</button>
+    <button class="option-btn secondary" id="editDataBtn">تعديل البيانات</button>
+</div>
+
+<!-- طبقة التعتيم -->
+<div class="overlay" id="overlay"></div>
+
+<!-- تنبيه -->
+<div class="alert" id="alert"></div>
+
+<script>
+    // عناصر DOM
+    const loginBtn = document.getElementById('loginBtn');
+    const optionsBtn = document.getElementById('optionsBtn');
+    const loginForm = document.getElementById('loginForm');
+    const optionsMenu = document.getElementById('optionsMenu');
+    const closeLoginForm = document.getElementById('closeLoginForm');
+    const closeOptionsMenu = document.getElementById('closeOptionsMenu');
+    const saveBtn = document.getElementById('saveBtn');
+    const goToShopBtn = document.getElementById('goToShopBtn');
+    const editDataBtn = document.getElementById('editDataBtn');
+    const overlay = document.getElementById('overlay');
+    const alert = document.getElementById('alert');
+    
+    // حقول الإدخال
+    const nameInput = document.getElementById('name');
+    const phoneInput = document.getElementById('phone');
+    const cityInput = document.getElementById('city');
+    const addressInput = document.getElementById('address');
+
+    // تحسينات للأداء على الجوال
+    document.addEventListener('touchstart', function() {}, {passive: true});
+    
+    // منع التمرير غير المرغوب
+    document.addEventListener('touchmove', function(e) {
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+        }
+    }, {passive: false});
+
+    // إظهار زر تسجيل الدخول بعد 4 ثواني
+    setTimeout(() => { 
+        loginBtn.classList.add('show'); 
+        
+        // التحقق إذا كانت البيانات محفوظة مسبقًا
+        if (localStorage.getItem("userData")) {
+            loginBtn.style.display = 'none';
+            optionsBtn.classList.add('show');
+        }
+    }, 4000);
+
+    // فتح نموذج تسجيل الدخول
+    loginBtn.addEventListener('click', () => {
+        loginForm.classList.add('active');
+        overlay.classList.add('active');
+    });
+
+    // إغلاق نموذج تسجيل الدخول
+    closeLoginForm.addEventListener('click', closeLogin);
+    overlay.addEventListener('click', closeLogin);
+
+    function closeLogin() {
+        loginForm.classList.remove('active');
+        overlay.classList.remove('active');
+    }
+
+    // فتح قائمة الخيارات
+    optionsBtn.addEventListener('click', () => {
+        optionsMenu.classList.add('active');
+        overlay.classList.add('active');
+    });
+
+    // إغلاق قائمة الخيارات
+    closeOptionsMenu.addEventListener('click', closeOptions);
+    
+    function closeOptions() {
+        optionsMenu.classList.remove('active');
+        overlay.classList.remove('active');
+    }
+
+    // حفظ البيانات
+    saveBtn.addEventListener('click', () => {
+        // التحقق من تعبئة جميع الحقول
+        if (!nameInput.value || !phoneInput.value || !cityInput.value || !addressInput.value) {
+            showAlert('يرجى تعبئة جميع الحقول المطلوبة');
+            return;
+        }
+
+        // حفظ البيانات في localStorage
+        const userData = {
+            name: nameInput.value,
+            phone: phoneInput.value,
+            city: cityInput.value,
+            address: addressInput.value
+        };
+        
+        localStorage.setItem("userData", JSON.stringify(userData));
+        localStorage.setItem("loggedIn", "true");
+        
+        // إغلاق النموذج وإظهار زر الخيارات
+        closeLogin();
+        loginBtn.style.display = 'none';
+        optionsBtn.classList.add('show');
+        
+        showAlert('تم حفظ بياناتك بنجاح', 'success');
+    });
+
+    // الانتقال إلى المتجر
+    goToShopBtn.addEventListener('click', () => {
+        // إضافة تأثير تحميل قبل الانتقال
+        overlay.classList.add('active');
+        setTimeout(() => {
+            window.location.href = "home.html";
+        }, 500);
+    });
+
+    // تعديل البيانات
+    editDataBtn.addEventListener('click', () => {
+        // تحميل البيانات المحفوظة في الحقول
+        if (localStorage.getItem("userData")) {
+            const userData = JSON.parse(localStorage.getItem("userData"));
+            nameInput.value = userData.name;
+            phoneInput.value = userData.phone;
+            cityInput.value = userData.city;
+            addressInput.value = userData.address;
+        }
+        
+        closeOptions();
+        loginForm.classList.add('active');
+        overlay.classList.add('active');
+    });
+
+    // وظيفة عرض التنبيهات
+    function showAlert(message, type = 'error') {
+        alert.textContent = message;
+        alert.classList.add('show');
+        
+        if (type === 'success') {
+            alert.style.background = '#d4edda';
+            alert.style.color = '#155724';
+        } else {
+            alert.style.background = '#f8d7da';
+            alert.style.color = '#721c24';
+        }
+        
+        setTimeout(() => {
+            alert.classList.remove('show');
+        }, 3000);
+    }
+
+    // تحسين الأداء على iOS
+    if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+        document.body.style.webkitBackfaceVisibility = 'hidden';
+    }
+</script>
+
+</body>
+</html>
