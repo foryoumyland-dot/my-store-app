@@ -14,6 +14,7 @@
             --light-color: #fff0f6;
             --text-color: #4a1e35;
             --success-color: #28a745;
+            --edit-color: #ffc107;
         }
 
         * {
@@ -110,6 +111,7 @@
             overflow: hidden;
             box-shadow: 0 4px 15px rgba(214, 51, 132, 0.4);
             animation: glow 1.5s infinite alternate;
+            margin: 10px;
         }
 
         .login-btn.show { 
@@ -125,6 +127,64 @@
         .login-btn:hover {
             transform: scale(1.05);
             background-color: #c22574;
+        }
+
+        /* أزرار الواجهة بعد التسجيل */
+        .action-btn { 
+            padding:14px 35px; 
+            font-size:1.3rem; 
+            font-weight:bold; 
+            color:white; 
+            border:none; 
+            border-radius:50px; 
+            cursor:pointer; 
+            opacity:0; 
+            transform: scale(0) translateY(20px); 
+            transition: all 0.5s ease; 
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            margin: 10px;
+            display: inline-block;
+        }
+
+        .action-btn.show { 
+            opacity:1; 
+            transform:scale(1) translateY(0);
+        }
+
+        .action-btn:focus {
+            outline: 2px solid white;
+            outline-offset: 2px;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .shop-btn {
+            background-color: var(--success-color);
+        }
+
+        .shop-btn:hover {
+            background-color: #218838;
+        }
+
+        .edit-btn {
+            background-color: var(--edit-color);
+            color: #000;
+        }
+
+        .edit-btn:hover {
+            background-color: #e0a800;
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
         }
 
         @keyframes glow {
@@ -224,82 +284,6 @@
             background: #c22574;
         }
 
-        /* خيارات */
-        .options-btn {
-            padding:14px 35px; 
-            font-size:1.3rem; 
-            font-weight:bold; 
-            color:white; 
-            background-color:var(--success-color); 
-            border:none; 
-            border-radius:50px; 
-            cursor:pointer; 
-            opacity:0; 
-            transform: scale(0) translateY(20px); 
-            transition: all 0.5s ease; 
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
-            display: none;
-        }
-
-        .options-btn.show { 
-            opacity:1; 
-            transform:scale(1) translateY(0);
-            display: inline-block;
-        }
-
-        .options-btn:hover {
-            transform: scale(1.05);
-            background-color: #218838;
-        }
-
-        .options-menu {
-            position: fixed;
-            bottom: -100%;
-            left: 0;
-            width: 100%;
-            background: white;
-            border-radius: 30px 30px 0 0;
-            box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
-            padding: 30px 20px;
-            transition: bottom 0.5s ease;
-            z-index: 100;
-            text-align: center;
-        }
-
-        .options-menu.active {
-            bottom: 0;
-        }
-
-        .option-btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .option-btn:hover {
-            background: #c22574;
-            transform: translateY(-2px);
-        }
-
-        .option-btn.secondary {
-            background: #6c757d;
-        }
-
-        .option-btn.secondary:hover {
-            background: #545b62;
-        }
-
         /* تنبيهات */
         .alert {
             position: fixed;
@@ -350,17 +334,28 @@
                 margin-bottom: 25px;
             }
             
-            .login-btn, .options-btn { 
+            .login-btn, .action-btn { 
                 padding: 12px 25px; 
                 font-size: 1.1rem; 
             }
             
-            .login-form, .options-menu {
+            .login-form {
                 padding: 25px 15px;
             }
             
             .form-title {
                 font-size: 1.3rem;
+            }
+            
+            .buttons-container {
+                gap: 10px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .buttons-container {
+                flex-direction: row;
+                justify-content: center;
             }
         }
 
@@ -380,7 +375,7 @@
         }
 
         /* تحسين الأداء على iOS */
-        .logo, .login-btn, .options-btn {
+        .logo, .login-btn, .action-btn {
             -webkit-transform: translateZ(0);
             transform: translateZ(0);
         }
@@ -393,8 +388,15 @@
         <img src="https://i.postimg.cc/d02y6Ytq/inbound8433832874347338360.png" class="logo" alt="متجر" loading="eager">
     </div>
     <div class="welcome-text">✨ أهلاً وسهلاً بكِ في متجرك ✨</div>
+    
+    <!-- زر تسجيل الدخول (يظهر أولاً) -->
     <button class="login-btn" id="loginBtn">تسجيل الدخول</button>
-    <button class="options-btn" id="optionsBtn">خيارات</button>
+    
+    <!-- أزرار الواجهة بعد التسجيل -->
+    <div class="buttons-container" id="actionButtons">
+        <button class="action-btn shop-btn" id="goToShopBtn">🛍️ الدخول للمتجر</button>
+        <button class="action-btn edit-btn" id="editDataBtn">✏️ تعديل البيانات</button>
+    </div>
 </div>
 
 <!-- نموذج تسجيل الدخول -->
@@ -422,16 +424,6 @@
     <button class="save-btn" id="saveBtn">حفظ البيانات</button>
 </div>
 
-<!-- قائمة الخيارات -->
-<div class="options-menu" id="optionsMenu">
-    <div class="form-header">
-        <h2 class="form-title">خيارات</h2>
-        <button class="close-btn" id="closeOptionsMenu">&times;</button>
-    </div>
-    <button class="option-btn" id="goToShopBtn">الانتقال للمتجر</button>
-    <button class="option-btn secondary" id="editDataBtn">تعديل البيانات</button>
-</div>
-
 <!-- طبقة التعتيم -->
 <div class="overlay" id="overlay"></div>
 
@@ -441,14 +433,12 @@
 <script>
     // عناصر DOM
     const loginBtn = document.getElementById('loginBtn');
-    const optionsBtn = document.getElementById('optionsBtn');
-    const loginForm = document.getElementById('loginForm');
-    const optionsMenu = document.getElementById('optionsMenu');
-    const closeLoginForm = document.getElementById('closeLoginForm');
-    const closeOptionsMenu = document.getElementById('closeOptionsMenu');
-    const saveBtn = document.getElementById('saveBtn');
+    const actionButtons = document.getElementById('actionButtons');
     const goToShopBtn = document.getElementById('goToShopBtn');
     const editDataBtn = document.getElementById('editDataBtn');
+    const loginForm = document.getElementById('loginForm');
+    const closeLoginForm = document.getElementById('closeLoginForm');
+    const saveBtn = document.getElementById('saveBtn');
     const overlay = document.getElementById('overlay');
     const alert = document.getElementById('alert');
     
@@ -468,15 +458,37 @@
         }
     }, {passive: false});
 
-    // إظهار زر تسجيل الدخول بعد 4 ثواني
+    // التحقق من البيانات المحفوظة عند تحميل الصفحة
+    function checkSavedData() {
+        if (localStorage.getItem("userData")) {
+            // إخفاء زر تسجيل الدخول وإظهار أزرار الواجهة
+            loginBtn.style.display = 'none';
+            showActionButtons();
+        }
+    }
+
+    // إظهار أزرار الواجهة
+    function showActionButtons() {
+        const buttons = actionButtons.querySelectorAll('.action-btn');
+        buttons.forEach((btn, index) => {
+            setTimeout(() => {
+                btn.classList.add('show');
+            }, index * 200); // تأخير متتالي للظهور
+        });
+    }
+
+    // إخفاء أزرار الواجهة
+    function hideActionButtons() {
+        const buttons = actionButtons.querySelectorAll('.action-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('show');
+        });
+    }
+
+    // إظهار زر تسجيل الدخول بعد 4 ثواني والتحقق من البيانات
     setTimeout(() => { 
         loginBtn.classList.add('show'); 
-        
-        // التحقق إذا كانت البيانات محفوظة مسبقًا
-        if (localStorage.getItem("userData")) {
-            loginBtn.style.display = 'none';
-            optionsBtn.classList.add('show');
-        }
+        checkSavedData();
     }, 4000);
 
     // فتح نموذج تسجيل الدخول
@@ -492,20 +504,13 @@
     function closeLogin() {
         loginForm.classList.remove('active');
         overlay.classList.remove('active');
-    }
-
-    // فتح قائمة الخيارات
-    optionsBtn.addEventListener('click', () => {
-        optionsMenu.classList.add('active');
-        overlay.classList.add('active');
-    });
-
-    // إغلاق قائمة الخيارات
-    closeOptionsMenu.addEventListener('click', closeOptions);
-    
-    function closeOptions() {
-        optionsMenu.classList.remove('active');
-        overlay.classList.remove('active');
+        
+        // إذا كان المستخدم مسجلاً، نعيد إظهار الأزرار عند إغلاق النموذج
+        if (localStorage.getItem("userData")) {
+            setTimeout(() => {
+                showActionButtons();
+            }, 300);
+        }
     }
 
     // حفظ البيانات
@@ -527,10 +532,12 @@
         localStorage.setItem("userData", JSON.stringify(userData));
         localStorage.setItem("loggedIn", "true");
         
-        // إغلاق النموذج وإظهار زر الخيارات
+        // إغلاق النموذج وإظهار أزرار الواجهة
         closeLogin();
         loginBtn.style.display = 'none';
-        optionsBtn.classList.add('show');
+        setTimeout(() => {
+            showActionButtons();
+        }, 300);
         
         showAlert('تم حفظ بياناتك بنجاح', 'success');
     });
@@ -555,7 +562,10 @@
             addressInput.value = userData.address;
         }
         
-        closeOptions();
+        // إخفاء أزرار الواجهة مؤقتاً
+        hideActionButtons();
+        
+        // فتح نموذج التسجيل
         loginForm.classList.add('active');
         overlay.classList.add('active');
     });
