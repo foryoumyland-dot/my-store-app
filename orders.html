@@ -8,7 +8,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <style>
   body { font-family: Tahoma; background:#f9f9f9; padding:20px; direction: rtl; }
-  h2 { color:#d63384; text-align:center; margin-top:55px; } /* عدلت الهامش العلوي ليتوافق مع شريط التنقل */
+  h2 { color:#d63384; text-align:center; margin-top:55px; }
   .order { background:#fff; padding:15px; margin:10px 0; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
   .order h3 { margin:0 0 8px; color:#333; }
   .status { font-weight:bold; color:#d63384; }
@@ -74,107 +74,164 @@
 <div id="orders"></div>
 
 <script>
+// ⚠️ استبدل هذه المعلومات بمعلومات Firebase الخاصة بك
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "mystore-orders-a74f8.firebaseapp.com",
-  databaseURL: "https://mystore-orders-a74f8-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "mystore-orders-a74f8",
-  storageBucket: "mystore-orders-a74f8.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDexample1234567890abcdefghijklmnopq",
+  authDomain: "your-project.firebaseapp.com",
+  databaseURL: "https://your-project-default-rtdb.firebaseio.com",
+  projectId: "your-project",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:abcdef1234567890"
 };
+
+// تهيئة Firebase
 firebase.initializeApp(firebaseConfig);
 
 let userPhone = localStorage.getItem("userPhone");
 
-if(userPhone){
-  showCurrentPhone(userPhone);
-  loadOrders(userPhone);
-}
+// عند تحميل الصفحة، تحقق إذا كان هناك رقم محفوظ
+window.onload = function() {
+    if(userPhone){
+        showCurrentPhone(userPhone);
+        loadOrders(userPhone);
+    }
+};
 
 function savePhone(){
-  let phone = document.getElementById("phoneInput").value.trim();
-  if(!phone.startsWith("09") || phone.length !== 10){
-    alert("⚠ الرجاء إدخال رقم هاتف صحيح يبدأ بـ 09");
-    return;
-  }
-  localStorage.setItem("userPhone", phone);
-  showCurrentPhone(phone);
-  loadOrders(phone);
+    let phone = document.getElementById("phoneInput").value.trim();
+    
+    // التحقق من صحة الرقم
+    if(!phone.startsWith("09") || phone.length !== 10 || isNaN(phone)){
+        alert("⚠ الرجاء إدخال رقم هاتف صحيح يبدأ بـ 09 ويتكون من 10 أرقام");
+        return;
+    }
+    
+    localStorage.setItem("userPhone", phone);
+    showCurrentPhone(phone);
+    loadOrders(phone);
 }
 
 function showCurrentPhone(phone){
-  document.getElementById("phoneBox").style.display = "none";
-  document.getElementById("currentPhoneBox").style.display = "block";
-  document.getElementById("currentPhone").value = phone;
+    document.getElementById("phoneBox").style.display = "none";
+    document.getElementById("currentPhoneBox").style.display = "block";
+    document.getElementById("currentPhone").value = phone;
 }
 
 function resetPhone(){
-  localStorage.removeItem("userPhone");
-  document.getElementById("phoneBox").style.display = "block";
-  document.getElementById("currentPhoneBox").style.display = "none";
-  document.getElementById("orders").innerHTML = "";
+    localStorage.removeItem("userPhone");
+    document.getElementById("phoneBox").style.display = "block";
+    document.getElementById("currentPhoneBox").style.display = "none";
+    document.getElementById("orders").innerHTML = "";
+    document.getElementById("phoneInput").value = ""; // مسح الحقل
 }
 
 function deleteOrder(orderId){
-  if(confirm("❌ هل أنت متأكد أنك تريد حذف هذه الطلبية؟")){
-    firebase.database().ref("orders/" + orderId).update({ status: "تم الحذف من الزبون" });
-  }
+    if(confirm("❌ هل أنت متأكد أنك تريد حذف هذه الطلبية؟")){
+        firebase.database().ref("orders/" + orderId).update({ status: "تم الحذف من الزبون" })
+        .then(() => {
+            alert("✅ تم حذف الطلب بنجاح");
+            loadOrders(userPhone); // إعادة تحميل الطلبات
+        })
+        .catch(error => {
+            alert("❌ حدث خطأ: " + error.message);
+        });
+    }
 }
 
 function restoreOrder(orderId){
-  if(confirm("♻ هل تريد إعادة إرسال هذه الطلبية؟")){
-    firebase.database().ref("orders/" + orderId).update({ status: "قيد التنفيذ" });
-  }
+    if(confirm("♻ هل تريد إعادة إرسال هذه الطلبية؟")){
+        firebase.database().ref("orders/" + orderId).update({ status: "قيد التنفيذ" })
+        .then(() => {
+            alert("✅ تم إعادة إرسال الطلب بنجاح");
+            loadOrders(userPhone); // إعادة تحميل الطلبات
+        })
+        .catch(error => {
+            alert("❌ حدث خطأ: " + error.message);
+        });
+    }
 }
 
 function loadOrders(phone){
-  firebase.database().ref("orders").on("value", snapshot => {
-    let data = snapshot.val();
-    let container = document.getElementById("orders");
-    container.innerHTML = "";
+    console.log("🔍 جاري البحث عن طلبات للرقم: " + phone);
+    
+    firebase.database().ref("orders").once("value")
+    .then(snapshot => {
+        let data = snapshot.val();
+        let container = document.getElementById("orders");
+        container.innerHTML = "";
 
-    if(!data){
-      container.innerHTML = "<p>🚫 لا توجد طلبات</p>";
-      return;
-    }
+        if(!data){
+            container.innerHTML = "<p style='text-align:center; color:#666;'>🚫 لا توجد طلبات في قاعدة البيانات</p>";
+            return;
+        }
 
-    let userOrders = Object.entries(data).filter(([id, order]) => order.phone === phone);
+        let userOrders = [];
+        
+        // البحث في جميع الطلبات
+        Object.entries(data).forEach(([orderId, order]) => {
+            console.log("فحص الطلب:", orderId, order);
+            
+            // التحقق إذا كان الرقم مطابق (بطرق مختلفة لتجنب مشاكل التنسيق)
+            if (order.phone && (
+                order.phone === phone || 
+                order.phone.replace(/\s/g, '') === phone.replace(/\s/g, '') ||
+                order.phone.endsWith(phone) ||
+                phone.endsWith(order.phone)
+            )) {
+                userOrders.push([orderId, order]);
+            }
+        });
 
-    if(userOrders.length === 0){
-      container.innerHTML = "<p>🚫 لا توجد طلبات لهذا الرقم</p>";
-      return;
-    }
+        console.log("الطلبات الموجودة:", userOrders);
 
-    userOrders.reverse().forEach(([id, order]) => {
-      let itemsHtml = "<ul>";
-      order.items.forEach(i => {
-        itemsHtml += <li>${i.name} × ${i.qty} = ${i.price * i.qty} د</li>;
-      });
-      itemsHtml += "</ul>";
+        if(userOrders.length === 0){
+            container.innerHTML = "<p style='text-align:center; color:#666;'>🚫 لا توجد طلبات مسجلة لهذا الرقم: " + phone + "</p>";
+            return;
+        }
 
-      let actionBtn = "";
-      if(order.status === "تم الحذف من الزبون"){
-        actionBtn = <button class="btn-restore" onclick="restoreOrder('${id}')">♻ إعادة إرسال الطلب</button>;
-      } else if(order.status !== "قيد التوصيل" && order.status !== "تم التسليم"){
-        actionBtn = <button class="btn-delete" onclick="deleteOrder('${id}')">🗑 حذف الطلب</button>;
-      }
+        // عرض الطلبات من الأحدث إلى الأقدم
+        userOrders.reverse().forEach(([orderId, order]) => {
+            let itemsHtml = "<ul style='padding-right: 15px;'>";
+            
+            if (order.items && Array.isArray(order.items)) {
+                order.items.forEach(item => {
+                    itemsHtml += `<li>${item.name || 'منتج'} × ${item.qty || 1} = ${(item.price || 0) * (item.qty || 1)} د</li>`;
+                });
+            } else {
+                itemsHtml += "<li>لا توجد تفاصيل للمنتجات</li>";
+            }
+            itemsHtml += "</ul>";
 
-      let div = document.createElement("div");
-      div.className = "order";
-      div.innerHTML = `
-        <h3>🛍 المنتجات:</h3>
-        ${itemsHtml}
-        <p>🚚 سعر التوصيل: ${order.delivery || 0} د</p>
-        <p><b>💵 الإجمالي الكلي: ${order.finalTotal || order.total} د</b></p>
-        <p>📍 العنوان: ${order.city}, ${order.address}</p>
-        <p>📅 التاريخ: ${order.date}</p>
-        <p>📌 الحالة: <span class="status">${order.status || "قيد التنفيذ"}</span></p>
-        ${actionBtn}
-      `;
-      container.appendChild(div);
+            let actionBtn = "";
+            if(order.status === "تم الحذف من الزبون"){
+                actionBtn = `<button class="btn-restore" onclick="restoreOrder('${orderId}')">♻ إعادة إرسال الطلب</button>`;
+            } else if(order.status !== "قيد التوصيل" && order.status !== "تم التسليم"){
+                actionBtn = `<button class="btn-delete" onclick="deleteOrder('${orderId}')">🗑 حذف الطلب</button>`;
+            }
+
+            let orderDiv = document.createElement("div");
+            orderDiv.className = "order";
+            orderDiv.innerHTML = `
+                <h3>🛍 المنتجات:</h3>
+                ${itemsHtml}
+                <p>🚚 سعر التوصيل: ${order.delivery || 0} د</p>
+                <p><b>💵 الإجمالي الكلي: ${order.finalTotal || order.total || 0} د</b></p>
+                <p>📍 العنوان: ${order.city || 'غير محدد'}, ${order.address || 'غير محدد'}</p>
+                <p>📅 التاريخ: ${order.date || 'غير محدد'}</p>
+                <p>📌 الحالة: <span class="status">${order.status || "قيد التنفيذ"}</span></p>
+                ${actionBtn}
+                <hr>
+                <small>رقم الطلب: ${orderId}</small>
+            `;
+            container.appendChild(orderDiv);
+        });
+    })
+    .catch(error => {
+        console.error("خطأ في جلب البيانات:", error);
+        document.getElementById("orders").innerHTML = 
+            "<p style='text-align:center; color:red;'>❌ خطأ في الاتصال بقاعدة البيانات. تأكد من إعدادات Firebase.</p>";
     });
-  });
 }
 </script>
 
