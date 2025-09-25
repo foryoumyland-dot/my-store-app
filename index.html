@@ -14,7 +14,7 @@
             --light-color: #fff0f6;
             --text-color: #4a1e35;
             --success-color: #28a745;
-            --edit-color: #ffc107;
+            --danger-color: #dc3545;
         }
 
         * {
@@ -37,8 +37,6 @@
             animation: gradientBG 15s ease infinite; 
             font-family: 'Segoe UI', Tahoma, sans-serif;
             overflow: hidden;
-            touch-action: manipulation;
-            -webkit-text-size-adjust: 100%;
         }
 
         @keyframes gradientBG {
@@ -64,35 +62,18 @@
             width:150px; 
             height: 150px;
             margin-bottom:20px; 
-            transform: scale(0); 
-            animation: popIn 1.5s forwards; 
             border-radius: 50%;
             box-shadow: 0 0 20px rgba(214, 51, 132, 0.3);
             object-fit: cover;
         }
 
-        @keyframes popIn {
-            0% { transform:scale(0); opacity:0; }
-            50% { transform:scale(1.2); opacity:1; }
-            100% { transform:scale(1); opacity:1; }
-        }
-
         .welcome-text { 
-            font-size:clamp(1.4rem, 4vw, 2rem); 
+            font-size: 2rem; 
             font-weight:bold; 
-            color:var(--text-color); 
+            color: var(--text-color); 
             margin-bottom:30px; 
-            opacity:0; 
-            animation: textPop 1.5s forwards; 
-            animation-delay:1s; 
-            text-shadow:0 0 6px rgba(255, 105, 180, 0.5), 0 0 12px rgba(255, 20, 147, 0.3);
+            text-shadow:0 0 6px rgba(255, 105, 180, 0.5);
             line-height: 1.6;
-        }
-
-        @keyframes textPop {
-            0% { opacity:0; transform:scale(0) translateY(20px); }
-            60% { opacity:1; transform:scale(1.1) translateY(0); }
-            100% { opacity:1; transform:scale(1) translateY(0); }
         }
 
         .login-btn { 
@@ -104,126 +85,116 @@
             border:none; 
             border-radius:50px; 
             cursor:pointer; 
-            opacity:0; 
-            transform: scale(0) translateY(20px); 
-            transition: all 0.5s ease; 
-            position: relative;
-            overflow: hidden;
             box-shadow: 0 4px 15px rgba(214, 51, 132, 0.4);
-            animation: glow 1.5s infinite alternate;
             margin: 10px;
         }
 
-        .login-btn.show { 
-            opacity:1; 
-            transform:scale(1) translateY(0);
-        }
-
-        .login-btn:focus {
-            outline: 2px solid white;
-            outline-offset: 2px;
-        }
-
-        .login-btn:hover {
-            transform: scale(1.05);
-            background-color: #c22574;
-        }
-
-        /* أزرار الواجهة بعد التسجيل */
-        .action-btn { 
-            padding:14px 35px; 
-            font-size:1.3rem; 
-            font-weight:bold; 
-            color:white; 
-            border:none; 
-            border-radius:50px; 
-            cursor:pointer; 
-            opacity:0; 
-            transform: scale(0) translateY(20px); 
-            transition: all 0.5s ease; 
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            margin: 10px;
-            display: inline-block;
-        }
-
-        .action-btn.show { 
-            opacity:1; 
-            transform:scale(1) translateY(0);
-        }
-
-        .action-btn:focus {
-            outline: 2px solid white;
-            outline-offset: 2px;
-        }
-
-        .action-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .shop-btn {
-            background-color: var(--success-color);
-        }
-
-        .shop-btn:hover {
-            background-color: #218838;
-        }
-
-        .edit-btn {
-            background-color: var(--edit-color);
-            color: #000;
-        }
-
-        .edit-btn:hover {
-            background-color: #e0a800;
-        }
-
-        .buttons-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        @keyframes glow {
-            0% { box-shadow:0 0 10px var(--primary-color), 0 0 20px var(--secondary-color); }
-            100% { box-shadow:0 0 25px var(--secondary-color), 0 0 50px var(--accent-color); }
-        }
-
-        /* تسجيل الدخول */
-        .login-form {
+        .settings-btn {
             position: fixed;
-            bottom: -100%;
+            top: 20px;
+            left: 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(214, 51, 132, 0.4);
+            z-index: 1000;
+        }
+
+        .account-menu {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 0;
+            z-index: 1001;
+            display: none;
+            min-width: 250px;
+        }
+
+        .account-menu.show {
+            display: block;
+        }
+
+        .menu-item {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            background: none;
+            text-align: right;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:hover {
+            background: var(--light-color);
+            color: var(--primary-color);
+        }
+
+        .menu-link {
+            color: var(--primary-color);
+            text-decoration: underline;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: block;
+            text-align: left;
+        }
+
+        .form-overlay {
+            position: fixed;
+            top: 0;
             left: 0;
             width: 100%;
-            background: white;
-            border-radius: 30px 30px 0 0;
-            box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
-            padding: 30px 20px;
-            transition: bottom 0.5s ease;
-            z-index: 100;
-            max-height: 80vh;
-            overflow-y: auto;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1002;
+            display: none;
+            justify-content: center;
+            align-items: center;
         }
 
-        .login-form.active {
-            bottom: 0;
+        .form-overlay.show {
+            display: flex;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .form-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
         }
 
         .form-title {
-            font-size: 1.5rem;
-            color: var(--primary-color);
+            color: var(--text-color);
+            font-size: 1.3rem;
             font-weight: bold;
         }
 
@@ -231,13 +202,8 @@
             background: none;
             border: none;
             font-size: 1.5rem;
-            color: #999;
             cursor: pointer;
-            transition: color 0.3s;
-        }
-
-        .close-btn:hover {
-            color: var(--primary-color);
+            color: #999;
         }
 
         .form-group {
@@ -258,7 +224,6 @@
             border: 2px solid #eee;
             border-radius: 10px;
             font-size: 1rem;
-            transition: border-color 0.3s;
         }
 
         .form-input:focus {
@@ -266,9 +231,18 @@
             outline: none;
         }
 
-        .save-btn {
+        .name-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .name-input {
+            flex: 1;
+        }
+
+        .submit-btn {
             width: 100%;
-            padding: 14px;
+            padding: 15px;
             background: var(--primary-color);
             color: white;
             border: none;
@@ -276,108 +250,19 @@
             font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.3s;
             margin-top: 10px;
         }
 
-        .save-btn:hover {
-            background: #c22574;
-        }
-
-        /* تنبيهات */
-        .alert {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            background: #f8d7da;
-            color: #721c24;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            z-index: 1000;
-            transform: translateX(150%);
-            transition: transform 0.4s ease;
-            max-width: 300px;
-        }
-
-        .alert.show {
-            transform: translateX(0);
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .back-btn {
             width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 99;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
-        }
-
-        .overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        /* تحسينات للجوال */
-        @media (max-width: 480px) {
-            .logo { 
-                width: 120px; 
-                height: 120px; 
-            }
-            
-            .welcome-text { 
-                font-size: 1.3rem; 
-                margin-bottom: 25px;
-            }
-            
-            .login-btn, .action-btn { 
-                padding: 12px 25px; 
-                font-size: 1.1rem; 
-            }
-            
-            .login-form {
-                padding: 25px 15px;
-            }
-            
-            .form-title {
-                font-size: 1.3rem;
-            }
-            
-            .buttons-container {
-                gap: 10px;
-            }
-        }
-
-        @media (min-width: 768px) {
-            .buttons-container {
-                flex-direction: row;
-                justify-content: center;
-            }
-        }
-
-        /* منع التحديد والنقر المزدوج */
-        * {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-
-        input, textarea {
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            user-select: text;
-        }
-
-        /* تحسين الأداء على iOS */
-        .logo, .login-btn, .action-btn {
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -385,213 +270,172 @@
 
 <div class="splash-screen">
     <div class="logo-container">
-        <img src="https://i.postimg.cc/d02y6Ytq/inbound8433832874347338360.png" class="logo" alt="متجر" loading="eager">
+        <img src="https://i.postimg.cc/d02y6Ytq/inbound8433832874347338360.png" class="logo" alt="متجر">
     </div>
-    <div class="welcome-text">✨ أهلاً وسهلاً بكِ في متجرك ✨</div>
-    
-    <!-- زر تسجيل الدخول (يظهر أولاً) -->
+    <div class="welcome-text">✨ أهلاً وسهلاً بك في متجرك ✨</div>
     <button class="login-btn" id="loginBtn">تسجيل الدخول</button>
-    
-    <!-- أزرار الواجهة بعد التسجيل -->
-    <div class="buttons-container" id="actionButtons">
-        <button class="action-btn shop-btn" id="goToShopBtn">🛍️ الدخول للمتجر</button>
-        <button class="action-btn edit-btn" id="editDataBtn">✏️ تعديل البيانات</button>
+</div>
+
+<button class="settings-btn" id="settingsBtn">⚙️</button>
+
+<div class="account-menu" id="accountMenu">
+    <button class="menu-item" id="loginMenuItem">تسجيل الدخول لحسابي</button>
+    <button class="menu-item" id="createAccountMenuItem">إنشاء حساب جديد</button>
+    <button class="menu-item" id="changePasswordMenuItem">تغيير كلمة السر</button>
+    <button class="menu-item" id="changeEmailMenuItem">تغيير البريد الإلكتروني</button>
+</div>
+
+<div class="form-overlay" id="loginOverlay">
+    <div class="form-container">
+        <div class="form-header">
+            <h3 class="form-title">تسجيل الدخول</h3>
+            <button class="close-btn" id="closeLogin">&times;</button>
+        </div>
+        <div class="form-group">
+            <label class="form-label">البريد الإلكتروني</label>
+            <input type="email" id="loginEmail" class="form-input" placeholder="بريدك الإلكتروني">
+        </div>
+        <div class="form-group">
+            <label class="form-label">كلمة السر</label>
+            <input type="password" id="loginPassword" class="form-input" placeholder="كلمة السر">
+            <button class="menu-link" id="forgotPasswordLink">هل نسيت كلمة السر؟</button>
+        </div>
+        <button class="submit-btn" id="loginSubmitBtn">تسجيل الدخول</button>
+        <button class="back-btn" id="backToMenuFromLogin">رجوع</button>
     </div>
 </div>
 
-<!-- نموذج تسجيل الدخول -->
-<div class="login-form" id="loginForm">
-    <div class="form-header">
-        <h2 class="form-title">تسجيل الدخول</h2>
-        <button class="close-btn" id="closeLoginForm">&times;</button>
+<div class="form-overlay" id="createAccountOverlay">
+    <div class="form-container">
+        <div class="form-header">
+            <h3 class="form-title">إنشاء حساب جديد</h3>
+            <button class="close-btn" id="closeCreateAccount">&times;</button>
+        </div>
+        <div class="form-group">
+            <label class="form-label">الاسم الكامل</label>
+            <div class="name-row">
+                <input type="text" id="firstName" class="form-input name-input" placeholder="الاسم">
+                <input type="text" id="lastName" class="form-input name-input" placeholder="اللقب">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">البريد الإلكتروني</label>
+            <input type="email" id="newEmail" class="form-input" placeholder="بريدك الإلكتروني">
+        </div>
+        <div class="form-group">
+            <label class="form-label">كلمة السر</label>
+            <input type="password" id="newPassword" class="form-input" placeholder="كلمة السر">
+        </div>
+        <div class="form-group">
+            <label class="form-label">تأكيد كلمة السر</label>
+            <input type="password" id="confirmPassword" class="form-input" placeholder="تأكيد كلمة السر">
+        </div>
+        <button class="submit-btn" id="createAccountBtn">إنشاء الحساب</button>
+        <button class="back-btn" id="backToMenuFromCreate">رجوع</button>
     </div>
-    <div class="form-group">
-        <label for="name" class="form-label">الاسم الكامل</label>
-        <input type="text" id="name" class="form-input" placeholder="أدخل اسمك الكامل">
-    </div>
-    <div class="form-group">
-        <label for="phone" class="form-label">رقم الهاتف</label>
-        <input type="tel" id="phone" class="form-input" placeholder="أدخل رقم هاتفك">
-    </div>
-    <div class="form-group">
-        <label for="city" class="form-label">المدينة</label>
-        <input type="text" id="city" class="form-input" placeholder="أدخل مدينتك">
-    </div>
-    <div class="form-group">
-        <label for="address" class="form-label">العنوان</label>
-        <input type="text" id="address" class="form-input" placeholder="أدخل عنوانك بالتفصيل">
-    </div>
-    <button class="save-btn" id="saveBtn">حفظ البيانات</button>
 </div>
-
-<!-- طبقة التعتيم -->
-<div class="overlay" id="overlay"></div>
-
-<!-- تنبيه -->
-<div class="alert" id="alert"></div>
 
 <script>
-    // عناصر DOM
-    const loginBtn = document.getElementById('loginBtn');
-    const actionButtons = document.getElementById('actionButtons');
-    const goToShopBtn = document.getElementById('goToShopBtn');
-    const editDataBtn = document.getElementById('editDataBtn');
-    const loginForm = document.getElementById('loginForm');
-    const closeLoginForm = document.getElementById('closeLoginForm');
-    const saveBtn = document.getElementById('saveBtn');
-    const overlay = document.getElementById('overlay');
-    const alert = document.getElementById('alert');
-    
-    // حقول الإدخال
-    const nameInput = document.getElementById('name');
-    const phoneInput = document.getElementById('phone');
-    const cityInput = document.getElementById('city');
-    const addressInput = document.getElementById('address');
+// أيقونة الإعدادات دايماً ظاهرة
+document.getElementById('settingsBtn').style.display = 'block';
 
-    // تحسينات للأداء على الجوال
-    document.addEventListener('touchstart', function() {}, {passive: true});
-    
-    // منع التمرير غير المرغوب
-    document.addEventListener('touchmove', function(e) {
-        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-            e.preventDefault();
-        }
-    }, {passive: false});
+// زر تسجيل الدخول الرئيسي
+document.getElementById('loginBtn').addEventListener('click', function() {
+    alert('يجب إنشاء حساب أولاً للدخول إلى المتجر');
+});
 
-    // التحقق من البيانات المحفوظة عند تحميل الصفحة
-    function checkSavedData() {
-        if (localStorage.getItem("userData")) {
-            // إخفاء زر تسجيل الدخول وإظهار أزرار الواجهة
-            loginBtn.style.display = 'none';
-            showActionButtons();
-        }
+// فتح قائمة الحساب
+document.getElementById('settingsBtn').addEventListener('click', function() {
+    document.getElementById('accountMenu').classList.toggle('show');
+});
+
+// تسجيل الدخول من القائمة
+document.getElementById('loginMenuItem').addEventListener('click', function() {
+    document.getElementById('accountMenu').classList.remove('show');
+    document.getElementById('loginOverlay').classList.add('show');
+});
+
+// إنشاء حساب من القائمة
+document.getElementById('createAccountMenuItem').addEventListener('click', function() {
+    document.getElementById('accountMenu').classList.remove('show');
+    document.getElementById('createAccountOverlay').classList.add('show');
+});
+
+// تغيير كلمة السر
+document.getElementById('changePasswordMenuItem').addEventListener('click', function() {
+    alert('تغيير كلمة السر - سيتم تطويره قريباً');
+});
+
+// تغيير البريد الإلكتروني
+document.getElementById('changeEmailMenuItem').addEventListener('click', function() {
+    alert('تغيير البريد الإلكتروني - سيتم تطويره قريباً');
+});
+
+// نسيت كلمة السر
+document.getElementById('forgotPasswordLink').addEventListener('click', function() {
+    alert('نسيت كلمة السر - سيتم تطويره قريباً');
+});
+
+// إغلاق النماذج
+document.getElementById('closeLogin').addEventListener('click', function() {
+    document.getElementById('loginOverlay').classList.remove('show');
+});
+
+document.getElementById('closeCreateAccount').addEventListener('click', function() {
+    document.getElementById('createAccountOverlay').classList.remove('show');
+});
+
+// الرجوع من النماذج
+document.getElementById('backToMenuFromLogin').addEventListener('click', function() {
+    document.getElementById('loginOverlay').classList.remove('show');
+});
+
+document.getElementById('backToMenuFromCreate').addEventListener('click', function() {
+    document.getElementById('createAccountOverlay').classList.remove('show');
+});
+
+// إنشاء حساب
+document.getElementById('createAccountBtn').addEventListener('click', function() {
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
+    const email = document.getElementById('newEmail').value;
+    const password = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    if (!firstName || !lastName || !email || !password || !confirmPassword) {
+        alert('يرجى ملء جميع الحقول');
+        return;
     }
 
-    // إظهار أزرار الواجهة
-    function showActionButtons() {
-        const buttons = actionButtons.querySelectorAll('.action-btn');
-        buttons.forEach((btn, index) => {
-            setTimeout(() => {
-                btn.classList.add('show');
-            }, index * 200); // تأخير متتالي للظهور
-        });
+    if (password !== confirmPassword) {
+        alert('كلمات السر غير متطابقة');
+        return;
     }
 
-    // إخفاء أزرار الواجهة
-    function hideActionButtons() {
-        const buttons = actionButtons.querySelectorAll('.action-btn');
-        buttons.forEach(btn => {
-            btn.classList.remove('show');
-        });
+    alert('تم إنشاء الحساب بنجاح! سيتم إضافة النظام الكامل قريباً');
+    document.getElementById('createAccountOverlay').classList.remove('show');
+});
+
+// تسجيل الدخول
+document.getElementById('loginSubmitBtn').addEventListener('click', function() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    if (!email || !password) {
+        alert('يرجى ملء جميع الحقول');
+        return;
     }
 
-    // إظهار زر تسجيل الدخول بعد 4 ثواني والتحقق من البيانات
-    setTimeout(() => { 
-        loginBtn.classList.add('show'); 
-        checkSavedData();
-    }, 4000);
+    alert('تم تسجيل الدخول بنجاح! سيتم إضافة النظام الكامل قريباً');
+    document.getElementById('loginOverlay').classList.remove('show');
+});
 
-    // فتح نموذج تسجيل الدخول
-    loginBtn.addEventListener('click', () => {
-        loginForm.classList.add('active');
-        overlay.classList.add('active');
-    });
-
-    // إغلاق نموذج تسجيل الدخول
-    closeLoginForm.addEventListener('click', closeLogin);
-    overlay.addEventListener('click', closeLogin);
-
-    function closeLogin() {
-        loginForm.classList.remove('active');
-        overlay.classList.remove('active');
-        
-        // إذا كان المستخدم مسجلاً، نعيد إظهار الأزرار عند إغلاق النموذج
-        if (localStorage.getItem("userData")) {
-            setTimeout(() => {
-                showActionButtons();
-            }, 300);
-        }
+// إغلاق القائمة عند النقر خارجها
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.account-menu') && !event.target.closest('.settings-btn')) {
+        document.getElementById('accountMenu').classList.remove('show');
     }
-
-    // حفظ البيانات
-    saveBtn.addEventListener('click', () => {
-        // التحقق من تعبئة جميع الحقول
-        if (!nameInput.value || !phoneInput.value || !cityInput.value || !addressInput.value) {
-            showAlert('يرجى تعبئة جميع الحقول المطلوبة');
-            return;
-        }
-
-        // حفظ البيانات في localStorage
-        const userData = {
-            name: nameInput.value,
-            phone: phoneInput.value,
-            city: cityInput.value,
-            address: addressInput.value
-        };
-        
-        localStorage.setItem("userData", JSON.stringify(userData));
-        localStorage.setItem("loggedIn", "true");
-        
-        // إغلاق النموذج وإظهار أزرار الواجهة
-        closeLogin();
-        loginBtn.style.display = 'none';
-        setTimeout(() => {
-            showActionButtons();
-        }, 300);
-        
-        showAlert('تم حفظ بياناتك بنجاح', 'success');
-    });
-
-    // الانتقال إلى المتجر
-    goToShopBtn.addEventListener('click', () => {
-        // إضافة تأثير تحميل قبل الانتقال
-        overlay.classList.add('active');
-        setTimeout(() => {
-            window.location.href = "home.html";
-        }, 500);
-    });
-
-    // تعديل البيانات
-    editDataBtn.addEventListener('click', () => {
-        // تحميل البيانات المحفوظة في الحقول
-        if (localStorage.getItem("userData")) {
-            const userData = JSON.parse(localStorage.getItem("userData"));
-            nameInput.value = userData.name;
-            phoneInput.value = userData.phone;
-            cityInput.value = userData.city;
-            addressInput.value = userData.address;
-        }
-        
-        // إخفاء أزرار الواجهة مؤقتاً
-        hideActionButtons();
-        
-        // فتح نموذج التسجيل
-        loginForm.classList.add('active');
-        overlay.classList.add('active');
-    });
-
-    // وظيفة عرض التنبيهات
-    function showAlert(message, type = 'error') {
-        alert.textContent = message;
-        alert.classList.add('show');
-        
-        if (type === 'success') {
-            alert.style.background = '#d4edda';
-            alert.style.color = '#155724';
-        } else {
-            alert.style.background = '#f8d7da';
-            alert.style.color = '#721c24';
-        }
-        
-        setTimeout(() => {
-            alert.classList.remove('show');
-        }, 3000);
-    }
-
-    // تحسين الأداء على iOS
-    if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
-        document.body.style.webkitBackfaceVisibility = 'hidden';
-    }
+});
 </script>
 
 </body>
