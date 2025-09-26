@@ -615,6 +615,9 @@
     <div class="notification" id="notification"></div>
 
     <script>
+        // ============ قاعدة API الجديدة ============
+        const API_BASE = 'https://my-store-backend.onrender.com/api';
+
         // ============ متغيرات عامة ============
         let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
         let verificationEmail = '';
@@ -930,7 +933,7 @@
         // ============ وظائف API ============
         async function checkEmailExists(email) {
             try {
-                const response = await fetch('/api/check-email', {
+                const response = await fetch(API_BASE + '/check-email', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -948,7 +951,7 @@
 
         async function sendVerificationCode(email, firstName, lastName) {
             try {
-                const response = await fetch('/api/send-verification', {
+                const response = await fetch(API_BASE + '/send-verification', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -979,7 +982,7 @@
             }
 
             try {
-                const response = await fetch('/api/verify-account', {
+                const response = await fetch(API_BASE + '/verify-account', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1020,7 +1023,7 @@
             }
 
             try {
-                const response = await fetch('/api/login', {
+                const response = await fetch(API_BASE + '/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1057,7 +1060,7 @@
             }
 
             try {
-                const response = await fetch('/api/forgot-password', {
+                const response = await fetch(API_BASE + '/forgot-password', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1107,7 +1110,7 @@
             }
 
             try {
-                const response = await fetch('/api/reset-password', {
+                const response = await fetch(API_BASE + '/reset-password', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
