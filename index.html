@@ -1,1204 +1,192 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر - ترحيب</title>
-    <style>
-        :root {
-            --primary-color: #d63384;
-            --secondary-color: #ff69b4;
-            --accent-color: #ff1493;
-            --light-color: #fff0f6;
-            --text-color: #4a1e35;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(270deg, #fff0f6, #ffd6e8, #f9c1dc, #ffd6e8, #fff0f6);
-            background-size: 1000% 1000%;
-            animation: gradientBG 15s ease infinite;
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            overflow: hidden;
-        }
-
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .splash-screen {
-            text-align: center;
-            position: relative;
-            max-width: 90%;
-            width: 100%;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 1s ease forwards 0.5s;
-        }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .logo-container {
-            position: relative;
-            display: inline-block;
-            margin-bottom: 30px;
-            opacity: 0;
-            transform: scale(0.8);
-            animation: popIn 0.8s ease forwards 0.2s;
-        }
-
-        @keyframes popIn {
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .logo {
-            width: 150px;
-            height: 150px;
-            margin-bottom: 20px;
-            border-radius: 50%;
-            box-shadow: 0 0 20px rgba(214, 51, 132, 0.3);
-            object-fit: cover;
-        }
-
-        .welcome-text {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--text-color);
-            margin-bottom: 30px;
-            text-shadow: 0 0 6px rgba(255, 105, 180, 0.5);
-            line-height: 1.6;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 1s ease forwards 0.8s;
-        }
-
-        .login-btn {
-            padding: 14px 35px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: white;
-            background-color: var(--primary-color);
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(214, 51, 132, 0.4);
-            margin: 10px;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 1s ease forwards 1s;
-        }
-
-        .settings-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 1.3rem;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(214, 51, 132, 0.4);
-            z-index: 1000;
-            opacity: 0;
-            transform: scale(0);
-            animation: popIn 0.5s ease forwards 1.5s;
-        }
-
-        .account-menu {
-            position: fixed;
-            top: 80px;
-            left: 20px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            padding: 0;
-            z-index: 1001;
-            display: none;
-            min-width: 250px;
-        }
-
-        .account-menu.show {
-            display: block;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .menu-item {
-            display: block;
-            width: 100%;
-            padding: 15px 20px;
-            border: none;
-            background: none;
-            text-align: right;
-            cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
-            color: var(--text-color);
-            font-size: 1rem;
-            transition: all 0.3s;
-            text-decoration: none;
-        }
-
-        .menu-item:last-child {
-            border-bottom: none;
-        }
-
-        .menu-item:hover {
-            background: var(--light-color);
-            color: var(--primary-color);
-        }
-
-        .menu-link {
-            color: var(--primary-color);
-            text-decoration: underline;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            display: block;
-            text-align: left;
-        }
-
-        .form-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1002;
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .form-overlay.show {
-            display: flex;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .form-container {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            width: 90%;
-            max-width: 400px;
-            max-height: 80vh;
-            overflow-y: auto;
-            animation: scaleIn 0.3s ease;
-        }
-
-        @keyframes scaleIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .form-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .form-title {
-            color: var(--text-color);
-            font-size: 1.3rem;
-            font-weight: bold;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #999;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            text-align: right;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: var(--text-color);
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #eee;
-            border-radius: 10px;
-            font-size: 1rem;
-        }
-
-        .form-input:focus {
-            border-color: var(--primary-color);
-            outline: none;
-        }
-
-        .name-row {
-            display: flex;
-            gap: 10px;
-        }
-
-        .name-input {
-            flex: 1;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.3s;
-        }
-
-        .submit-btn:hover {
-            background: var(--accent-color);
-        }
-
-        .back-btn {
-            width: 100%;
-            padding: 12px;
-            background: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.3s;
-        }
-
-        .back-btn:hover {
-            background: #5a6268;
-        }
-
-        .user-info {
-            padding: 15px 20px;
-            border-bottom: 1px solid #f0f0f0;
-            text-align: right;
-        }
-
-        .user-name {
-            font-weight: bold;
-            color: var(--text-color);
-            margin-bottom: 5px;
-        }
-
-        .user-email {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 10px;
-            color: white;
-            font-weight: bold;
-            z-index: 2000;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
-
-        .notification.success {
-            background-color: var(--success-color);
-        }
-
-        .notification.error {
-            background-color: var(--danger-color);
-        }
-
-        .notification.info {
-            background-color: var(--primary-color);
-        }
-
-        .verification-step {
-            display: none;
-        }
-
-        .verification-step.active {
-            display: block;
-        }
-
-        .code-inputs {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .code-input {
-            width: 50px;
-            height: 50px;
-            text-align: center;
-            font-size: 1.5rem;
-            border: 2px solid #eee;
-            border-radius: 10px;
-        }
-
-        .code-input:focus {
-            border-color: var(--primary-color);
-            outline: none;
-        }
-
-        .resend-code {
-            color: var(--primary-color);
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            text-decoration: underline;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>متجرك - تسجيل / OTP / نسيت كلمة السر</title>
+<style>
+  body { margin:0; font-family:Arial; height:100vh; display:flex; justify-content:center; align-items:center; background:linear-gradient(135deg,#ffe6f0,#ffccf2); overflow:hidden; position:relative;}
+  .icon-container {width:150px;height:150px;border-radius:50%;background:radial-gradient(circle, rgba(255,182,193,0.4) 0%, rgba(255,182,193,0) 70%);display:flex;justify-content:center;align-items:center;animation:glowPulse 2s infinite alternate; position:relative; opacity:0; transform:scale(0); animation:iconAppear 1s forwards;}
+  .icon-container img{width:80px;height:80px;border-radius:50%;}
+  @keyframes glowPulse{0%{box-shadow:0 0 10px #ff69b4,0 0 20px #ff69b4;}100%{box-shadow:0 0 20px #ff69b4,0 0 40px #ff69b4;}}
+  @keyframes iconAppear{0%{opacity:0; transform:scale(0);}100%{opacity:1; transform:scale(1);}}
+  .welcome-text{margin-top:20px; font-size:24px; color:#ff1493; opacity:0; animation:fadeIn 1s forwards; animation-delay:1s; text-align:center;}
+  @keyframes fadeIn{0%{opacity:0; transform:translateY(20px);}100%{opacity:1; transform:translateY(0);}}
+  .main-btn{margin-top:30px; padding:12px 25px; font-size:18px; background:#ff69b4; border:none; border-radius:30px; color:white; cursor:pointer; opacity:0; animation:fadeIn 1s forwards; animation-delay:2s; box-shadow:0 0 10px #ff69b4,0 0 20px #ff1493; transition:0.3s;}
+  .main-btn:hover{box-shadow:0 0 20px #ff69b4,0 0 30px #ff1493;}
+  .settings-icon{position:absolute; top:20px; left:20px; width:35px; height:35px; cursor:pointer; opacity:0.8; transition:0.3s;}
+  .settings-icon:hover{opacity:1;}
+  .settings-menu{position:absolute; top:60px; left:20px; background:#ffccf2; border-radius:15px; padding:10px; display:none; flex-direction:column; box-shadow:0 0 15px rgba(255,105,180,0.4);}
+  .settings-menu button{background:#ff69b4; border:none; margin:5px 0; padding:10px; border-radius:20px; color:white; font-weight:bold; cursor:pointer; transition:0.3s;}
+  .settings-menu button:hover{background:#ff1493;}
+  .alert{position:absolute; top:20px; right:20px; background:#ff69b4; color:white; padding:12px 20px; border-radius:15px; box-shadow:0 0 15px rgba(255,105,180,0.4); display:none; animation: fadeInAlert 0.5s forwards;}
+  @keyframes fadeInAlert{0%{opacity:0; transform:translateY(-20px);}100%{opacity:1; transform:translateY(0);}}
+  .form-container{position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:#ffe6f0; padding:30px; border-radius:25px; box-shadow:0 0 20px rgba(255,105,180,0.3); display:none; flex-direction:column; width:300px; text-align:center;}
+  .form-container input{width:100%; padding:10px; margin:10px 0; border-radius:15px; border:1px solid #ff69b4; outline:none;}
+  .form-container button{padding:10px; width:100%; margin-top:10px; border-radius:20px; border:none; background:#ff69b4; color:white; font-weight:bold; cursor:pointer; transition:0.3s;}
+  .form-container button:hover{background:#ff1493;}
+</style>
 </head>
 <body>
-    <div class="splash-screen">
-        <div class="logo-container">
-            <img src="https://i.postimg.cc/d02y6Ytq/inbound8433832874347338360.png" class="logo" alt="متجر">
-        </div>
-        <div class="welcome-text">✨ أهلاً وسهلاً بك في متجرك ✨</div>
-        <button class="login-btn" id="loginBtn">تسجيل الدخول</button>
-    </div>
 
-    <button class="settings-btn" id="settingsBtn">⚙️</button>
+<img src="https://cdn-icons-png.flaticon.com/512/2099/2099058.png" alt="Settings" class="settings-icon" id="settingsIcon">
 
-    <div class="account-menu" id="accountMenu">
-        <!-- محتوى القائمة سيتم تحديثه ديناميكياً -->
-    </div>
+<div class="settings-menu" id="settingsMenu">
+  <button id="loginOption">تسجيل الدخول لحسابي</button>
+  <button id="registerOption">إنشاء حساب جديد</button>
+  <button id="forgotOption">نسيت كلمة السر</button>
+</div>
 
-    <!-- نموذج تسجيل الدخول -->
-    <div class="form-overlay" id="loginOverlay">
-        <div class="form-container">
-            <div class="form-header">
-                <h3 class="form-title">تسجيل الدخول</h3>
-                <button class="close-btn" id="closeLogin">&times;</button>
-            </div>
-            <div class="form-group">
-                <label class="form-label">البريد الإلكتروني</label>
-                <input type="email" id="loginEmail" class="form-input" placeholder="بريدك الإلكتروني">
-            </div>
-            <div class="form-group">
-                <label class="form-label">كلمة السر</label>
-                <input type="password" id="loginPassword" class="form-input" placeholder="كلمة السر">
-                <button class="menu-link" id="forgotPasswordLink">هل نسيت كلمة السر؟</button>
-            </div>
-            <button class="submit-btn" id="loginSubmitBtn">تسجيل الدخول</button>
-            <button class="back-btn" id="backToMenuFromLogin">رجوع</button>
-        </div>
-    </div>
+<div class="icon-container">
+  <img src="https://i.postimg.cc/3xmTSg97/inbound5374025697823546026.jpg" alt="Logo">
+</div>
 
-    <!-- نموذج إنشاء حساب جديد -->
-    <div class="form-overlay" id="createAccountOverlay">
-        <div class="form-container">
-            <div class="form-header">
-                <h3 class="form-title">إنشاء حساب جديد</h3>
-                <button class="close-btn" id="closeCreateAccount">&times;</button>
-            </div>
-            
-            <!-- الخطوة 1: إدخال البيانات الأساسية -->
-            <div class="verification-step active" id="step1">
-                <div class="form-group">
-                    <label class="form-label">الاسم الكامل</label>
-                    <div class="name-row">
-                        <input type="text" id="firstName" class="form-input name-input" placeholder="الاسم">
-                        <input type="text" id="lastName" class="form-input name-input" placeholder="اللقب">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">البريد الإلكتروني</label>
-                    <input type="email" id="newEmail" class="form-input" placeholder="بريدك الإلكتروني">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">كلمة السر</label>
-                    <input type="password" id="newPassword" class="form-input" placeholder="كلمة السر">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">تأكيد كلمة السر</label>
-                    <input type="password" id="confirmPassword" class="form-input" placeholder="تأكيد كلمة السر">
-                </div>
-                <button class="submit-btn" id="nextToVerification">التالي</button>
-                <button class="back-btn" id="backToMenuFromCreate">رجوع</button>
-            </div>
-            
-            <!-- الخطوة 2: إدخال كود التحقق -->
-            <div class="verification-step" id="step2">
-                <div class="form-group">
-                    <label class="form-label">أدخل رمز التحقق المرسل إلى بريدك الإلكتروني</label>
-                    <div class="code-inputs">
-                        <input type="text" maxlength="1" class="code-input" id="code1">
-                        <input type="text" maxlength="1" class="code-input" id="code2">
-                        <input type="text" maxlength="1" class="code-input" id="code3">
-                        <input type="text" maxlength="1" class="code-input" id="code4">
-                        <input type="text" maxlength="1" class="code-input" id="code5">
-                        <input type="text" maxlength="1" class="code-input" id="code6">
-                    </div>
-                    <button class="resend-code" id="resendCode">إعادة إرسال الرمز</button>
-                </div>
-                <button class="submit-btn" id="verifyAccountBtn">تفعيل الحساب</button>
-                <button class="back-btn" id="backToStep1">رجوع</button>
-            </div>
-        </div>
-    </div>
+<div class="welcome-text">مرحبٱ بك في متجرك</div>
 
-    <!-- نموذج نسيت كلمة السر -->
-    <div class="form-overlay" id="forgotPasswordOverlay">
-        <div class="form-container">
-            <div class="form-header">
-                <h3 class="form-title">استعادة كلمة السر</h3>
-                <button class="close-btn" id="closeForgotPassword">&times;</button>
-            </div>
-            
-            <!-- الخطوة 1: إدخال البريد الإلكتروني -->
-            <div class="verification-step active" id="forgotStep1">
-                <div class="form-group">
-                    <label class="form-label">أدخل بريدك الإلكتروني</label>
-                    <input type="email" id="forgotEmail" class="form-input" placeholder="بريدك الإلكتروني">
-                </div>
-                <button class="submit-btn" id="sendResetCode">إرسال رمز الاستعادة</button>
-                <button class="back-btn" id="backToLoginFromForgot">رجوع</button>
-            </div>
-            
-            <!-- الخطوة 2: إدخال كود الاستعادة -->
-            <div class="verification-step" id="forgotStep2">
-                <div class="form-group">
-                    <label class="form-label">أدخل رمز الاستعادة المرسل إلى بريدك الإلكتروني</label>
-                    <div class="code-inputs">
-                        <input type="text" maxlength="1" class="code-input" id="resetCode1">
-                        <input type="text" maxlength="1" class="code-input" id="resetCode2">
-                        <input type="text" maxlength="1" class="code-input" id="resetCode3">
-                        <input type="text" maxlength="1" class="code-input" id="resetCode4">
-                        <input type="text" maxlength="1" class="code-input" id="resetCode5">
-                        <input type="text" maxlength="1" class="code-input" id="resetCode6">
-                    </div>
-                    <button class="resend-code" id="resendResetCode">إعادة إرسال الرمز</button>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">كلمة السر الجديدة</label>
-                    <input type="password" id="newResetPassword" class="form-input" placeholder="كلمة السر الجديدة">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">تأكيد كلمة السر الجديدة</label>
-                    <input type="password" id="confirmResetPassword" class="form-input" placeholder="تأكيد كلمة السر الجديدة">
-                </div>
-                <button class="submit-btn" id="resetPasswordBtn">تغيير كلمة السر</button>
-                <button class="back-btn" id="backToForgotStep1">رجوع</button>
-            </div>
-        </div>
-    </div>
+<button class="main-btn" id="mainLoginBtn">تسجيل الدخول</button>
 
-    <!-- نموذج تغيير كلمة السر -->
-    <div class="form-overlay" id="changePasswordOverlay">
-        <div class="form-container">
-            <div class="form-header">
-                <h3 class="form-title">تغيير كلمة السر</h3>
-                <button class="close-btn" id="closeChangePassword">&times;</button>
-            </div>
-            <div class="form-group">
-                <label class="form-label">كلمة السر الحالية</label>
-                <input type="password" id="currentPassword" class="form-input" placeholder="كلمة السر الحالية">
-            </div>
-            <div class="form-group">
-                <label class="form-label">كلمة السر الجديدة</label>
-                <input type="password" id="newChangePassword" class="form-input" placeholder="كلمة السر الجديدة">
-            </div>
-            <div class="form-group">
-                <label class="form-label">تأكيد كلمة السر الجديدة</label>
-                <input type="password" id="confirmChangePassword" class="form-input" placeholder="تأكيد كلمة السر الجديدة">
-            </div>
-            <button class="submit-btn" id="changePasswordBtn">تغيير كلمة السر</button>
-            <button class="back-btn" id="backToMenuFromChangePassword">رجوع</button>
-        </div>
-    </div>
+<div class="alert" id="alertBox">يجب إنشاء حساب أولا!</div>
 
-    <!-- نموذج تغيير البريد الإلكتروني -->
-    <div class="form-overlay" id="changeEmailOverlay">
-        <div class="form-container">
-            <div class="form-header">
-                <h3 class="form-title">تغيير البريد الإلكتروني</h3>
-                <button class="close-btn" id="closeChangeEmail">&times;</button>
-            </div>
-            <div class="form-group">
-                <label class="form-label">البريد الإلكتروني الجديد</label>
-                <input type="email" id="newEmailAddress" class="form-input" placeholder="البريد الإلكتروني الجديد">
-            </div>
-            <div class="form-group">
-                <label class="form-label">كلمة السر الحالية</label>
-                <input type="password" id="currentEmailPassword" class="form-input" placeholder="كلمة السر الحالية">
-            </div>
-            <button class="submit-btn" id="changeEmailBtn">تغيير البريد الإلكتروني</button>
-            <button class="back-btn" id="backToMenuFromChangeEmail">رجوع</button>
-        </div>
-    </div>
+<!-- نماذج -->
+<div class="form-container" id="loginForm">
+  <h3>تسجيل الدخول</h3>
+  <input type="email" id="loginEmail" placeholder="البريد الإلكتروني">
+  <input type="password" id="loginPassword" placeholder="كلمة المرور">
+  <button id="submitLogin">دخول</button>
+</div>
 
-    <!-- منطقة الإشعارات -->
-    <div class="notification" id="notification"></div>
+<div class="form-container" id="registerForm">
+  <h3>إنشاء حساب جديد</h3>
+  <input type="email" id="registerEmail" placeholder="البريد الإلكتروني">
+  <input type="password" id="registerPassword" placeholder="كلمة المرور">
+  <button id="submitRegister">إنشاء حساب</button>
+</div>
 
-    <script>
-        // ============ قاعدة API الجديدة ============
-        const API_BASE = 'https://my-store-backend-555k.onrender.com/api';
+<div class="form-container" id="otpForm">
+  <h3>أدخل رمز التحقق (OTP)</h3>
+  <input type="text" id="otpInput" placeholder="رمز التحقق">
+  <button id="submitOTP">تحقق</button>
+</div>
 
-        // ============ متغيرات عامة ============
-        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
-        let verificationEmail = '';
-        let verificationFirstName = '';
-        let verificationLastName = '';
-        let verificationPassword = '';
+<div class="form-container" id="forgotForm">
+  <h3>نسيت كلمة السر</h3>
+  <input type="email" id="forgotEmail" placeholder="البريد الإلكتروني">
+  <button id="submitForgot">إرسال OTP</button>
+</div>
 
-        // ============ تهيئة الصفحة ============
-        document.addEventListener('DOMContentLoaded', function() {
-            // تحديث واجهة المستخدم بناءً على حالة تسجيل الدخول
-            updateUI();
-            
-            // إعداد مستمعي الأحداث
-            setupEventListeners();
-            
-            // إعداد إدخال الرموز
-            setupCodeInputs();
+<div class="form-container" id="resetForm">
+  <h3>إعادة تعيين كلمة المرور</h3>
+  <input type="text" id="resetOTP" placeholder="رمز التحقق">
+  <input type="password" id="newPassword" placeholder="كلمة المرور الجديدة">
+  <button id="submitReset">تغيير كلمة السر</button>
+</div>
+
+<script>
+const mainLoginBtn = document.getElementById('mainLoginBtn');
+const alertBox = document.getElementById('alertBox');
+const settingsIcon = document.getElementById('settingsIcon');
+const settingsMenu = document.getElementById('settingsMenu');
+const loginOption = document.getElementById('loginOption');
+const registerOption = document.getElementById('registerOption');
+const forgotOption = document.getElementById('forgotOption');
+
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
+const otpForm = document.getElementById('otpForm');
+const forgotForm = document.getElementById('forgotForm');
+const resetForm = document.getElementById('resetForm');
+
+// القائمة
+mainLoginBtn.addEventListener('click', ()=>{ alertBox.style.display='block'; setTimeout(()=>{alertBox.style.display='none';},2500); });
+settingsIcon.addEventListener('click', ()=>{ settingsMenu.style.display = settingsMenu.style.display==='flex'?'none':'flex'; });
+loginOption.addEventListener('click', ()=>{ loginForm.style.display='flex'; registerForm.style.display='none'; otpForm.style.display='none'; forgotForm.style.display='none'; resetForm.style.display='none'; settingsMenu.style.display='none'; });
+registerOption.addEventListener('click', ()=>{ registerForm.style.display='flex'; loginForm.style.display='none'; otpForm.style.display='none'; forgotForm.style.display='none'; resetForm.style.display='none'; settingsMenu.style.display='none'; });
+forgotOption.addEventListener('click', ()=>{ forgotForm.style.display='flex'; loginForm.style.display='none'; registerForm.style.display='none'; otpForm.style.display='none'; resetForm.style.display='none'; settingsMenu.style.display='none'; });
+
+// تسجيل الدخول
+document.getElementById('submitLogin').addEventListener('click', async ()=>{
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    if(!email||!password){ alert('أدخل البريد وكلمة المرور'); return; }
+    try{
+        const res = await fetch('http://localhost:3000/login',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({email,password})
         });
+        const data = await res.json();
+        alert(data.message||data.error);
+    }catch(err){ alert('خطأ في الاتصال بالخادم'); console.error(err);}
+});
+
+// إنشاء حساب
+document.getElementById('submitRegister').addEventListener('click', async ()=>{
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    if(!email||!password){ alert('أدخل البريد وكلمة المرور'); return; }
+    try{
+        const res = await fetch('http://localhost:3000/register',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({email,password})
+        });
+        const data = await res.json();
+        if(data.message){ alert(data.message); registerForm.style.display='none'; otpForm.style.display='flex'; } 
+        else alert(data.error);
+    }catch(err){ alert('خطأ في الاتصال بالخادم'); console.error(err);}
+});
+
+// OTP تفعيل الحساب
+document.getElementById('submitOTP').addEventListener('click', async ()=>{
+    const email = document.getElementById('registerEmail').value;
+    const otp = document.getElementById('otpInput').value;
+    if(!otp){ alert('أدخل رمز التحقق'); return; }
+    try{
+        const res = await fetch('http://localhost:3000/verify',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({email,otp})
+        });
+        const data = await res.json();
+        if(data.message){ alert(data.message); otpForm.style.display='none'; loginForm.style.display='flex'; } 
+        else alert(data.error);
+    }catch(err){ alert('خطأ في الاتصال بالخادم'); console.error(err);}
+});
+
+// نسيت كلمة السر
+document.getElementById('submitForgot').addEventListener('click', async ()=>{
+    const email = document.getElementById('forgotEmail').value;
+    if(!email){ alert('أدخل البريد'); return; }
+    try{
+        const res = await fetch('http://localhost:3000/forgot-password',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({email})
+        });
+        const data = await res.json();
+        if(data.message){ alert(data.message); forgotForm.style.display='none'; resetForm.style.display='flex'; } 
+        else alert(data.error);
+    }catch(err){ alert('خطأ في الاتصال بالخادم'); console.error(err);}
+});
+
+// إعادة تعيين كلمة السر
+document.getElementById('submitReset').addEventListener('click', async ()=>{
+    const email = document.getElementById('forgotEmail').value;
+    const otp = document.getElementById('resetOTP').value;
+    const newPassword = document.getElementById('newPassword').value;
+    if(!otp||!newPassword){ alert('أدخل كل الحقول'); return; }
+    try{
+        const res = await fetch('http://localhost:3000/reset-password',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({email,otp,newPassword})
+        });
+        const data = await res.json();
+        if(data.message){ alert(data.message); resetForm.style.display='none'; loginForm.style.display='flex'; } 
+        else alert(data.error);
+    }catch(err){ alert('خطأ في الاتصال بالخادم'); console.error(err);}
+});
+</script>
 
-        // ============ وظائف التحديث ============
-        function updateUI() {
-            const accountMenu = document.getElementById('accountMenu');
-            const settingsBtn = document.getElementById('settingsBtn');
-            
-            if (currentUser) {
-                // المستخدم مسجل دخول
-                accountMenu.innerHTML = `
-                    <div class="user-info">
-                        <div class="user-name">${currentUser.firstName} ${currentUser.lastName}</div>
-                        <div class="user-email">${currentUser.email}</div>
-                    </div>
-                    <button class="menu-item" id="changePasswordMenuItem">تغيير كلمة السر</button>
-                    <button class="menu-item" id="changeEmailMenuItem">تغيير البريد الإلكتروني</button>
-                    <button class="menu-item" id="logoutMenuItem">تسجيل الخروج</button>
-                `;
-                
-                // إعداد مستمعي الأحداث للقائمة الجديدة
-                document.getElementById('changePasswordMenuItem').addEventListener('click', showChangePasswordForm);
-                document.getElementById('changeEmailMenuItem').addEventListener('click', showChangeEmailForm);
-                document.getElementById('logoutMenuItem').addEventListener('click', logout);
-                
-                // إظهار زر الإعدادات
-                settingsBtn.style.display = 'block';
-            } else {
-                // المستخدم غير مسجل دخول
-                accountMenu.innerHTML = `
-                    <button class="menu-item" id="loginMenuItem">تسجيل الدخول لحسابي</button>
-                    <button class="menu-item" id="createAccountMenuItem">إنشاء حساب جديد</button>
-                `;
-                
-                // إعداد مستمعي الأحداث للقائمة الجديدة
-                document.getElementById('loginMenuItem').addEventListener('click', showLoginForm);
-                document.getElementById('createAccountMenuItem').addEventListener('click', showCreateAccountForm);
-                
-                // إظهار زر الإعدادات
-                settingsBtn.style.display = 'block';
-            }
-        }
-
-        // ============ إعداد مستمعي الأحداث ============
-        function setupEventListeners() {
-            // زر تسجيل الدخول الرئيسي
-            document.getElementById('loginBtn').addEventListener('click', function() {
-                if (currentUser) {
-                    // إذا كان المستخدم مسجل دخول، توجيه إلى الصفحة الرئيسية
-                    window.location.href = 'home.html';
-                } else {
-                    // إذا لم يكن مسجل دخول، إظهار رسالة
-                    showNotification('يجب إنشاء حساب أولاً للدخول إلى المتجر', 'info');
-                    document.getElementById('settingsBtn').style.animation = 'pulse 1s infinite';
-                    setTimeout(() => {
-                        document.getElementById('settingsBtn').style.animation = '';
-                    }, 3000);
-                }
-            });
-
-            // فتح/إغلاق قائمة الحساب
-            document.getElementById('settingsBtn').addEventListener('click', function() {
-                document.getElementById('accountMenu').classList.toggle('show');
-            });
-
-            // إغلاق القائمة عند النقر خارجها
-            document.addEventListener('click', function(event) {
-                if (!event.target.closest('.account-menu') && !event.target.closest('.settings-btn')) {
-                    document.getElementById('accountMenu').classList.remove('show');
-                }
-            });
-
-            // إغلاق النماذج
-            document.getElementById('closeLogin').addEventListener('click', closeLoginForm);
-            document.getElementById('closeCreateAccount').addEventListener('click', closeCreateAccountForm);
-            document.getElementById('closeForgotPassword').addEventListener('click', closeForgotPasswordForm);
-            document.getElementById('closeChangePassword').addEventListener('click', closeChangePasswordForm);
-            document.getElementById('closeChangeEmail').addEventListener('click', closeChangeEmailForm);
-
-            // الرجوع من النماذج
-            document.getElementById('backToMenuFromLogin').addEventListener('click', closeLoginForm);
-            document.getElementById('backToMenuFromCreate').addEventListener('click', closeCreateAccountForm);
-            document.getElementById('backToLoginFromForgot').addEventListener('click', backToLoginFromForgot);
-            document.getElementById('backToMenuFromChangePassword').addEventListener('click', closeChangePasswordForm);
-            document.getElementById('backToMenuFromChangeEmail').addEventListener('click', closeChangeEmailForm);
-
-            // التنقل بين خطوات إنشاء الحساب
-            document.getElementById('nextToVerification').addEventListener('click', nextToVerificationStep);
-            document.getElementById('backToStep1').addEventListener('click', backToStep1);
-            document.getElementById('verifyAccountBtn').addEventListener('click', verifyAccount);
-
-            // إعادة إرسال رمز التحقق
-            document.getElementById('resendCode').addEventListener('click', resendVerificationCode);
-
-            // نسيت كلمة السر
-            document.getElementById('forgotPasswordLink').addEventListener('click', showForgotPasswordForm);
-            document.getElementById('sendResetCode').addEventListener('click', sendResetCode);
-            document.getElementById('resetPasswordBtn').addEventListener('click', resetPassword);
-            document.getElementById('backToForgotStep1').addEventListener('click', backToForgotStep1);
-            document.getElementById('resendResetCode').addEventListener('click', resendResetCode);
-
-            // تسجيل الدخول
-            document.getElementById('loginSubmitBtn').addEventListener('click', login);
-
-            // تغيير كلمة السر
-            document.getElementById('changePasswordBtn').addEventListener('click', changePassword);
-
-            // تغيير البريد الإلكتروني
-            document.getElementById('changeEmailBtn').addEventListener('click', changeEmail);
-        }
-
-        // ============ وظائف إظهار النماذج ============
-        function showLoginForm() {
-            document.getElementById('accountMenu').classList.remove('show');
-            document.getElementById('loginOverlay').classList.add('show');
-        }
-
-        function showCreateAccountForm() {
-            document.getElementById('accountMenu').classList.remove('show');
-            document.getElementById('createAccountOverlay').classList.add('show');
-            // إعادة تعيين النموذج
-            document.getElementById('step1').classList.add('active');
-            document.getElementById('step2').classList.remove('active');
-            document.getElementById('firstName').value = '';
-            document.getElementById('lastName').value = '';
-            document.getElementById('newEmail').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
-            resetCodeInputs('code');
-        }
-
-        function showForgotPasswordForm() {
-            document.getElementById('loginOverlay').classList.remove('show');
-            document.getElementById('forgotPasswordOverlay').classList.add('show');
-            // إعادة تعيين النموذج
-            document.getElementById('forgotStep1').classList.add('active');
-            document.getElementById('forgotStep2').classList.remove('active');
-            document.getElementById('forgotEmail').value = '';
-            resetCodeInputs('resetCode');
-            document.getElementById('newResetPassword').value = '';
-            document.getElementById('confirmResetPassword').value = '';
-        }
-
-        function showChangePasswordForm() {
-            document.getElementById('accountMenu').classList.remove('show');
-            document.getElementById('changePasswordOverlay').classList.add('show');
-        }
-
-        function showChangeEmailForm() {
-            document.getElementById('accountMenu').classList.remove('show');
-            document.getElementById('changeEmailOverlay').classList.add('show');
-        }
-
-        // ============ وظائف إغلاق النماذج ============
-        function closeLoginForm() {
-            document.getElementById('loginOverlay').classList.remove('show');
-        }
-
-        function closeCreateAccountForm() {
-            document.getElementById('createAccountOverlay').classList.remove('show');
-        }
-
-        function closeForgotPasswordForm() {
-            document.getElementById('forgotPasswordOverlay').classList.remove('show');
-        }
-
-        function closeChangePasswordForm() {
-            document.getElementById('changePasswordOverlay').classList.remove('show');
-        }
-
-        function closeChangeEmailForm() {
-            document.getElementById('changeEmailOverlay').classList.remove('show');
-        }
-
-        function backToLoginFromForgot() {
-            document.getElementById('forgotPasswordOverlay').classList.remove('show');
-            document.getElementById('loginOverlay').classList.add('show');
-        }
-
-        // ============ وظائف التنقل بين الخطوات ============
-        function nextToVerificationStep() {
-            const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementById('lastName').value;
-            const email = document.getElementById('newEmail').value;
-            const password = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-
-            if (!firstName || !lastName || !email || !password || !confirmPassword) {
-                showNotification('يرجى ملء جميع الحقول', 'error');
-                return;
-            }
-
-            if (password !== confirmPassword) {
-                showNotification('كلمات السر غير متطابقة', 'error');
-                return;
-            }
-
-            if (password.length < 6) {
-                showNotification('كلمة السر يجب أن تكون 6 أحرف على الأقل', 'error');
-                return;
-            }
-
-            // التحقق من البريد الإلكتروني
-            checkEmailExists(email).then(exists => {
-                if (exists) {
-                    showNotification('البريد الإلكتروني مسجل مسبقاً', 'error');
-                    return;
-                }
-
-                // حفظ البيانات مؤقتاً
-                verificationEmail = email;
-                verificationFirstName = firstName;
-                verificationLastName = lastName;
-                verificationPassword = password;
-
-                // إرسال رمز التحقق
-                sendVerificationCode(email, firstName, lastName).then(success => {
-                    if (success) {
-                        // الانتقال إلى الخطوة التالية
-                        document.getElementById('step1').classList.remove('active');
-                        document.getElementById('step2').classList.add('active');
-                    } else {
-                        showNotification('فشل في إرسال رمز التحقق', 'error');
-                    }
-                });
-            });
-        }
-
-        function backToStep1() {
-            document.getElementById('step2').classList.remove('active');
-            document.getElementById('step1').classList.add('active');
-        }
-
-        function backToForgotStep1() {
-            document.getElementById('forgotStep2').classList.remove('active');
-            document.getElementById('forgotStep1').classList.add('active');
-        }
-
-        // ============ وظائف إدخال الرموز ============
-        function setupCodeInputs() {
-            // إعداد إدخال رمز التحقق
-            for (let i = 1; i <= 6; i++) {
-                const input = document.getElementById(`code${i}`);
-                input.addEventListener('input', function() {
-                    if (this.value.length === 1) {
-                        if (i < 6) {
-                            document.getElementById(`code${i+1}`).focus();
-                        }
-                    }
-                });
-                
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Backspace' && this.value.length === 0) {
-                        if (i > 1) {
-                            document.getElementById(`code${i-1}`).focus();
-                        }
-                    }
-                });
-            }
-
-            // إعداد إدخال رمز الاستعادة
-            for (let i = 1; i <= 6; i++) {
-                const input = document.getElementById(`resetCode${i}`);
-                input.addEventListener('input', function() {
-                    if (this.value.length === 1) {
-                        if (i < 6) {
-                            document.getElementById(`resetCode${i+1}`).focus();
-                        }
-                    }
-                });
-                
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Backspace' && this.value.length === 0) {
-                        if (i > 1) {
-                            document.getElementById(`resetCode${i-1}`).focus();
-                        }
-                    }
-                });
-            }
-        }
-
-        function resetCodeInputs(type) {
-            for (let i = 1; i <= 6; i++) {
-                document.getElementById(`${type}${i}`).value = '';
-            }
-            document.getElementById(`${type}1`).focus();
-        }
-
-        function getCode(type) {
-            let code = '';
-            for (let i = 1; i <= 6; i++) {
-                code += document.getElementById(`${type}${i}`).value;
-            }
-            return code;
-        }
-
-        // ============ وظائف API ============
-        async function checkEmailExists(email) {
-            try {
-                const response = await fetch(API_BASE + '/check-email', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email })
-                });
-                const data = await response.json();
-                return data.exists;
-            } catch (error) {
-                console.error('Error checking email:', error);
-                showNotification('خطأ في الاتصال بالخادم', 'error');
-                return false;
-            }
-        }
-
-        async function sendVerificationCode(email, firstName, lastName) {
-            try {
-                const response = await fetch(API_BASE + '/send-verification', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, firstName, lastName })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    showNotification('تم إرسال رمز التحقق إلى بريدك الإلكتروني', 'success');
-                    return true;
-                } else {
-                    showNotification('فشل في إرسال رمز التحقق', 'error');
-                    return false;
-                }
-            } catch (error) {
-                console.error('Error sending verification code:', error);
-                showNotification('خطأ في الاتصال بالخادم', 'error');
-                return false;
-            }
-        }
-
-        async function verifyAccount() {
-            const code = getCode('code');
-            
-            if (code.length !== 6) {
-                showNotification('يرجى إدخال رمز التحقق المكون من 6 أرقام', 'error');
-                return;
-            }
-
-            try {
-                const response = await fetch(API_BASE + '/verify-account', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: verificationEmail,
-                        code,
-                        firstName: verificationFirstName,
-                        lastName: verificationLastName,
-                        password: verificationPassword
-                    })
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    showNotification('تم إنشاء الحساب بنجاح!', 'success');
-                    // تسجيل الدخول تلقائياً
-                    currentUser = data.user;
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    updateUI();
-                    closeCreateAccountForm();
-                } else {
-                    showNotification(data.error || 'رمز التحقق غير صحيح', 'error');
-                }
-            } catch (error) {
-                console.error('Error verifying account:', error);
-                showNotification('خطأ في الاتصال بالخادم', 'error');
-            }
-        }
-
-        async function login() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-
-            if (!email || !password) {
-                showNotification('يرجى ملء جميع الحقول', 'error');
-                return;
-            }
-
-            try {
-                const response = await fetch(API_BASE + '/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    showNotification('تم تسجيل الدخول بنجاح!', 'success');
-                    currentUser = data.user;
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    updateUI();
-                    closeLoginForm();
-                    // توجيه إلى الصفحة الرئيسية بعد تأخير قصير
-                    setTimeout(() => {
-                        window.location.href = 'home.html';
-                    }, 1500);
-                } else {
-                    showNotification(data.error || 'بيانات الدخول غير صحيحة', 'error');
-                }
-            } catch (error) {
-                console.error('Error logging in:', error);
-                showNotification('خطأ في الاتصال بالخادم', 'error');
-            }
-        }
-
-        async function sendResetCode() {
-            const email = document.getElementById('forgotEmail').value;
-
-            if (!email) {
-                showNotification('يرجى إدخال البريد الإلكتروني', 'error');
-                return;
-            }
-
-            try {
-                const response = await fetch(API_BASE + '/forgot-password', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email })
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    showNotification('تم إرسال رمز الاستعادة إلى بريدك الإلكتروني', 'success');
-                    // الانتقال إلى الخطوة التالية
-                    document.getElementById('forgotStep1').classList.remove('active');
-                    document.getElementById('forgotStep2').classList.add('active');
-                } else {
-                    showNotification(data.error || 'فشل في إرسال رمز الاستعادة', 'error');
-                }
-            } catch (error) {
-                console.error('Error sending reset code:', error);
-                showNotification('خطأ في الاتصال بالخادم', 'error');
-            }
-        }
-
-        async function resetPassword() {
-            const email = document.getElementById('forgotEmail').value;
-            const code = getCode('resetCode');
-            const newPassword = document.getElementById('newResetPassword').value;
-            const confirmPassword = document.getElementById('confirmResetPassword').value;
-
-            if (code.length !== 6) {
-                showNotification('يرجى إدخال رمز الاستعادة المكون من 6 أرقام', 'error');
-                return;
-            }
-
-            if (!newPassword || !confirmPassword) {
-                showNotification('يرجى ملء جميع الحقول', 'error');
-                return;
-            }
-
-            if (newPassword !== confirmPassword) {
-                showNotification('كلمات السر غير متطابقة', 'error');
-                return;
-            }
-
-            if (newPassword.length < 6) {
-                showNotification('كلمة السر يجب أن تكون 6 أحرف على الأقل', 'error');
-                return;
-            }
-
-            try {
-                const response = await fetch(API_BASE + '/reset-password', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, code, newPassword })
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    showNotification('تم تغيير كلمة السر بنجاح!', 'success');
-                    closeForgotPasswordForm();
-                    document.getElementById('loginOverlay').classList.add('show');
-                } else {
-                    showNotification(data.error || 'رمز الاستعادة غير صحيح', 'error');
-                }
-            } catch (error) {
-                console.error('Error resetting password:', error);
-                showNotification('خطأ في الاتصال بالخادم', 'error');
-            }
-        }
-
-        async function changePassword() {
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newChangePassword').value;
-            const confirmPassword = document.getElementById('confirmChangePassword').value;
-
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                showNotification('يرجى ملء جميع الحقول', 'error');
-                return;
-            }
-
-            if (newPassword !== confirmPassword) {
-                showNotification('كلمات السر غير متطابقة', 'error');
-                return;
-            }
-
-            if (newPassword.length < 6) {
-                showNotification('كلمة السر يجب أن تكون 6 أحرف على الأقل', 'error');
-                return;
-            }
-
-            // محاكاة تغيير كلمة السر (يجب استبدالها باستدعاء API حقيقي)
-            showNotification('تم تغيير كلمة السر بنجاح!', 'success');
-            closeChangePasswordForm();
-        }
-
-        async function changeEmail() {
-            const newEmail = document.getElementById('newEmailAddress').value;
-            const currentPassword = document.getElementById('currentEmailPassword').value;
-
-            if (!newEmail || !currentPassword) {
-                showNotification('يرجى ملء جميع الحقول', 'error');
-                return;
-            }
-
-            // محاكاة تغيير البريد الإلكتروني (يجب استبدالها باستدعاء API حقيقي)
-            showNotification('تم تغيير البريد الإلكتروني بنجاح!', 'success');
-            closeChangeEmailForm();
-        }
-
-        function resendVerificationCode() {
-            sendVerificationCode(verificationEmail, verificationFirstName, verificationLastName);
-        }
-
-        function resendResetCode() {
-            const email = document.getElementById('forgotEmail').value;
-            sendResetCode(email);
-        }
-
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-            updateUI();
-            document.getElementById('accountMenu').classList.remove('show');
-            showNotification('تم تسجيل الخروج بنجاح', 'success');
-        }
-
-        // ============ وظائف المساعدة ============
-        function showNotification(message, type) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = `notification ${type}`;
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
-        }
-    </script>
 </body>
 </html>
