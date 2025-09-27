@@ -1,192 +1,159 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>متجرك - تسجيل / OTP / نسيت كلمة السر</title>
-<style>
-  body { margin:0; font-family:Arial; height:100vh; display:flex; justify-content:center; align-items:center; background:linear-gradient(135deg,#ffe6f0,#ffccf2); overflow:hidden; position:relative;}
-  .icon-container {width:150px;height:150px;border-radius:50%;background:radial-gradient(circle, rgba(255,182,193,0.4) 0%, rgba(255,182,193,0) 70%);display:flex;justify-content:center;align-items:center;animation:glowPulse 2s infinite alternate; position:relative; opacity:0; transform:scale(0); animation:iconAppear 1s forwards;}
-  .icon-container img{width:80px;height:80px;border-radius:50%;}
-  @keyframes glowPulse{0%{box-shadow:0 0 10px #ff69b4,0 0 20px #ff69b4;}100%{box-shadow:0 0 20px #ff69b4,0 0 40px #ff69b4;}}
-  @keyframes iconAppear{0%{opacity:0; transform:scale(0);}100%{opacity:1; transform:scale(1);}}
-  .welcome-text{margin-top:20px; font-size:24px; color:#ff1493; opacity:0; animation:fadeIn 1s forwards; animation-delay:1s; text-align:center;}
-  @keyframes fadeIn{0%{opacity:0; transform:translateY(20px);}100%{opacity:1; transform:translateY(0);}}
-  .main-btn{margin-top:30px; padding:12px 25px; font-size:18px; background:#ff69b4; border:none; border-radius:30px; color:white; cursor:pointer; opacity:0; animation:fadeIn 1s forwards; animation-delay:2s; box-shadow:0 0 10px #ff69b4,0 0 20px #ff1493; transition:0.3s;}
-  .main-btn:hover{box-shadow:0 0 20px #ff69b4,0 0 30px #ff1493;}
-  .settings-icon{position:absolute; top:20px; left:20px; width:35px; height:35px; cursor:pointer; opacity:0.8; transition:0.3s;}
-  .settings-icon:hover{opacity:1;}
-  .settings-menu{position:absolute; top:60px; left:20px; background:#ffccf2; border-radius:15px; padding:10px; display:none; flex-direction:column; box-shadow:0 0 15px rgba(255,105,180,0.4);}
-  .settings-menu button{background:#ff69b4; border:none; margin:5px 0; padding:10px; border-radius:20px; color:white; font-weight:bold; cursor:pointer; transition:0.3s;}
-  .settings-menu button:hover{background:#ff1493;}
-  .alert{position:absolute; top:20px; right:20px; background:#ff69b4; color:white; padding:12px 20px; border-radius:15px; box-shadow:0 0 15px rgba(255,105,180,0.4); display:none; animation: fadeInAlert 0.5s forwards;}
-  @keyframes fadeInAlert{0%{opacity:0; transform:translateY(-20px);}100%{opacity:1; transform:translateY(0);}}
-  .form-container{position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:#ffe6f0; padding:30px; border-radius:25px; box-shadow:0 0 20px rgba(255,105,180,0.3); display:none; flex-direction:column; width:300px; text-align:center;}
-  .form-container input{width:100%; padding:10px; margin:10px 0; border-radius:15px; border:1px solid #ff69b4; outline:none;}
-  .form-container button{padding:10px; width:100%; margin-top:10px; border-radius:20px; border:none; background:#ff69b4; color:white; font-weight:bold; cursor:pointer; transition:0.3s;}
-  .form-container button:hover{background:#ff1493;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسجيل الدخول - متجرك</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #ffe6f0;
+      font-family: 'Arial', sans-serif;
+    }
+    .container {
+      max-width: 400px;
+      margin-top: 80px;
+      background: #fff0f5;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .logo-circle {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 20px auto;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ff99cc, #ff66b2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px #ff66b2;
+    }
+    .logo-circle img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+    }
+    input {
+      margin-bottom: 15px;
+    }
+    .small-link {
+      font-size: 0.9rem;
+      cursor: pointer;
+      color: #d63384;
+    }
+    .small-link:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
 
-<img src="https://cdn-icons-png.flaticon.com/512/2099/2099058.png" alt="Settings" class="settings-icon" id="settingsIcon">
+  <div class="container">
+    <div class="logo-circle">
+      <img src="https://i.postimg.cc/3xmTSg97/inbound5374025697823546026.jpg" alt="Logo">
+    </div>
 
-<div class="settings-menu" id="settingsMenu">
-  <button id="loginOption">تسجيل الدخول لحسابي</button>
-  <button id="registerOption">إنشاء حساب جديد</button>
-  <button id="forgotOption">نسيت كلمة السر</button>
-</div>
+    <!-- تسجيل الدخول -->
+    <div id="login-form">
+      <input type="email" id="login-email" class="form-control" placeholder="البريد الإلكتروني">
+      <input type="password" id="login-password" class="form-control" placeholder="كلمة السر">
+      <button class="btn btn-pink w-100 mb-2" style="background:#ff66b2;color:white;" onclick="handleLogin()">تسجيل الدخول</button>
+      <div class="small-link" onclick="showRegister()">إنشاء حساب</div>
+      <hr>
+    </div>
 
-<div class="icon-container">
-  <img src="https://i.postimg.cc/3xmTSg97/inbound5374025697823546026.jpg" alt="Logo">
-</div>
+    <!-- إنشاء الحساب -->
+    <div id="register-form" style="display:none;">
+      <input type="text" id="reg-name" class="form-control" placeholder="الاسم الكامل">
+      <input type="email" id="reg-email" class="form-control" placeholder="البريد الإلكتروني">
+      <input type="password" id="reg-password" class="form-control" placeholder="كلمة السر">
+      <input type="password" id="reg-password-confirm" class="form-control" placeholder="تأكيد كلمة السر">
+      <button class="btn btn-pink w-100 mb-2" style="background:#ff66b2;color:white;" onclick="handleRegister()">إنشاء حساب</button>
+      <div class="small-link" onclick="showLogin()">الرجوع لتسجيل الدخول</div>
+    </div>
+  </div>
 
-<div class="welcome-text">مرحبٱ بك في متجرك</div>
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-<button class="main-btn" id="mainLoginBtn">تسجيل الدخول</button>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBGrisBNYIKVHcpJF-oF878eQeYDRoBDtE",
+      authDomain: "email-store-34f7c.firebaseapp.com",
+      projectId: "email-store-34f7c",
+      storageBucket: "email-store-34f7c.firebasestorage.app",
+      messagingSenderId: "1086601186493",
+      appId: "1:1086601186493:web:a3a8deec7ad5a42d84bbd4",
+      measurementId: "G-ECW420SX23"
+    };
 
-<div class="alert" id="alertBox">يجب إنشاء حساب أولا!</div>
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
 
-<!-- نماذج -->
-<div class="form-container" id="loginForm">
-  <h3>تسجيل الدخول</h3>
-  <input type="email" id="loginEmail" placeholder="البريد الإلكتروني">
-  <input type="password" id="loginPassword" placeholder="كلمة المرور">
-  <button id="submitLogin">دخول</button>
-</div>
+    // عرض / إخفاء النماذج
+    function showRegister() {
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('register-form').style.display = 'block';
+    }
+    function showLogin() {
+      document.getElementById('login-form').style.display = 'block';
+      document.getElementById('register-form').style.display = 'none';
+    }
 
-<div class="form-container" id="registerForm">
-  <h3>إنشاء حساب جديد</h3>
-  <input type="email" id="registerEmail" placeholder="البريد الإلكتروني">
-  <input type="password" id="registerPassword" placeholder="كلمة المرور">
-  <button id="submitRegister">إنشاء حساب</button>
-</div>
+    // تسجيل الحساب
+    async function handleRegister() {
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const passwordConfirm = document.getElementById('reg-password-confirm').value;
 
-<div class="form-container" id="otpForm">
-  <h3>أدخل رمز التحقق (OTP)</h3>
-  <input type="text" id="otpInput" placeholder="رمز التحقق">
-  <button id="submitOTP">تحقق</button>
-</div>
+      if (!name || !email || !password || !passwordConfirm) {
+        alert("تأكد من تعبئة جميع الحقول");
+        return;
+      }
+      if (password !== passwordConfirm) {
+        alert("كلمة السر غير متطابقة");
+        return;
+      }
 
-<div class="form-container" id="forgotForm">
-  <h3>نسيت كلمة السر</h3>
-  <input type="email" id="forgotEmail" placeholder="البريد الإلكتروني">
-  <button id="submitForgot">إرسال OTP</button>
-</div>
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await sendEmailVerification(userCredential.user);
+        alert("تم إنشاء الحساب، تحقق من بريدك لتأكيد الحساب");
+        showLogin();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
 
-<div class="form-container" id="resetForm">
-  <h3>إعادة تعيين كلمة المرور</h3>
-  <input type="text" id="resetOTP" placeholder="رمز التحقق">
-  <input type="password" id="newPassword" placeholder="كلمة المرور الجديدة">
-  <button id="submitReset">تغيير كلمة السر</button>
-</div>
+    // تسجيل الدخول
+    async function handleLogin() {
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
 
-<script>
-const mainLoginBtn = document.getElementById('mainLoginBtn');
-const alertBox = document.getElementById('alertBox');
-const settingsIcon = document.getElementById('settingsIcon');
-const settingsMenu = document.getElementById('settingsMenu');
-const loginOption = document.getElementById('loginOption');
-const registerOption = document.getElementById('registerOption');
-const forgotOption = document.getElementById('forgotOption');
+      if (!email || !password) {
+        alert("تأكد من تعبئة جميع الحقول");
+        return;
+      }
 
-const loginForm = document.getElementById('loginForm');
-const registerForm = document.getElementById('registerForm');
-const otpForm = document.getElementById('otpForm');
-const forgotForm = document.getElementById('forgotForm');
-const resetForm = document.getElementById('resetForm');
-
-// القائمة
-mainLoginBtn.addEventListener('click', ()=>{ alertBox.style.display='block'; setTimeout(()=>{alertBox.style.display='none';},2500); });
-settingsIcon.addEventListener('click', ()=>{ settingsMenu.style.display = settingsMenu.style.display==='flex'?'none':'flex'; });
-loginOption.addEventListener('click', ()=>{ loginForm.style.display='flex'; registerForm.style.display='none'; otpForm.style.display='none'; forgotForm.style.display='none'; resetForm.style.display='none'; settingsMenu.style.display='none'; });
-registerOption.addEventListener('click', ()=>{ registerForm.style.display='flex'; loginForm.style.display='none'; otpForm.style.display='none'; forgotForm.style.display='none'; resetForm.style.display='none'; settingsMenu.style.display='none'; });
-forgotOption.addEventListener('click', ()=>{ forgotForm.style.display='flex'; loginForm.style.display='none'; registerForm.style.display='none'; otpForm.style.display='none'; resetForm.style.display='none'; settingsMenu.style.display='none'; });
-
-// تسجيل الدخول
-document.getElementById('submitLogin').addEventListener('click', async ()=>{
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    if(!email||!password){ alert('أدخل البريد وكلمة المرور'); return; }
-    try{
-        const res = await fetch('http://localhost:3000/login',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({email,password})
-        });
-        const data = await res.json();
-        alert(data.message||data.error);
-    }catch(err){ alert('خطأ في الاتصال بالخادم'); console.error(err);}
-});
-
-// إنشاء حساب
-document.getElementById('submitRegister').addEventListener('click', async ()=>{
-    const email = document.getElementById('registerEmail').value;
-    const password = document.getElementById('registerPassword').value;
-    if(!email||!password){ alert('أدخل البريد وكلمة المرور'); return; }
-    try{
-        const res = await fetch('http://localhost:3000/register',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({email,password})
-        });
-        const data = await res.json();
-        if(data.message){ alert(data.message); registerForm.style.display='none'; otpForm.style.display='flex'; } 
-        else alert(data.error);
-    }catch(err){ alert('خطأ في الاتصال بالخادم'); console.error(err);}
-});
-
-// OTP تفعيل الحساب
-document.getElementById('submitOTP').addEventListener('click', async ()=>{
-    const email = document.getElementById('registerEmail').value;
-    const otp = document.getElementById('otpInput').value;
-    if(!otp){ alert('أدخل رمز التحقق'); return; }
-    try{
-        const res = await fetch('http://localhost:3000/verify',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({email,otp})
-        });
-        const data = await res.json();
-        if(data.message){ alert(data.message); otpForm.style.display='none'; loginForm.style.display='flex'; } 
-        else alert(data.error);
-    }catch(err){ alert('خطأ في الاتصال بالخادم'); console.error(err);}
-});
-
-// نسيت كلمة السر
-document.getElementById('submitForgot').addEventListener('click', async ()=>{
-    const email = document.getElementById('forgotEmail').value;
-    if(!email){ alert('أدخل البريد'); return; }
-    try{
-        const res = await fetch('http://localhost:3000/forgot-password',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({email})
-        });
-        const data = await res.json();
-        if(data.message){ alert(data.message); forgotForm.style.display='none'; resetForm.style.display='flex'; } 
-        else alert(data.error);
-    }catch(err){ alert('خطأ في الاتصال بالخادم'); console.error(err);}
-});
-
-// إعادة تعيين كلمة السر
-document.getElementById('submitReset').addEventListener('click', async ()=>{
-    const email = document.getElementById('forgotEmail').value;
-    const otp = document.getElementById('resetOTP').value;
-    const newPassword = document.getElementById('newPassword').value;
-    if(!otp||!newPassword){ alert('أدخل كل الحقول'); return; }
-    try{
-        const res = await fetch('http://localhost:3000/reset-password',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({email,otp,newPassword})
-        });
-        const data = await res.json();
-        if(data.message){ alert(data.message); resetForm.style.display='none'; loginForm.style.display='flex'; } 
-        else alert(data.error);
-    }catch(err){ alert('خطأ في الاتصال بالخادم'); console.error(err);}
-});
-</script>
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        if (!userCredential.user.emailVerified) {
+          alert("يرجى تأكيد بريدك أولاً");
+          return;
+        }
+        window.location.href = "home.html";
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+  </script>
 
 </body>
 </html>
