@@ -81,7 +81,7 @@
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    // Firebase config
+    // إعدادات Firebase الخاصة بك
     const firebaseConfig = {
       apiKey: "AIzaSyBGrisBNYIKVHcpJF-oF878eQeYDRoBDtE",
       authDomain: "email-store-34f7c.firebaseapp.com",
@@ -96,18 +96,18 @@
     const analytics = getAnalytics(app);
     const auth = getAuth(app);
 
-    // عرض / إخفاء النماذج
-    document.getElementById("show-register").addEventListener("click", () => {
+    // دوال عرض وإخفاء النماذج
+    function showRegister() {
       document.getElementById('login-form').style.display = 'none';
       document.getElementById('register-form').style.display = 'block';
-    });
-    document.getElementById("show-login").addEventListener("click", () => {
+    }
+    function showLogin() {
       document.getElementById('login-form').style.display = 'block';
       document.getElementById('register-form').style.display = 'none';
-    });
+    }
 
     // تسجيل الحساب
-    document.getElementById("register-btn").addEventListener("click", async () => {
+    async function handleRegister() {
       const name = document.getElementById('reg-name').value.trim();
       const email = document.getElementById('reg-email').value.trim();
       const password = document.getElementById('reg-password').value;
@@ -126,15 +126,14 @@
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await sendEmailVerification(userCredential.user);
         alert("تم إنشاء الحساب، تحقق من بريدك لتأكيد الحساب");
-        document.getElementById('register-form').style.display = 'none';
-        document.getElementById('login-form').style.display = 'block';
+        showLogin();
       } catch (error) {
         alert(error.message);
       }
-    });
+    }
 
     // تسجيل الدخول
-    document.getElementById("login-btn").addEventListener("click", async () => {
+    async function handleLogin() {
       const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
 
@@ -153,7 +152,16 @@
       } catch (error) {
         alert(error.message);
       }
+    }
+
+    // ربط الأحداث بعد تحميل DOM
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("register-btn").addEventListener("click", handleRegister);
+      document.getElementById("login-btn").addEventListener("click", handleLogin);
+      document.getElementById("show-register").addEventListener("click", showRegister);
+      document.getElementById("show-login").addEventListener("click", showLogin);
     });
   </script>
+
 </body>
 </html>
