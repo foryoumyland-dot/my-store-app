@@ -95,10 +95,67 @@ body, html { width:100%; height:100%; font-family:Tahoma, sans-serif; background
     <div class="contact-buttons">
         <a href="whatsapp://send?phone=218940055056&text=السلام عليكم" target="_blank">📲 تواصل معنا عبر واتساب</a>
         <a href="https://www.facebook.com/profile.php?id=61580903676358" target="_blank">📘 صفحتنا على فيسبوك</a>
+
+        <!-- زر تسجيل الخروج نصي -->
+        <div style="margin-top:15px; text-align:center;">
+            <span id="logout-btn" style="cursor:pointer; color:#d63384; font-size:0.9rem; text-decoration:underline;">تسجيل خروج</span>
+        </div>
     </div>
 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDInTSRi4Lf_KO_ltoAajJhBOHTmfnCIvU",
+    authDomain: "store-email-1846c.firebaseapp.com",
+    databaseURL: "https://store-email-1846c-default-rtdb.firebaseio.com",
+    projectId: "store-email-1846c",
+    storageBucket: "store-email-1846c.firebasestorage.app",
+    messagingSenderId: "238351247429",
+    appId: "1:238351247429:web:5d83284ed44dc2e5ac5b2c",
+    measurementId: "G-MJE9WCQCCM"
+};
+
+// تهيئة Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// تسجيل الخروج الآمن
+document.getElementById("logout-btn").addEventListener("click", async function(){
+    try {
+        await signOut(auth); // ✅ تسجيل خروج من Firebase
+        localStorage.removeItem("currentUser"); // ✅ مسح البيانات المحلية
+        window.location.href = "index.html"; // ✅ تحويل لتسجيل الدخول
+    } catch (error) {
+        console.error("Error signing out:", error);
+        alert("حدث خطأ في تسجيل الخروج. حاول مرة أخرى.");
+    }
+});
+
+// حماية الصفحة - التحقق من المصادقة
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        // إذا المستخدم مش مسجل دخول
+        window.location.href = "index.html";
+    } else {
+        // إذا المستخدم مسجل دخول
+        console.log("User is logged in:", user.uid);
+    }
+});
+
+// حماية إضافية عند تحميل الصفحة
+window.addEventListener('load', () => {
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    if (!user) {
+        window.location.href = "index.html";
+    }
+});
+</script>
+
 </body>
 </html>
