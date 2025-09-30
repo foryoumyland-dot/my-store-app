@@ -9,20 +9,37 @@
 body { background: #ffe6f0; font-family: Arial, sans-serif; }
 .container { max-width: 400px; margin-top: 80px; background: #fff0f5; padding: 30px; border-radius: 20px; box-shadow: 0 0 20px rgba(0,0,0,0.06); text-align: center; }
 
+/* الدائرة والصورة - معدلة ومتناسقة */
 .logo-circle { 
-  width: 150px;  
-  height: 150px;
+  width: 160px; 
+  height: 160px; 
   margin: 0 auto 20px; 
   border-radius: 50%; 
-  background: white; 
-  display:flex; 
-  align-items:center; 
-  justify-content:center; 
-  box-shadow: 0 0 0 5px #ff99cc, 0 6px 25px rgba(255,102,178,0.4);
+  background: transparent; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
   overflow: hidden;
   position: relative;
+  padding: 8px; /* مساحة للتوهج */
 }
+
 .logo-circle::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #ff6b9d, #ff99cc, #ff6b9d, #ff66b2);
+  z-index: -1;
+  animation: glow 2s ease-in-out infinite alternate;
+  filter: blur(8px);
+  opacity: 0.8;
+}
+
+.logo-circle::after {
   content: '';
   position: absolute;
   top: -2px;
@@ -30,64 +47,79 @@ body { background: #ffe6f0; font-family: Arial, sans-serif; }
   right: -2px;
   bottom: -2px;
   border-radius: 50%;
-  background: linear-gradient(45deg, #ff66b2, #ff99cc, #ff66b2);
+  background: linear-gradient(45deg, #ff6b9d, #ff99cc, #ff6b9d);
   z-index: -1;
-  animation: glow 2s ease-in-out infinite alternate;
+  animation: glow-border 3s ease-in-out infinite alternate;
 }
+
 .logo-circle img { 
   width: 100%;
   height: 100%;
-  border-radius: 50%; 
+  border-radius: 50%;
   object-fit: cover;
-  padding: 5px;
+  border: 3px solid white;
+  box-shadow: 0 0 0 4px #ff99cc;
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes glow {
-  from {
-    box-shadow: 0 0 10px #ff66b2, 0 0 20px #ff66b2;
+  0% {
+    box-shadow: 0 0 20px #ff6b9d, 0 0 30px rgba(255, 107, 157, 0.6);
   }
-  to {
-    box-shadow: 0 0 15px #ff66b2, 0 0 30px #ff66b2, 0 0 40px #ff66b2;
+  50% {
+    box-shadow: 0 0 25px #ff99cc, 0 0 35px rgba(255, 153, 204, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 30px #ff66b2, 0 0 40px rgba(255, 102, 178, 0.8);
   }
 }
 
-input { margin-bottom: 15px; }
-.small-link { font-size:0.9rem; cursor:pointer; color:#d63384; }
+@keyframes glow-border {
+  0% {
+    box-shadow: 0 0 15px #ff6b9d;
+  }
+  50% {
+    box-shadow: 0 0 20px #ff99cc;
+  }
+  100% {
+    box-shadow: 0 0 25px #ff66b2;
+  }
+}
+
+.input-group { direction: ltr; margin-bottom: 10px; }
+.input-group .form-control { border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 8px; border-bottom-right-radius: 8px; text-align: left; padding-right: 12px; }
+.input-group .input-group-text { width: 56px; background: #ff66b2; color: #fff; font-weight: 700; border: none; }
+
+.error-msg { background:#ffe6f0; color:#d63384; font-weight:bold; padding:10px 15px; border-radius:12px; margin:10px 0; display:none; }
+.small-link { font-size:0.9rem; cursor:pointer; color:#d63384; margin:10px 0; }
 .small-link:hover { text-decoration: underline; }
 
-/* إشعارات */
-.otp-notification { 
-  position: fixed; top: -80px; left:50%; transform:translateX(-50%); 
-  background:#ff66b2; color:white; padding:12px 25px; 
-  border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.18); 
-  transition: top 0.5s ease; z-index:1000; font-weight:bold; 
+/* زر فيسبوك */
+.facebook-btn { 
+    background: #1877F2; 
+    color: white; 
+    padding: 12px 20px;
+    border: none; 
+    border-radius: 10px; 
+    font-size: 1rem; 
+    font-weight: bold; 
+    cursor: pointer;
+    width: 100%;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+.facebook-btn:hover {
+    background: #166FE5;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(24, 119, 242, 0.3);
 }
 
-/* دمج +218 مع الرقم - محسن */
-.input-group { direction: ltr; margin-bottom: 10px; }
-.input-group .form-control {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
-  text-align: left;
-  padding-right: 12px;
-}
-.input-group .input-group-text {
-  width: 56px;
-  min-width: 56px;
-  padding: 6px 8px;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  border-top-left-radius: 8px;
-  border-bottom-left-radius: 8px;
-  background: #ff66b2;
-  color: #fff;
-  font-weight: 700;
-  border: none;
-}
-
-/* مربع OTP أنيق */
+/* مربع OTP */
 #otp-box {
   display: none; 
   background:#ffe6f0; 
@@ -96,7 +128,6 @@ input { margin-bottom: 15px; }
   box-shadow:0 0 20px rgba(255,102,178,0.3); 
   text-align:center; 
   margin-top:15px;
-  animation: fadeIn 0.5s ease;
 }
 #otp-box input {
   text-align:center; 
@@ -117,36 +148,17 @@ input { margin-bottom: 15px; }
 }
 #otp-box p { margin-bottom:10px; font-weight:bold; color:#d63384; }
 
-/* الرسائل الخطأ */
-.error-msg { 
-  background:#ffe6f0; 
-  color:#d63384; 
-  font-weight:bold; 
-  padding:10px 15px; 
-  border-radius:12px; 
-  margin:10px 0; 
-  box-shadow:0 0 10px rgba(255,102,178,0.2);
-  display:none;
-  animation: fadeIn 0.5s ease;
+/* تحسين حقول الإدخال للجوال */
+.form-control {
+  font-size: 16px;
+  padding: 12px 15px;
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
 }
 
-.success-msg { 
-  background:#e8f5e8; 
-  color:#2e7d32; 
-  font-weight:bold; 
-  padding:10px 15px; 
-  border-radius:12px; 
-  margin:10px 0; 
-  box-shadow:0 0 10px rgba(46,125,50,0.2);
-  display:none;
-  animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn { from{opacity:0} to{opacity:1} }
-
-@media (max-width:420px){
-  .container{ padding:20px; margin-top:50px; }
-  .logo-circle{ width:120px; height:120px; }
+.form-control:focus {
+  border-color: #ff66b2;
+  box-shadow: 0 0 0 0.2rem rgba(255, 102, 178, 0.25);
 }
 </style>
 </head>
@@ -154,11 +166,10 @@ input { margin-bottom: 15px; }
 
 <div class="container">
   <div class="logo-circle">
-    <img src="https://i.postimg.cc/ZnjyZNZX/inbound1511225684022120209.png" alt="Logo">
+    <img src="https://i.postimg.cc/k5MKqjrP/inbound4957539369074756001.png" alt="Logo">
   </div>
 
   <div id="error-msg" class="error-msg"></div>
-  <div id="success-msg" class="success-msg"></div>
 
   <!-- تسجيل الدخول -->
   <div id="login-form">
@@ -168,37 +179,42 @@ input { margin-bottom: 15px; }
     </div>
     <input type="password" id="login-password" class="form-control" placeholder="كلمة السر">
     <button class="btn btn-pink w-100 mb-2" style="background:#ff66b2;color:white;" id="login-btn">تسجيل الدخول</button>
+    
+    <!-- زر فيسبوك -->
+    <button class="facebook-btn" id="facebook-login-btn">
+        <span>تسجيل الدخول بـ فيسبوك</span>
+        <span>📘</span>
+    </button>
+
     <div class="small-link" id="show-register">إنشاء حساب</div>
     <hr>
   </div>
 
   <!-- إنشاء الحساب -->
   <div id="register-form" style="display:none;">
-    <input type="text" id="reg-firstname" class="form-control" placeholder="الاسم الأول">
-    <input type="text" id="reg-lastname" class="form-control" placeholder="اللقب">
+    <input type="text" id="reg-firstname" class="form-control" placeholder="الاسم الأول" autocomplete="given-name">
+    <input type="text" id="reg-lastname" class="form-control" placeholder="اللقب" autocomplete="family-name">
     <div class="input-group mb-3">
       <span class="input-group-text">+218</span>
-      <input type="text" id="reg-phone" class="form-control" placeholder="رقم الهاتف" maxlength="9" inputmode="numeric" pattern="[0-9]*" />
+      <input type="text" id="reg-phone" class="form-control" placeholder="رقم الهاتف" maxlength="9" inputmode="numeric" pattern="[0-9]*" autocomplete="tel">
     </div>
-    <input type="password" id="reg-password" class="form-control" placeholder="كلمة السر">
-    <input type="password" id="reg-password-confirm" class="form-control" placeholder="تأكيد كلمة السر">
+    <input type="password" id="reg-password" class="form-control" placeholder="كلمة السر" autocomplete="new-password">
+    <input type="password" id="reg-password-confirm" class="form-control" placeholder="تأكيد كلمة السر" autocomplete="new-password">
     <button class="btn btn-pink w-100 mb-2" style="background:#ff66b2;color:white;" id="register-btn">إنشاء حساب</button>
     <div class="small-link" id="resend-otp" style="display:none;">إعادة إرسال الرمز</div>
     <div class="small-link" id="show-login">الرجوع لتسجيل الدخول</div>
     <div id="otp-box">
       <p id="otp-message">أدخل رمز التحقق الذي وصلك:</p>
-      <input type="text" id="otp-input" placeholder="رمز التحقق" maxlength="6" />
+      <input type="text" id="otp-input" placeholder="رمز التحقق" maxlength="6" inputmode="numeric">
       <button id="otp-verify-btn">تحقق</button>
     </div>
   </div>
 </div>
 
-<div id="otp-notif" class="otp-notification"></div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, FacebookAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDInTSRi4Lf_KO_ltoAajJhBOHTmfnCIvU",
@@ -217,20 +233,10 @@ const db = getDatabase(app);
 const auth = getAuth(app);
 
 const errorMsg = document.getElementById("error-msg");
-const successMsg = document.getElementById("success-msg");
-
 function showError(text){
   errorMsg.textContent = text;
   errorMsg.style.display = "block";
-  successMsg.style.display = "none";
   setTimeout(()=>{ errorMsg.style.display = "none"; }, 5000);
-}
-
-function showSuccess(text){
-  successMsg.textContent = text;
-  successMsg.style.display = "block";
-  errorMsg.style.display = "none";
-  setTimeout(()=>{ successMsg.style.display = "none"; }, 5000);
 }
 
 function showRegister(){
@@ -238,15 +244,11 @@ function showRegister(){
   document.getElementById('register-form').style.display='block';
   document.getElementById("otp-box").style.display = "none";
   document.getElementById("resend-otp").style.display = "none";
-  errorMsg.style.display = "none";
-  successMsg.style.display = "none";
 }
 
 function showLogin(){
   document.getElementById('login-form').style.display='block';
   document.getElementById('register-form').style.display='none';
-  errorMsg.style.display = "none";
-  successMsg.style.display = "none";
 }
 
 // التحقق من صحة أرقام الهاتف
@@ -263,24 +265,34 @@ function validatePhone(phone){
   return true;
 }
 
-// إشعار OTP محسن
-function showOtpNotification(text, isSuccess = false){
-  const notif=document.getElementById("otp-notif");
-  notif.textContent=text;
-  notif.style.background = isSuccess ? "#4CAF50" : "#ff66b2";
-  notif.style.top="20px";
-  setTimeout(()=>{notif.style.top="-80px";},15000);
-}
-
-function generateOtp(){ return Math.floor(100000+Math.random()*900000); }
-
-function resendOtp(){
-  const otp = generateOtp();
-  localStorage.setItem("otp-temp", otp);
-  showOtpNotification("✅ تم إرسال رمز جديد: " + otp);
-}
-
-document.getElementById("resend-otp").addEventListener("click", resendOtp);
+// تسجيل الدخول بفيسبوك
+document.getElementById("facebook-login-btn").addEventListener("click", async function(){
+    try {
+        const provider = new FacebookAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        
+        // حفظ بيانات المستخدم
+        const user = result.user;
+        localStorage.setItem("currentUser", JSON.stringify({
+            uid: user.uid,
+            displayName: user.displayName || "مستخدم فيسبوك",
+            email: user.email,
+            photoURL: user.photoURL
+        }));
+        
+        // رسالة نجاح
+        alert("✅ تم تسجيل الدخول بفيسبوك بنجاح!");
+        
+        // تحويل للصفحة الرئيسية
+        setTimeout(() => {
+            window.location.href = "home.html";
+        }, 1000);
+        
+    } catch (error) {
+        console.error("خطأ في تسجيل فيسبوك:", error);
+        showError("❌ فشل تسجيل الدخول بفيسبوك");
+    }
+});
 
 // إنشاء الحساب
 document.getElementById("register-btn").addEventListener("click", async ()=>{
@@ -300,22 +312,21 @@ document.getElementById("register-btn").addEventListener("click", async ()=>{
   }
   if(!validatePhone(phone)) return;
 
-  const fullPhone = "+218"+phone;
-  const email = `${phone}@store.com`; // نصنع بريد من الرقم
+  const fullPhone="+218"+phone;
+  const email = `${phone}@store.com`;
 
   try {
-    // إنشاء حساب في Authentication
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     const user = userCredential.user;
     
-    const otp = generateOtp();
+    const otp = Math.floor(100000+Math.random()*900000);
     localStorage.setItem("otp-temp", otp);
     localStorage.setItem("new-user", JSON.stringify({
       fname, lname, phone: fullPhone, 
       uid: user.uid, email
     }));
 
-    showOtpNotification("✅ تم إرسال رمز التحقق إلى هاتفك: " + otp);
+    alert("✅ تم إرسال رمز التحقق: " + otp);
     
     document.getElementById("otp-message").textContent = "أدخل رمز التحقق الذي وصلك:";
     document.getElementById("resend-otp").style.display="block";
@@ -323,7 +334,7 @@ document.getElementById("register-btn").addEventListener("click", async ()=>{
 
   } catch (error) {
     console.error("Error creating account:", error);
-    showError("❌ حدث خطأ في إنشاء الحساب: " + error.message);
+    showError("❌ حدث خطأ في إنشاء الحساب");
   }
 });
 
@@ -333,24 +344,23 @@ document.getElementById("otp-verify-btn").addEventListener("click", async ()=>{
   const savedOtp = localStorage.getItem("otp-temp");
   
   if(!userOtp) {
-    showOtpNotification("❌ الرجاء إدخال رمز التحقق");
+    alert("❌ الرجاء إدخال رمز التحقق");
     return;
   }
   
   if(userOtp !== savedOtp){
-    showOtpNotification("❌ الرمز غير صحيح"); 
+    alert("❌ الرمز غير صحيح"); 
     return;
   }
 
   const userData = JSON.parse(localStorage.getItem("new-user"));
   
   if (!userData) {
-    showOtpNotification("❌ بيانات المستخدم غير موجودة");
+    alert("❌ بيانات المستخدم غير موجودة");
     return;
   }
 
   try {
-    // حفظ البيانات في Database تحت UID المستخدم
     await set(ref(db, "users/" + userData.uid), {
       firstName: userData.fname,
       lastName: userData.lname,
@@ -359,15 +369,11 @@ document.getElementById("otp-verify-btn").addEventListener("click", async ()=>{
       createdAt: new Date().toISOString()
     });
 
-    console.log("✅ تم حفظ البيانات بنجاح في Firebase");
-
     localStorage.removeItem("otp-temp");
     localStorage.removeItem("new-user");
     
-    showOtpNotification("✅ تم إنشاء الحساب بنجاح في قاعدة البيانات!", true);
-    showSuccess("✅ تم إنشاء حسابك بنجاح! يمكنك الآن تسجيل الدخول");
+    alert("✅ تم إنشاء الحساب بنجاح!");
     
-    // تنظيف الحقول
     setTimeout(()=>{ 
       document.getElementById("reg-firstname").value = "";
       document.getElementById("reg-lastname").value = "";
@@ -382,15 +388,15 @@ document.getElementById("otp-verify-btn").addEventListener("click", async ()=>{
     }, 2000);
 
   } catch (error) {
-    console.error("❌ خطأ في حفظ البيانات في Firebase:", error);
-    showOtpNotification("❌ حدث خطأ في إنشاء الحساب: " + error.message);
+    console.error("❌ خطأ في حفظ البيانات:", error);
+    alert("❌ حدث خطأ في إنشاء الحساب");
   }
 });
 
-// تسجيل الدخول
-document.getElementById("login-btn").addEventListener("click", async ()=>{
-  const phone = document.getElementById("login-phone").value.trim();
-  const pass = document.getElementById("login-password").value;
+// تسجيل الدخول العادي
+document.getElementById("login-btn").addEventListener("click",async ()=>{
+  const phone=document.getElementById("login-phone").value.trim();
+  const pass=document.getElementById("login-password").value;
   
   if(!phone || !pass){
     showError("تأكد من إدخال جميع الحقول"); 
@@ -402,11 +408,9 @@ document.getElementById("login-btn").addEventListener("click", async ()=>{
   const email = `${phone}@store.com`;
 
   try {
-    // تسجيل الدخول بـ Authentication
     const userCredential = await signInWithEmailAndPassword(auth, email, pass);
     const user = userCredential.user;
 
-    // جلب بيانات المستخدم من Database
     const dbRef = ref(db);
     const snapshot = await get(child(dbRef, "users/" + user.uid));
     
@@ -424,8 +428,7 @@ document.getElementById("login-btn").addEventListener("click", async ()=>{
       lastName: userData.lastName
     }));
 
-    showOtpNotification("تم تسجيل الدخول بنجاح ✅", true);
-    showSuccess("✅ تم تسجيل الدخول بنجاح! يتم تحويلك...");
+    alert("✅ تم تسجيل الدخول بنجاح!");
     
     setTimeout(() => {
       window.location.href="home.html";
@@ -443,28 +446,15 @@ document.getElementById("login-btn").addEventListener("click", async ()=>{
   }
 });
 
-// إضافة إمكانية الضغط على Enter في الحقول
-document.addEventListener('keypress', function(event) {
-  if (event.key === 'Enter') {
-    if (document.getElementById('login-form').style.display !== 'none') {
-      document.getElementById('login-btn').click();
-    } else {
-      if (document.getElementById('otp-box').style.display !== 'none') {
-        document.getElementById('otp-verify-btn').click();
-      } else {
-        document.getElementById('register-btn').click();
-      }
-    }
-  }
+// إعادة إرسال OTP
+document.getElementById("resend-otp").addEventListener("click", function(){
+  const otp = Math.floor(100000+Math.random()*900000);
+  localStorage.setItem("otp-temp", otp);
+  alert("✅ تم إرسال رمز جديد: " + otp);
 });
 
 document.getElementById("show-register").addEventListener("click",showRegister);
 document.getElementById("show-login").addEventListener("click",showLogin);
-
-// رسالة ترحيب عند التحميل
-setTimeout(() => {
-  showSuccess("✅ النظام الآمن جاهز! البيانات محمية الآن");
-}, 1000);
 </script>
 
 </body>
