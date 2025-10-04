@@ -3,75 +3,296 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تسجيل الدخول - متجرك</title>
+<title>مرحباً بك - متجرك</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-body { background: #ffe6f0; font-family: Arial, sans-serif; }
-.container { max-width: 400px; margin-top: 80px; background: #fff0f5; padding: 30px; border-radius: 20px; box-shadow: 0 0 20px rgba(0,0,0,0.06); text-align: center; }
+* {
+  box-sizing: border-box;
+}
 
-/* الدائرة والصورة - معدلة ومتناسقة */
-.logo-circle { 
-  width: 160px; 
-  height: 160px; 
-  margin: 0 auto 20px; 
-  border-radius: 50%; 
-  background: transparent; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
+body {
+  background: #ffe6f0;
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  animation: bodyGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes bodyGlow {
+  0% {
+    background: #ffe6f0;
+    box-shadow: 0 0 20px rgba(255, 107, 157, 0.3) inset;
+  }
+  100% {
+    background: #fff0f5;
+    box-shadow: 0 0 50px rgba(255, 107, 157, 0.6) inset;
+  }
+}
+
+/* 💬 شكل رسالة التنبيه */
+.notification {
+  position: fixed;
+  top: -60px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #d63384;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.5s ease;
+}
+
+.notification.show {
+  top: 20px;
+  opacity: 1;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  25% { transform: translateX(-48%) translateY(0); }
+  50% { transform: translateX(-52%) translateY(0); }
+  75% { transform: translateX(-48%) translateY(0); }
+}
+
+.notification.shake {
+  animation: shake 0.3s;
+}
+
+/* 💬 القائمه المنبثقة */
+.city-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 400px;
+  max-height: 70vh;
+  overflow-y: auto;
+  z-index: 9999;
+  display: none;
+  padding: 15px;
+}
+
+.city-popup h3 {
+  text-align: center;
+  color: #d63384;
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+#citySearch {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border: 2px solid #d63384;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  transition: 0.3s;
+}
+
+#citySearch:focus {
+  border-color: #b91c66;
+  box-shadow: 0 0 5px rgba(214, 51, 132, 0.5);
+}
+
+.city-option {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.city-option:hover {
+  background: #f8d7e0;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: none;
+  z-index: 9998;
+}
+
+/* الشريط العلوي مع أيقونة الإعدادات */
+.settings-header {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 1000;
+}
+
+.settings-icon {
+  width: 45px;
+  height: 45px;
+  background: #ff66b2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 102, 178, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 15px rgba(255, 102, 178, 0.3);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(255, 102, 178, 0.5);
+  }
+}
+
+.settings-icon:hover {
+  transform: scale(1.15);
+  box-shadow: 0 8px 30px rgba(255, 102, 178, 0.6);
+}
+
+.settings-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: white;
+}
+
+/* الحاوية الرئيسية */
+.container {
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px 15px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* الدائرة والصورة - متجاوبة */
+.logo-circle {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 25px;
+  border-radius: 50%;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
   position: relative;
-  padding: 8px; /* مساحة للتوهج */
+  opacity: 0;
+  transform: scale(0.5);
+  animation: popIn 1s ease-out forwards;
+}
+
+@media (max-width: 480px) {
+  .logo-circle {
+    width: 150px;
+    height: 150px;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 360px) {
+  .logo-circle {
+    width: 130px;
+    height: 130px;
+  }
 }
 
 .logo-circle::before {
   content: '';
   position: absolute;
-  top: -5px;
-  left: -5px;
-  right: -5px;
-  bottom: -5px;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
   border-radius: 50%;
   background: linear-gradient(45deg, #ff6b9d, #ff99cc, #ff6b9d, #ff66b2);
   z-index: -1;
-  animation: glow 2s ease-in-out infinite alternate;
-  filter: blur(8px);
+  animation: glow 3s ease-in-out infinite alternate;
+  filter: blur(10px);
   opacity: 0.8;
 }
 
 .logo-circle::after {
   content: '';
   position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
   border-radius: 50%;
   background: linear-gradient(45deg, #ff6b9d, #ff99cc, #ff6b9d);
   z-index: -1;
-  animation: glow-border 3s ease-in-out infinite alternate;
+  animation: glow-border 2s ease-in-out infinite alternate;
 }
 
-.logo-circle img { 
+.logo-circle img {
   width: 100%;
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid white;
-  box-shadow: 0 0 0 4px #ff99cc;
+  box-shadow: 0 0 0 5px #ff99cc;
   position: relative;
   z-index: 1;
+  animation: imageGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes imageGlow {
+  0% {
+    box-shadow: 0 0 0 5px #ff99cc, 0 0 15px rgba(255, 153, 204, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 0 5px #ff99cc, 0 0 30px rgba(255, 153, 204, 0.8);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(-50px);
+  }
+  70% {
+    transform: scale(1.1) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 @keyframes glow {
   0% {
-    box-shadow: 0 0 20px #ff6b9d, 0 0 30px rgba(255, 107, 157, 0.6);
+    box-shadow: 0 0 25px #ff6b9d, 0 0 35px rgba(255, 107, 157, 0.6);
   }
-  50% {
-    box-shadow: 0 0 25px #ff99cc, 0 0 35px rgba(255, 153, 204, 0.7);
+  33% {
+    box-shadow: 0 0 30px #ff99cc, 0 0 40px rgba(255, 153, 204, 0.7);
+  }
+  66% {
+    box-shadow: 0 0 35px #ff66b2, 0 0 45px rgba(255, 102, 178, 0.8);
   }
   100% {
-    box-shadow: 0 0 30px #ff66b2, 0 0 40px rgba(255, 102, 178, 0.8);
+    box-shadow: 0 0 40px #ff6b9d, 0 0 50px rgba(255, 107, 157, 0.9);
   }
 }
 
@@ -80,381 +301,671 @@ body { background: #ffe6f0; font-family: Arial, sans-serif; }
     box-shadow: 0 0 15px #ff6b9d;
   }
   50% {
-    box-shadow: 0 0 20px #ff99cc;
+    box-shadow: 0 0 25px #ff99cc;
   }
   100% {
-    box-shadow: 0 0 25px #ff66b2;
+    box-shadow: 0 0 20px #ff66b2;
   }
 }
 
-.input-group { direction: ltr; margin-bottom: 10px; }
-.input-group .form-control { border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 8px; border-bottom-right-radius: 8px; text-align: left; padding-right: 12px; }
-.input-group .input-group-text { width: 56px; background: #ff66b2; color: #fff; font-weight: 700; border: none; }
-
-.error-msg { background:#ffe6f0; color:#d63384; font-weight:bold; padding:10px 15px; border-radius:12px; margin:10px 0; display:none; }
-.small-link { font-size:0.9rem; cursor:pointer; color:#d63384; margin:10px 0; }
-.small-link:hover { text-decoration: underline; }
-
-/* زر فيسبوك */
-.facebook-btn { 
-    background: #1877F2; 
-    color: white; 
-    padding: 12px 20px;
-    border: none; 
-    border-radius: 10px; 
-    font-size: 1rem; 
-    font-weight: bold; 
-    cursor: pointer;
-    width: 100%;
-    margin: 10px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-}
-.facebook-btn:hover {
-    background: #166FE5;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(24, 119, 242, 0.3);
+/* نص الترحيب */
+.welcome-text {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #d63384;
+  text-align: center;
+  margin: 20px 0 35px;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: slideUp 0.8s ease-out 0.8s forwards;
+  text-shadow: 0 2px 8px rgba(214, 51, 132, 0.3);
+  animation: textGlow 2s ease-in-out infinite alternate;
+  padding: 0 10px;
+  line-height: 1.4;
 }
 
-/* مربع OTP */
-#otp-box {
-  display: none; 
-  background:#ffe6f0; 
-  padding:25px; 
-  border-radius:20px; 
-  box-shadow:0 0 20px rgba(255,102,178,0.3); 
-  text-align:center; 
-  margin-top:15px;
+@media (max-width: 480px) {
+  .welcome-text {
+    font-size: 1.5rem;
+    margin: 15px 0 30px;
+  }
 }
-#otp-box input {
-  text-align:center; 
-  font-size:1.2rem; 
-  padding:8px; 
-  border-radius:10px; 
-  border:2px solid #ff66b2; 
-  width: 60%;
-}
-#otp-box button {
-  margin-top:15px; 
-  background:#ff66b2; 
-  color:white; 
-  padding:10px 25px; 
-  border:none; 
-  border-radius:15px;
-  font-weight:bold;
-}
-#otp-box p { margin-bottom:10px; font-weight:bold; color:#d63384; }
 
-/* تحسين حقول الإدخال للجوال */
-.form-control {
-  font-size: 16px;
-  padding: 12px 15px;
-  border: 2px solid #e9ecef;
+@media (max-width: 360px) {
+  .welcome-text {
+    font-size: 1.3rem;
+    margin: 10px 0 25px;
+  }
+}
+
+@keyframes textGlow {
+  0% {
+    text-shadow: 0 2px 8px rgba(214, 51, 132, 0.3);
+    transform: scale(1);
+  }
+  100% {
+    text-shadow: 0 2px 15px rgba(214, 51, 132, 0.6), 0 0 25px rgba(255, 107, 157, 0.4);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* زر تسجيل الدخول */
+.login-btn {
+  background: linear-gradient(45deg, #ff66b2, #ff6b9d);
+  color: white;
+  border: none;
+  padding: 14px 35px;
+  border-radius: 22px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(255, 102, 178, 0.4);
   transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: slideUp 0.8s ease-out 1.2s forwards, btnGlow 2s ease-in-out infinite alternate;
+  min-width: 200px;
+}
+
+@media (max-width: 480px) {
+  .login-btn {
+    padding: 12px 30px;
+    font-size: 1rem;
+    min-width: 180px;
+  }
+}
+
+@keyframes btnGlow {
+  0% {
+    box-shadow: 0 6px 18px rgba(255, 102, 178, 0.4);
+  }
+  100% {
+    box-shadow: 0 6px 25px rgba(255, 102, 178, 0.7), 0 0 35px rgba(255, 107, 157, 0.4);
+  }
+}
+
+.login-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 22px rgba(255, 102, 178, 0.6), 0 0 45px rgba(255, 107, 157, 0.5);
+}
+
+.login-btn:active {
+  transform: translateY(0) scale(1);
+}
+
+/* نافذة الإعدادات */
+.settings-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 2000;
+  backdrop-filter: blur(8px);
+  animation: modalFadeIn 0.5s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+  }
+}
+
+.settings-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff0f5;
+  padding: 25px;
+  border-radius: 22px;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4), 0 0 80px rgba(255, 107, 157, 0.3);
+  width: 90%;
+  max-width: 380px;
+  animation: modalPopIn 0.4s ease-out;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@media (max-width: 480px) {
+  .settings-content {
+    padding: 20px;
+    max-width: 340px;
+  }
+}
+
+@media (max-width: 360px) {
+  .settings-content {
+    padding: 15px;
+    max-width: 300px;
+  }
+}
+
+.settings-content::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #ff6b9d, #ff99cc, #ff6b9d, #ff66b2);
+  border-radius: 24px;
+  z-index: -1;
+  animation: borderGlow 3s ease-in-out infinite;
+  filter: blur(4px);
+}
+
+@keyframes borderGlow {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes modalPopIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.settings-content h3 {
+  color: #d63384;
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: bold;
+  font-size: 1.4rem;
+  animation: textGlow 2s ease-in-out infinite alternate;
+}
+
+@media (max-width: 480px) {
+  .settings-content h3 {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+  }
+}
+
+.form-group {
+  margin-bottom: 18px;
+  position: relative;
+}
+
+.form-control {
+  border: 2px solid #ff99cc;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
+  animation: inputGlow 3s ease-in-out infinite alternate;
+  width: 100%;
+}
+
+@media (max-width: 480px) {
+  .form-control {
+    padding: 12px;
+    font-size: 15px;
+  }
+}
+
+@keyframes inputGlow {
+  0% {
+    box-shadow: 0 0 0 rgba(255, 153, 204, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(255, 153, 204, 0.6);
+  }
 }
 
 .form-control:focus {
   border-color: #ff66b2;
-  box-shadow: 0 0 0 0.2rem rgba(255, 102, 178, 0.25);
+  box-shadow: 0 0 0 0.2rem rgba(255, 102, 178, 0.25), 0 0 25px rgba(255, 107, 157, 0.4);
+  transform: scale(1.02);
+}
+
+.save-btn {
+  background: linear-gradient(45deg, #ff66b2, #ff6b9d);
+  color: white;
+  border: none;
+  padding: 14px 25px;
+  border-radius: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  animation: btnGlow 2s ease-in-out infinite alternate;
+}
+
+@media (max-width: 480px) {
+  .save-btn {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+  }
+}
+
+.save-btn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 22px rgba(255, 102, 178, 0.6), 0 0 35px rgba(255, 107, 157, 0.5);
+}
+
+.save-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  animation: none;
+}
+
+.edit-btn {
+  background: transparent;
+  color: #ff66b2;
+  border: 2px solid #ff66b2;
+  padding: 11px 20px;
+  border-radius: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.edit-btn:hover {
+  background: #ff66b2;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(255, 102, 178, 0.4);
+}
+
+/* زر الإغلاق */
+.close-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #ff66b2;
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.close-btn:hover {
+  background: #ff4da6;
+  transform: scale(1.1);
+}
+
+@media (max-width: 480px) {
+  .close-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+    top: 10px;
+    left: 10px;
+  }
 }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="logo-circle">
-    <img src="https://i.postimg.cc/k5MKqjrP/inbound4957539369074756001.png" alt="Logo">
-  </div>
-
-  <div id="error-msg" class="error-msg"></div>
-
-  <!-- تسجيل الدخول -->
-  <div id="login-form">
-    <div class="input-group mb-3">
-      <span class="input-group-text">+218</span>
-      <input type="text" id="login-phone" class="form-control" placeholder="رقم الهاتف" maxlength="9" inputmode="numeric" pattern="[0-9]*" />
-    </div>
-    <input type="password" id="login-password" class="form-control" placeholder="كلمة السر">
-    <button class="btn btn-pink w-100 mb-2" style="background:#ff66b2;color:white;" id="login-btn">تسجيل الدخول</button>
-    
-    <!-- زر فيسبوك -->
-    <button class="facebook-btn" id="facebook-login-btn">
-        <span>تسجيل الدخول بـ فيسبوك</span>
-        <span>📘</span>
-    </button>
-
-    <div class="small-link" id="show-register">إنشاء حساب</div>
-    <hr>
-  </div>
-
-  <!-- إنشاء الحساب -->
-  <div id="register-form" style="display:none;">
-    <input type="text" id="reg-firstname" class="form-control" placeholder="الاسم الأول" autocomplete="given-name">
-    <input type="text" id="reg-lastname" class="form-control" placeholder="اللقب" autocomplete="family-name">
-    <div class="input-group mb-3">
-      <span class="input-group-text">+218</span>
-      <input type="text" id="reg-phone" class="form-control" placeholder="رقم الهاتف" maxlength="9" inputmode="numeric" pattern="[0-9]*" autocomplete="tel">
-    </div>
-    <input type="password" id="reg-password" class="form-control" placeholder="كلمة السر" autocomplete="new-password">
-    <input type="password" id="reg-password-confirm" class="form-control" placeholder="تأكيد كلمة السر" autocomplete="new-password">
-    <button class="btn btn-pink w-100 mb-2" style="background:#ff66b2;color:white;" id="register-btn">إنشاء حساب</button>
-    <div class="small-link" id="resend-otp" style="display:none;">إعادة إرسال الرمز</div>
-    <div class="small-link" id="show-login">الرجوع لتسجيل الدخول</div>
-    <div id="otp-box">
-      <p id="otp-message">أدخل رمز التحقق الذي وصلك:</p>
-      <input type="text" id="otp-input" placeholder="رمز التحقق" maxlength="6" inputmode="numeric">
-      <button id="otp-verify-btn">تحقق</button>
-    </div>
+<!-- شريط الإعدادات العلوي -->
+<div class="settings-header">
+  <div class="settings-icon" id="settings-icon">
+    <svg viewBox="0 0 24 24">
+      <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.82,11.69,4.82,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37-0.29,0.59-0.22l2.39,0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+    </svg>
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, FacebookAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+<!-- تأثير التعتيم -->
+<div class="dim-overlay" id="dim-overlay"></div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDInTSRi4Lf_KO_ltoAajJhBOHTmfnCIvU",
-  authDomain: "store-email-1846c.firebaseapp.com",
-  databaseURL: "https://store-email-1846c-default-rtdb.firebaseio.com",
-  projectId: "store-email-1846c",
-  storageBucket: "store-email-1846c.firebasestorage.app",
-  messagingSenderId: "238351247429",
-  appId: "1:238351247429:web:5d83284ed44dc2e5ac5b2c",
-  measurementId: "G-MJE9WCQCCM"
-};
+<!-- الحاوية الرئيسية -->
+<div class="container">
+  <!-- الدائرة مع الصورة -->
+  <div class="logo-circle">
+    <img src="https://i.postimg.cc/Fs5F9QBB/inbound1685361716076248478.jpg" alt="متجرك">
+  </div>
 
-// تهيئة Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const auth = getAuth(app);
+  <!-- نص الترحيب -->
+  <div class="welcome-text">أهلاً وسهلاً بك في متجرك</div>
 
-const errorMsg = document.getElementById("error-msg");
-function showError(text){
-  errorMsg.textContent = text;
-  errorMsg.style.display = "block";
-  setTimeout(()=>{ errorMsg.style.display = "none"; }, 5000);
+  <!-- زر تسجيل الدخول -->
+  <button class="login-btn" id="login-btn">تسجيل الدخول</button>
+</div>
+
+<!-- نافذة الإعدادات -->
+<div class="settings-modal" id="settings-modal">
+  <div class="settings-content">
+    <button class="close-btn" id="close-btn">×</button>
+    <h3>بياناتك الشخصية</h3>
+    <form id="user-data-form">
+      <div class="form-group">
+        <input type="text" class="form-control" id="full-name" placeholder="الاسم بالكامل">
+      </div>
+      <div class="form-group">
+        <input type="tel" class="form-control" id="phone" placeholder="رقم الهاتف">
+      </div>
+      <div class="form-group">
+        <input type="text" class="form-control" id="city" placeholder="المدينة" readonly style="background:#f9f9f9;cursor:pointer;">
+      </div>
+      <div class="form-group">
+        <input type="text" class="form-control" id="address" placeholder="العنوان">
+      </div>
+      <button type="button" class="save-btn" id="save-btn">حفظ البيانات</button>
+      <button type="button" class="edit-btn" id="edit-btn" style="display: none;">تعديل البيانات</button>
+    </form>
+  </div>
+</div>
+
+<!-- الخلفية + قائمة المدن -->
+<div class="popup-overlay" id="overlay"></div>
+<div class="city-popup" id="cityPopup">
+  <h3>اختر مدينتك</h3>
+  <input type="text" id="citySearch" placeholder="ابحث عن مدينتك..." />
+  <div id="cityList"></div>
+</div>
+
+<script>
+// ✅ دالة عرض رسالة مؤقتة بألوان مختلفة وحركات أنيقة
+function showNotification(message, color = '#d63384', isError = false) {
+  const note = document.createElement('div');
+  note.className = 'notification';
+  note.style.backgroundColor = color;
+  note.textContent = message;
+  document.body.appendChild(note);
+
+  setTimeout(() => note.classList.add('show'), 100);
+  if (isError) setTimeout(() => note.classList.add('shake'), 300);
+  setTimeout(() => {
+    note.classList.remove('show');
+    setTimeout(() => note.remove(), 600);
+  }, 2200);
 }
 
-function showRegister(){
-  document.getElementById('login-form').style.display='none';
-  document.getElementById('register-form').style.display='block';
-  document.getElementById("otp-box").style.display = "none";
-  document.getElementById("resend-otp").style.display = "none";
-}
+// 🏙️ المدن الليبية
+const libyaCities = [
+  "طرابلس","بنغازي","مصراتة","سبها","الزاوية","زليتن","سرت","الخمس","ترهونة",
+  "غريان","طبرق","درنة","اجدابيا","العجيلات","صبراتة","صرمان","البيضاء",
+  "الكفرة","مرزق","نالوت","زوارة","غات","رقدالين","يفرن","المرج",
+  "القبة","شحات","البريقة","هون","ودان","سوكنة","بني وليد","مزدة",
+  "الجميل","قصر بن غشير","قصر خيار","تاورغاء","غدامس"
+];
 
-function showLogin(){
-  document.getElementById('login-form').style.display='block';
-  document.getElementById('register-form').style.display='none';
-}
+// عناصر DOM
+const settingsIcon = document.getElementById('settings-icon');
+const settingsModal = document.getElementById('settings-modal');
+const dimOverlay = document.getElementById('dim-overlay');
+const loginBtn = document.getElementById('login-btn');
+const closeBtn = document.getElementById('close-btn');
 
-// التحقق من صحة أرقام الهاتف
-document.querySelectorAll("#reg-phone, #login-phone").forEach(input=>{
-  input.addEventListener("input",function(){ 
-    this.value = this.value.replace(/\D/g,''); 
-    if(this.value.length>9) this.value=this.value.slice(0,9); 
-  });
-});
+// عناصر النموذج
+const fullNameInput = document.getElementById('full-name');
+const phoneInput = document.getElementById('phone');
+const cityInput = document.getElementById('city');
+const addressInput = document.getElementById('address');
+const saveBtn = document.getElementById('save-btn');
+const editBtn = document.getElementById('edit-btn');
 
-function validatePhone(phone){
-  if(phone.length!==9){ showError("رقم الهاتف يجب أن يكون 9 أرقام"); return false;}
-  if(!phone.startsWith("91") && !phone.startsWith("92")){ showError("رقم الهاتف يجب أن يبدأ بـ 91 أو 92"); return false;}
-  return true;
-}
+// عناصر قائمة المدن
+const cityPopup = document.getElementById('cityPopup');
+const cityList = document.getElementById('cityList');
+const citySearch = document.getElementById('citySearch');
+const overlay = document.getElementById('overlay');
 
-// تسجيل الدخول بفيسبوك
-document.getElementById("facebook-login-btn").addEventListener("click", async function(){
-    try {
-        const provider = new FacebookAuthProvider();
-        const result = await signInWithPopup(auth, provider);
-        
-        // حفظ بيانات المستخدم
-        const user = result.user;
-        localStorage.setItem("currentUser", JSON.stringify({
-            uid: user.uid,
-            displayName: user.displayName || "مستخدم فيسبوك",
-            email: user.email,
-            photoURL: user.photoURL
-        }));
-        
-        // رسالة نجاح
-        alert("✅ تم تسجيل الدخول بفيسبوك بنجاح!");
-        
-        // تحويل للصفحة الرئيسية
-        setTimeout(() => {
-            window.location.href = "home.html";
-        }, 1000);
-        
-    } catch (error) {
-        console.error("خطأ في تسجيل فيسبوك:", error);
-        showError("❌ فشل تسجيل الدخول بفيسبوك");
-    }
-});
+// حالة التطبيق
+let hasData = false;
+let originalData = {};
 
-// إنشاء الحساب
-document.getElementById("register-btn").addEventListener("click", async ()=>{
-  const fname = document.getElementById("reg-firstname").value.trim();
-  const lname = document.getElementById("reg-lastname").value.trim();
-  const phone = document.getElementById("reg-phone").value.trim();
-  const pass = document.getElementById("reg-password").value;
-  const passc = document.getElementById("reg-password-confirm").value;
-
-  if(!fname || !lname || !phone || !pass || !passc){ 
-    showError("تأكد من تعبئة جميع الحقول"); 
-    return; 
+// تحميل البيانات المحفوظة
+function loadUserData() {
+  const savedData = localStorage.getItem('userData');
+  if (savedData) {
+    const data = JSON.parse(savedData);
+    fullNameInput.value = data.fullName || '';
+    phoneInput.value = data.phone || '';
+    cityInput.value = data.city || '';
+    addressInput.value = data.address || '';
+    hasData = true;
+    
+    // حفظ البيانات الأصلية للمقارنة
+    originalData = {
+      fullName: data.fullName || '',
+      phone: data.phone || '',
+      city: data.city || '',
+      address: data.address || ''
+    };
+    
+    // إظهار زر التعديل وإخفاء زر الحفظ
+    editBtn.style.display = 'block';
+    saveBtn.style.display = 'none';
+  } else {
+    // لا توجد بيانات، إظهار زر الحفظ فقط
+    editBtn.style.display = 'none';
+    saveBtn.style.display = 'block';
+    hasData = false;
   }
-  if(pass!==passc){ 
-    showError("⚠️ كلمة السر غير متطابقة"); 
-    return; 
-  }
-  if(!validatePhone(phone)) return;
+}
 
-  const fullPhone="+218"+phone;
-  const email = `${phone}@store.com`;
+// التحقق من التغييرات
+function checkForChanges() {
+  if (!hasData) return true; // إذا لا توجد بيانات، يظهر زر الحفظ
+  
+  const currentData = {
+    fullName: fullNameInput.value,
+    phone: phoneInput.value,
+    city: cityInput.value,
+    address: addressInput.value
+  };
+  
+  const hasChanges = 
+    currentData.fullName !== originalData.fullName ||
+    currentData.phone !== originalData.phone ||
+    currentData.city !== originalData.city ||
+    currentData.address !== originalData.address;
+  
+  return hasChanges;
+}
+
+// تحديث واجهة الأزرار
+function updateButtons() {
+  const hasChanges = checkForChanges();
+  
+  if (hasData) {
+    // إذا توجد بيانات
+    editBtn.style.display = 'block';
+    saveBtn.style.display = hasChanges ? 'block' : 'none';
+  } else {
+    // إذا لا توجد بيانات
+    editBtn.style.display = 'none';
+    saveBtn.style.display = 'block';
+  }
+}
+
+// حفظ البيانات
+function saveUserData() {
+  const userData = {
+    fullName: fullNameInput.value,
+    phone: phoneInput.value,
+    city: cityInput.value,
+    address: addressInput.value,
+    lastUpdated: new Date().toISOString()
+  };
+
+  if (!userData.fullName || !userData.phone || !userData.city || !userData.address) {
+    showNotification('❗ يرجى تعبئة جميع البيانات قبل الحفظ', '#e74c3c', true);
+    return;
+  }
 
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-    const user = userCredential.user;
+    localStorage.setItem('userData', JSON.stringify(userData));
     
-    const otp = Math.floor(100000+Math.random()*900000);
-    localStorage.setItem("otp-temp", otp);
-    localStorage.setItem("new-user", JSON.stringify({
-      fname, lname, phone: fullPhone, 
-      uid: user.uid, email
-    }));
-
-    alert("✅ تم إرسال رمز التحقق: " + otp);
+    // حفظ البيانات الأصلية للمقارنة
+    originalData = { ...userData };
+    hasData = true;
     
-    document.getElementById("otp-message").textContent = "أدخل رمز التحقق الذي وصلك:";
-    document.getElementById("resend-otp").style.display="block";
-    document.getElementById("otp-box").style.display = "block";
-
-  } catch (error) {
-    console.error("Error creating account:", error);
-    showError("❌ حدث خطأ في إنشاء الحساب");
-  }
-});
-
-// التحقق من OTP
-document.getElementById("otp-verify-btn").addEventListener("click", async ()=>{
-  const userOtp = document.getElementById("otp-input").value.trim();
-  const savedOtp = localStorage.getItem("otp-temp");
-  
-  if(!userOtp) {
-    alert("❌ الرجاء إدخال رمز التحقق");
-    return;
-  }
-  
-  if(userOtp !== savedOtp){
-    alert("❌ الرمز غير صحيح"); 
-    return;
-  }
-
-  const userData = JSON.parse(localStorage.getItem("new-user"));
-  
-  if (!userData) {
-    alert("❌ بيانات المستخدم غير موجودة");
-    return;
-  }
-
-  try {
-    await set(ref(db, "users/" + userData.uid), {
-      firstName: userData.fname,
-      lastName: userData.lname,
-      phone: userData.phone,
-      email: userData.email,
-      createdAt: new Date().toISOString()
-    });
-
-    localStorage.removeItem("otp-temp");
-    localStorage.removeItem("new-user");
+    // إظهار تنبيه الحفظ
+    showNotification('✅ تم حفظ بياناتك بنجاح!', '#2ecc71');
     
-    alert("✅ تم إنشاء الحساب بنجاح!");
+    // تحديث واجهة الأزرار
+    updateButtons();
     
-    setTimeout(()=>{ 
-      document.getElementById("reg-firstname").value = "";
-      document.getElementById("reg-lastname").value = "";
-      document.getElementById("reg-phone").value = "";
-      document.getElementById("reg-password").value = "";
-      document.getElementById("reg-password-confirm").value = "";
-      document.getElementById("otp-input").value = "";
-      document.getElementById("otp-box").style.display = "none";
-      document.getElementById("resend-otp").style.display = "none";
-      
-      showLogin();
-    }, 2000);
-
-  } catch (error) {
-    console.error("❌ خطأ في حفظ البيانات:", error);
-    alert("❌ حدث خطأ في إنشاء الحساب");
-  }
-});
-
-// تسجيل الدخول العادي
-document.getElementById("login-btn").addEventListener("click",async ()=>{
-  const phone=document.getElementById("login-phone").value.trim();
-  const pass=document.getElementById("login-password").value;
-  
-  if(!phone || !pass){
-    showError("تأكد من إدخال جميع الحقول"); 
-    return;
-  }
-  
-  if(!validatePhone(phone)) return;
-  
-  const email = `${phone}@store.com`;
-
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-    const user = userCredential.user;
-
-    const dbRef = ref(db);
-    const snapshot = await get(child(dbRef, "users/" + user.uid));
-    
-    if(!snapshot.exists()){
-      showError("❌ لا توجد بيانات للمستخدم"); 
-      return;
-    }
-    
-    const userData = snapshot.val();
-
-    localStorage.setItem("currentUser", JSON.stringify({
-      uid: user.uid,
-      phone: userData.phone,
-      firstName: userData.firstName,
-      lastName: userData.lastName
-    }));
-
-    alert("✅ تم تسجيل الدخول بنجاح!");
-    
+    // إغلاق النافذة بعد الحفظ
     setTimeout(() => {
-      window.location.href="home.html";
-    }, 1500);
+      closeSettingsModal();
+    }, 2000);
     
   } catch (error) {
-    console.error("Login error:", error);
-    if(error.code === 'auth/user-not-found') {
-      showError("❌ لا يوجد حساب بهذا الرقم");
-    } else if(error.code === 'auth/wrong-password') {
-      showError("⚠️ كلمة السر خاطئة");
-    } else {
-      showError("❌ حدث خطأ في تسجيل الدخول");
-    }
+    console.error('Error saving data:', error);
+    showNotification('❌ حدث خطأ في حفظ البيانات', '#e74c3c', true);
+  }
+}
+
+// تفعيل وضع التعديل
+function enableEditMode() {
+  // البيانات قابلة للتعديل بالفعل، فقط نحدث الواجهة
+  updateButtons();
+}
+
+// فتح نافذة الإعدادات
+function openSettingsModal() {
+  settingsModal.style.display = 'block';
+  dimOverlay.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  
+  // تحديث واجهة الأزرار عند فتح النافذة
+  updateButtons();
+}
+
+// إغلاق نافذة الإعدادات
+function closeSettingsModal() {
+  settingsModal.style.display = 'none';
+  dimOverlay.style.display = 'none';
+  document.body.style.overflow = 'auto';
+  
+  // استعادة البيانات الأصلية إذا كان هناك تعديل لم يحفظ
+  if (hasData) {
+    fullNameInput.value = originalData.fullName;
+    phoneInput.value = originalData.phone;
+    cityInput.value = originalData.city;
+    addressInput.value = originalData.address;
+    updateButtons();
+  }
+}
+
+// التحقق من اكتمال البيانات
+function isDataComplete() {
+  return fullNameInput.value && phoneInput.value && cityInput.value && addressInput.value;
+}
+
+// عرض قائمة المدن
+function renderCities(filter = "") {
+  cityList.innerHTML = "";
+  const filtered = libyaCities.filter(city => city.includes(filter));
+  if (filtered.length === 0) {
+    const empty = document.createElement('div');
+    empty.textContent = "لا توجد نتائج";
+    empty.style.textAlign = "center";
+    empty.style.color = "#888";
+    empty.style.padding = "10px";
+    cityList.appendChild(empty);
+  } else {
+    filtered.forEach(city => {
+      const div = document.createElement('div');
+      div.className = 'city-option';
+      div.textContent = city;
+      div.addEventListener('click', () => {
+        cityInput.value = city;
+        cityPopup.style.display = 'none';
+        overlay.style.display = 'none';
+        updateButtons();
+      });
+      cityList.appendChild(div);
+    });
+  }
+}
+
+// أحداث المستخدم
+settingsIcon.addEventListener('click', openSettingsModal);
+
+closeBtn.addEventListener('click', closeSettingsModal);
+
+dimOverlay.addEventListener('click', closeSettingsModal);
+
+loginBtn.addEventListener('click', () => {
+  if (!hasData || !isDataComplete()) {
+    showNotification('❗ يجب تعبئة البيانات الشخصية أولاً', '#e67e22', true);
+    setTimeout(() => {
+      openSettingsModal();
+    }, 1000);
+  } else {
+    showNotification('✅ تم تسجيل الدخول بنجاح، جاري تحويلك...', '#2ecc71');
+    setTimeout(() => window.location.href = "home.html", 2000);
   }
 });
 
-// إعادة إرسال OTP
-document.getElementById("resend-otp").addEventListener("click", function(){
-  const otp = Math.floor(100000+Math.random()*900000);
-  localStorage.setItem("otp-temp", otp);
-  alert("✅ تم إرسال رمز جديد: " + otp);
+saveBtn.addEventListener('click', saveUserData);
+
+editBtn.addEventListener('click', enableEditMode);
+
+// استمع للتغييرات في الحقول
+[fullNameInput, phoneInput, cityInput, addressInput].forEach(input => {
+  input.addEventListener('input', updateButtons);
 });
 
-document.getElementById("show-register").addEventListener("click",showRegister);
-document.getElementById("show-login").addEventListener("click",showLogin);
+// أحداث قائمة المدن
+cityInput.addEventListener('click', () => {
+  cityPopup.style.display = 'block';
+  overlay.style.display = 'block';
+  citySearch.value = '';
+  renderCities();
+  citySearch.focus();
+});
+
+citySearch.addEventListener('input', e => renderCities(e.target.value.trim()));
+overlay.addEventListener('click', () => {
+  cityPopup.style.display = 'none';
+  overlay.style.display = 'none';
+});
+
+// تحميل البيانات عند بدء التشغيل
+loadUserData();
+renderCities();
+
+// تحديث واجهة الأزرار كل ثانية للتأكد من المزامنة
+setInterval(updateButtons, 1000);
 </script>
 
 </body>
