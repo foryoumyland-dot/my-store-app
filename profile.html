@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>بياناتي</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body, html { 
+    width:100%; 
+    height:100%; 
+    font-family:Tahoma, sans-serif; 
+    background: linear-gradient(135deg, #ffe8f0 0%, #fff5f7 100%); 
+    overflow-x: hidden; 
+    padding-bottom: 100px; 
+    padding-top: 70px;
+}
+
+.profile-container {
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+.profile-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 8px 30px rgba(255, 105, 180, 0.2);
+    border: 2px solid #ffe4ec;
+}
+
+.profile-title {
+    text-align: center;
+    color: #d63384;
+    font-weight: bold;
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    background: linear-gradient(45deg, #d63384, #ff69b4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-label {
+    color: #d63384;
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ffe4ec;
+    border-radius: 12px;
+    font-size: 1rem;
+    background: #fff9fb;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    border-color: #ff69b4;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
+    outline: none;
+}
+
+.form-select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ffe4ec;
+    border-radius: 12px;
+    font-size: 1rem;
+    background: #fff9fb;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.form-select:focus {
+    border-color: #ff69b4;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
+    outline: none;
+}
+
+.save-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #ff69b4, #ff1493);
+    color: white;
+    border: none;
+    padding: 15px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    box-shadow: 0 6px 20px rgba(255, 105, 180, 0.4);
+}
+
+.save-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(255, 105, 180, 0.6);
+}
+
+.save-btn:active {
+    transform: translateY(-1px);
+}
+
+/* تنبيه جميل */
+.alert-custom {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #ff69b4, #ff1493);
+    color: white;
+    padding: 25px 35px;
+    border-radius: 20px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    z-index: 2000;
+    display: none;
+    box-shadow: 0 15px 40px rgba(255, 105, 180, 0.5);
+    text-align: center;
+    border: 3px solid white;
+    animation: alertPop 0.5s ease;
+}
+
+@keyframes alertPop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1999;
+    display: none;
+}
+
+/* تصميم متجاوب */
+@media (max-width: 768px) {
+    .profile-container {
+        margin: 15px auto;
+        padding: 0 15px;
+    }
+    
+    .profile-card {
+        padding: 25px;
+    }
+    
+    .profile-title {
+        font-size: 1.6rem;
+    }
+    
+    .form-input, .form-select {
+        padding: 10px 12px;
+        font-size: 0.95rem;
+    }
+    
+    .save-btn {
+        padding: 14px;
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-container {
+        margin: 10px auto;
+        padding: 0 10px;
+    }
+    
+    .profile-card {
+        padding: 20px;
+    }
+    
+    .profile-title {
+        font-size: 1.4rem;
+        margin-bottom: 20px;
+    }
+    
+    .form-input, .form-select {
+        padding: 8px 10px;
+        font-size: 0.9rem;
+    }
+    
+    .save-btn {
+        padding: 12px;
+        font-size: 1rem;
+    }
+    
+    .alert-custom {
+        padding: 20px 25px;
+        font-size: 1.1rem;
+    }
+}
+</style>
+</head>
+<body>
+
+<!-- الشريط العلوي -->
+<iframe src="top-nav.html" style="width:100%; height:60px; border:none; position: fixed; top: 0; left: 0; z-index: 1000;"></iframe>
+
+<!-- المحتوى الرئيسي -->
+<div class="profile-container">
+    <div class="profile-card">
+        <h1 class="profile-title">👤 بياناتي</h1>
+        
+        <form id="profileForm">
+            <!-- الحقل 1: الاسم -->
+            <div class="form-group">
+                <label class="form-label">الاسم الكامل</label>
+                <input type="text" class="form-input" id="userName" placeholder="أدخل اسمك الكامل" required>
+            </div>
+            
+            <!-- الحقل 2: رقم الهاتف -->
+            <div class="form-group">
+                <label class="form-label">رقم الهاتف</label>
+                <input type="tel" class="form-input" id="userPhone" 
+                       placeholder="أدخل رقم هاتفك" 
+                       maxlength="10"
+                       pattern="[0-9]{10}"
+                       oninput="validatePhone(this)"
+                       required>
+                <small style="color: #666; font-size: 0.8rem; margin-top: 5px; display: block;">
+                    📱 يجب أن يكون الرقم 10 أرقام فقط
+                </small>
+            </div>
+            
+            <!-- الحقل 3: المدينة -->
+            <div class="form-group">
+                <label class="form-label">المدينة</label>
+                <select class="form-select" id="userCity" required>
+                    <option value="">اختر مدينتك</option>
+                    <option value="طرابلس">طرابلس</option>
+                    <option value="بنغازي">بنغازي</option>
+                    <option value="مصراتة">مصراتة</option>
+                    <option value="الزاوية">الزاوية</option>
+                    <option value="سبها">سبها</option>
+                    <option value="سرت">سرت</option>
+                    <option value="زوارة">زوارة</option>
+                    <option value="البيضاء">البيضاء</option>
+                    <option value="غريان">غريان</option>
+                    <option value="اجدابيا">اجدابيا</option>
+                    <option value="المرج">المرج</option>
+                    <option value="درنة">درنة</option>
+                    <option value="ترهونة">ترهونة</option>
+                    <option value="زليتن">زليتن</option>
+                    <option value="الكفرة">الكفرة</option>
+                    <option value="يفرن">يفرن</option>
+                    <option value="نالوت">نالوت</option>
+                    <option value="الشاطئ">الشاطئ</option>
+                    <option value="غات">غات</option>
+                    <option value="صبراتة">صبراتة</option>
+                    <option value="القره بوللي">القره بوللي</option>
+                    <option value="مسلاتة">مسلاتة</option>
+                    <option value="بني وليد">بني وليد</option>
+                    <option value="تازربو">تازربو</option>
+                    <option value="أوباري">أوباري</option>
+                    <option value="الرجبان">الرجبان</option>
+                    <option value="العجيلات">العجيلات</option>
+                    <option value="الماية">الماية</option>
+                    <option value="الجميل">الجميل</option>
+                    <option value="الرحيبات">الرحيبات</option>
+                    <option value="قصر خيار">قصر خيار</option>
+                    <option value="هون">هون</option>
+                    <option value="ودان">ودان</option>
+                    <option value="سوكنة">سوكنة</option>
+                    <option value="القبة">القبة</option>
+                    <option value="الأبرق">الأبرق</option>
+                    <option value="شحات">شحات</option>
+                    <option value="بئر الأشهب">بئر الأشهب</option>
+                    <option value="أم الرزم">أم الرزم</option>
+                    <option value="رأس لانوف">رأس لانوف</option>
+                    <option value="البريقة">البريقة</option>
+                    <option value="تاورغاء">تاورغاء</option>
+                    <option value="قصر بن غشير">قصر بن غشير</option>
+                    <option value="سوق الخميس">سوق الخميس</option>
+                    <option value="العزيزية">العزيزية</option>
+                </select>
+            </div>
+            
+            <!-- الحقل 4: العنوان -->
+            <div class="form-group">
+                <label class="form-label">العنوان التفصيلي</label>
+                <textarea class="form-input" id="userAddress" rows="3" placeholder="أدخل عنوانك التفصيلي" required></textarea>
+            </div>
+            
+            <!-- زر الحفظ -->
+            <button type="submit" class="save-btn">💾 حفظ البيانات</button>
+        </form>
+    </div>
+</div>
+
+<!-- التنبيه -->
+<div class="alert-custom" id="alertBox">✅ تم حفظ البيانات</div>
+<div class="overlay" id="overlay"></div>
+
+<!-- الشريط السفلي -->
+<iframe src="bottom-nav.html" style="width:100%; height:80px; border:none; position: fixed; bottom: 0; left: 0; z-index: 1000;"></iframe>
+
+<script>
+// تحقق من رقم الهاتف
+function validatePhone(input) {
+    // إزالة أي حروف من المدخل
+    input.value = input.value.replace(/[^0-9]/g, '');
+    
+    // تحديد الطول إلى 10 أرقام
+    if (input.value.length > 10) {
+        input.value = input.value.slice(0, 10);
+    }
+}
+
+// تحميل البيانات المحفوظة إذا موجودة
+window.addEventListener('load', function() {
+    const savedData = JSON.parse(localStorage.getItem('userProfile'));
+    if (savedData) {
+        document.getElementById('userName').value = savedData.name || '';
+        document.getElementById('userPhone').value = savedData.phone || '';
+        document.getElementById('userCity').value = savedData.city || '';
+        document.getElementById('userAddress').value = savedData.address || '';
+    }
+});
+
+// حفظ البيانات
+document.getElementById('profileForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const userData = {
+        name: document.getElementById('userName').value,
+        phone: document.getElementById('userPhone').value,
+        city: document.getElementById('userCity').value,
+        address: document.getElementById('userAddress').value,
+        savedAt: new Date().toISOString()
+    };
+    
+    // حفظ في localStorage
+    localStorage.setItem('userProfile', JSON.stringify(userData));
+    
+    // عرض التنبيه
+    const alertBox = document.getElementById('alertBox');
+    const overlay = document.getElementById('overlay');
+    
+    alertBox.style.display = 'block';
+    overlay.style.display = 'block';
+    
+    // إخفاء التنبيه بعد 3 ثواني
+    setTimeout(function() {
+        alertBox.style.display = 'none';
+        overlay.style.display = 'none';
+    }, 3000);
+});
+</script>
+</body>
+</html>
