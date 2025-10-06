@@ -1,453 +1,355 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>بياناتي</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-<style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body, html { 
-    width:100%; 
-    height:100%; 
-    font-family:Tahoma, sans-serif; 
-    background: linear-gradient(135deg, #ffe8f0 0%, #fff5f7 100%); 
-    overflow-x: hidden; 
-    padding-bottom: 100px; 
-    padding-top: 70px; /* ⬅️ مساحة للشريط العلوي */
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>بياناتي</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body, html { 
+            width: 100%; 
+            height: 100%; 
+            font-family: Tahoma, Arial, sans-serif; 
+            background: linear-gradient(135deg, #ffe8f0 0%, #fff5f7 100%); 
+            overflow-x: hidden; 
+            padding-bottom: 80px; 
+            padding-top: 70px;
+            direction: rtl;
+        }
 
-/* ===== الشريط العلوي الثابت والمتجاوب ===== */
-.top-navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 60px;
-    background: linear-gradient(135deg, #ff69b4, #ff1493);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    z-index: 1000;
-    box-shadow: 0 4px 20px rgba(255, 105, 180, 0.4);
-    border-bottom: 2px solid #ffb6c1;
-}
+        /* ===== الشريط العلوي ===== */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(255, 105, 180, 0.4);
+            border-bottom: 2px solid #ffb6c1;
+        }
 
-/* اسم المتجر على اليمين - نص عادي غير قابل للنقر */
-.store-name {
-    color: white;
-    font-weight: bold;
-    font-size: 1.3rem;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    padding: 8px 20px;
-    border-radius: 25px;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    cursor: default;
-    user-select: none;
-    position: relative;
-    overflow: hidden;
-}
+        .store-name {
+            color: white;
+            font-weight: bold;
+            font-size: 1.3rem;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            padding: 8px 20px;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: default;
+            user-select: none;
+        }
 
-/* تأثير اللمعة للاسم */
-.store-name::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    transition: left 0.5s;
-}
+        .menu-icon {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
 
-.store-name:hover::before {
-    left: 100%;
-}
+        .menu-icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
 
-/* أيقونة القائمة على اليسار */
-.menu-icon {
-    background: rgba(255, 255, 255, 0.2);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    color: white;
-    font-size: 1.4rem;
-    cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-}
+        .dropdown-menu {
+            position: absolute;
+            top: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ffffff, #fff5f7);
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(255, 105, 180, 0.3);
+            padding: 0;
+            min-width: 200px;
+            display: none;
+            z-index: 1001;
+            border: 2px solid #ffe4ec;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
 
-.menu-icon:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(1.1);
-    border-color: rgba(255, 255, 255, 0.5);
-}
+        .dropdown-menu.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
 
-/* القائمة المنسدلة */
-.dropdown-menu {
-    position: absolute;
-    top: 65px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(135deg, #ffffff, #fff5f7);
-    border-radius: 15px;
-    box-shadow: 0 8px 30px rgba(255, 105, 180, 0.3);
-    padding: 0;
-    min-width: 200px;
-    display: none;
-    z-index: 1001;
-    border: 2px solid #ffe4ec;
-    backdrop-filter: blur(10px);
-    text-align: center;
-}
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
 
-.dropdown-menu.show {
-    display: block;
-    animation: slideDown 0.3s ease;
-}
+        .dropdown-item {
+            display: block;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: #d63384;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: center;
+        }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-}
+        .dropdown-item:hover {
+            background: linear-gradient(45deg, #fff0f6, #ffe4ec);
+            color: #ff1493;
+        }
 
-.dropdown-item {
-    display: block;
-    padding: 15px 20px;
-    text-decoration: none;
-    color: #d63384;
-    font-weight: 600;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    border: none;
-    background: none;
-    width: 100%;
-    text-align: center;
-}
+        .menu-divider {
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #ffb6c1, transparent);
+            margin: 0 auto;
+        }
 
-.dropdown-item:hover {
-    background: linear-gradient(45deg, #fff0f6, #ffe4ec);
-    color: #ff1493;
-}
+        .nav-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 999;
+            display: none;
+        }
 
-/* الخط الفاصل بين العناصر */
-.menu-divider {
-    width: 80%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #ffb6c1, transparent);
-    margin: 0 auto;
-}
+        /* ===== محتوى الصفحة ===== */
+        .profile-container {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
 
-/* حجب القائمة عند النقر خارجها */
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: transparent;
-    z-index: 999;
-    display: none;
-}
+        .profile-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(255, 105, 180, 0.2);
+            border: 2px solid #ffe4ec;
+        }
 
-/* تصميم متجاوب لجميع الشاشات */
-@media (max-width: 768px) {
-    .top-navbar {
-        height: 55px;
-        padding: 0 15px;
-    }
-    
-    .store-name {
-        font-size: 1.1rem;
-        padding: 6px 15px;
-    }
-    
-    .menu-icon {
-        font-size: 1.2rem;
-        padding: 6px 10px;
-    }
-    
-    .dropdown-menu {
-        min-width: 180px;
-        top: 60px;
-    }
-    
-    .dropdown-item {
-        padding: 12px 16px;
-        font-size: 0.9rem;
-    }
-}
+        .profile-title {
+            text-align: center;
+            color: #d63384;
+            font-weight: bold;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+        }
 
-@media (max-width: 480px) {
-    .top-navbar {
-        height: 50px;
-        padding: 0 10px;
-    }
-    
-    .store-name {
-        font-size: 1rem;
-        padding: 5px 12px;
-    }
-    
-    .menu-icon {
-        font-size: 1.1rem;
-        padding: 5px 8px;
-    }
-    
-    .dropdown-menu {
-        min-width: 160px;
-        top: 55px;
-    }
-    
-    .dropdown-item {
-        padding: 10px 14px;
-        font-size: 0.85rem;
-    }
-}
+        .form-group {
+            margin-bottom: 25px;
+        }
 
-@media (min-width: 1200px) {
-    .top-navbar {
-        height: 65px;
-        padding: 0 25px;
-    }
-    
-    .store-name {
-        font-size: 1.5rem;
-        padding: 10px 25px;
-    }
-    
-    .menu-icon {
-        font-size: 1.6rem;
-        padding: 10px 15px;
-    }
-    
-    .dropdown-menu {
-        min-width: 220px;
-        top: 70px;
-    }
-    
-    .dropdown-item {
-        padding: 16px 22px;
-        font-size: 1.1rem;
-    }
-}
+        .form-label {
+            color: #d63384;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: block;
+        }
 
-.profile-container {
-    max-width: 500px;
-    margin: 20px auto;
-    padding: 0 20px;
-}
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ffe4ec;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #fff9fb;
+            transition: all 0.3s ease;
+            direction: rtl;
+            text-align: right;
+        }
 
-.profile-card {
-    background: white;
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 8px 30px rgba(255, 105, 180, 0.2);
-    border: 2px solid #ffe4ec;
-}
+        .form-input:focus {
+            border-color: #ff69b4;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
+            outline: none;
+        }
 
-.profile-title {
-    text-align: center;
-    color: #d63384;
-    font-weight: bold;
-    font-size: 1.8rem;
-    margin-bottom: 30px;
-    background: linear-gradient(45deg, #d63384, #ff69b4);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ffe4ec;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #fff9fb;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            direction: rtl;
+            text-align: right;
+        }
 
-.form-group {
-    margin-bottom: 25px;
-}
+        .form-select:focus {
+            border-color: #ff69b4;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
+            outline: none;
+        }
 
-.form-label {
-    color: #d63384;
-    font-weight: bold;
-    font-size: 1rem;
-    margin-bottom: 8px;
-    display: block;
-}
+        textarea.form-input {
+            resize: vertical;
+            min-height: 100px;
+        }
 
-.form-input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #ffe4ec;
-    border-radius: 12px;
-    font-size: 1rem;
-    background: #fff9fb;
-    transition: all 0.3s ease;
-}
+        .save-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.4);
+        }
 
-.form-input:focus {
-    border-color: #ff69b4;
-    background: white;
-    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
-    outline: none;
-}
+        .save-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 105, 180, 0.6);
+        }
 
-.form-select {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #ffe4ec;
-    border-radius: 12px;
-    font-size: 1rem;
-    background: #fff9fb;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
+        .save-btn:active {
+            transform: translateY(-1px);
+        }
 
-.form-select:focus {
-    border-color: #ff69b4;
-    background: white;
-    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
-    outline: none;
-}
+        /* ===== التنبيه ===== */
+        .alert-custom {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            color: white;
+            padding: 25px 35px;
+            border-radius: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            z-index: 2000;
+            display: none;
+            box-shadow: 0 15px 40px rgba(255, 105, 180, 0.5);
+            text-align: center;
+            border: 3px solid white;
+            animation: alertPop 0.5s ease;
+        }
 
-.save-btn {
-    width: 100%;
-    background: linear-gradient(135deg, #ff69b4, #ff1493);
-    color: white;
-    border: none;
-    padding: 15px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    border-radius: 15px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 10px;
-    box-shadow: 0 6px 20px rgba(255, 105, 180, 0.4);
-}
+        @keyframes alertPop {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
 
-.save-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(255, 105, 180, 0.6);
-}
+        .alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+            display: none;
+        }
 
-.save-btn:active {
-    transform: translateY(-1px);
-}
+        /* ===== تصميم متجاوب ===== */
+        @media (max-width: 768px) {
+            .profile-container {
+                margin: 15px auto;
+                padding: 0 15px;
+            }
+            
+            .profile-card {
+                padding: 25px;
+            }
+            
+            .profile-title {
+                font-size: 1.6rem;
+            }
+            
+            .form-input, .form-select {
+                padding: 10px 12px;
+                font-size: 0.95rem;
+            }
+            
+            .save-btn {
+                padding: 14px;
+                font-size: 1.1rem;
+            }
+        }
 
-/* تنبيه جميل */
-.alert-custom {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: linear-gradient(135deg, #ff69b4, #ff1493);
-    color: white;
-    padding: 25px 35px;
-    border-radius: 20px;
-    font-size: 1.3rem;
-    font-weight: bold;
-    z-index: 2000;
-    display: none;
-    box-shadow: 0 15px 40px rgba(255, 105, 180, 0.5);
-    text-align: center;
-    border: 3px solid white;
-    animation: alertPop 0.5s ease;
-}
-
-@keyframes alertPop {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.8);
-    }
-    100% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-}
-
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1999;
-    display: none;
-}
-
-/* تصميم متجاوب */
-@media (max-width: 768px) {
-    .profile-container {
-        margin: 15px auto;
-        padding: 0 15px;
-    }
-    
-    .profile-card {
-        padding: 25px;
-    }
-    
-    .profile-title {
-        font-size: 1.6rem;
-    }
-    
-    .form-input, .form-select {
-        padding: 10px 12px;
-        font-size: 0.95rem;
-    }
-    
-    .save-btn {
-        padding: 14px;
-        font-size: 1.1rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .profile-container {
-        margin: 10px auto;
-        padding: 0 10px;
-    }
-    
-    .profile-card {
-        padding: 20px;
-    }
-    
-    .profile-title {
-        font-size: 1.4rem;
-        margin-bottom: 20px;
-    }
-    
-    .form-input, .form-select {
-        padding: 8px 10px;
-        font-size: 0.9rem;
-    }
-    
-    .save-btn {
-        padding: 12px;
-        font-size: 1rem;
-    }
-    
-    .alert-custom {
-        padding: 20px 25px;
-        font-size: 1.1rem;
-    }
-}
-</style>
+        @media (max-width: 480px) {
+            .profile-container {
+                margin: 10px auto;
+                padding: 0 10px;
+            }
+            
+            .profile-card {
+                padding: 20px;
+            }
+            
+            .profile-title {
+                font-size: 1.4rem;
+                margin-bottom: 20px;
+            }
+            
+            .form-input, .form-select {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+            
+            .save-btn {
+                padding: 12px;
+                font-size: 1rem;
+            }
+            
+            .alert-custom {
+                padding: 20px 25px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<!-- الشريط العلوي المدمج مباشرة -->
+<!-- الشريط العلوي -->
 <nav class="top-navbar">
-    <!-- أيقونة القائمة على اليسار -->
     <button class="menu-icon" onclick="toggleMenu()">☰</button>
-    
-    <!-- اسم المتجر على اليمين - نص عادي -->
     <div class="store-name">🌸 لأجلك سيدتي</div>
-    
-    <!-- القائمة المنسدلة -->
     <div class="dropdown-menu" id="dropdownMenu">
         <a href="profile.html" class="dropdown-item" onclick="closeMenu()">👤 بياناتي</a>
         <div class="menu-divider"></div>
@@ -455,8 +357,7 @@ body, html {
     </div>
 </nav>
 
-<!-- حجب القائمة عند النقر خارجها -->
-<div class="overlay" id="overlay" onclick="closeMenu()"></div>
+<div class="nav-overlay" id="navOverlay" onclick="closeMenu()"></div>
 
 <!-- المحتوى الرئيسي -->
 <div class="profile-container">
@@ -464,13 +365,11 @@ body, html {
         <h1 class="profile-title">👤 بياناتي</h1>
         
         <form id="profileForm">
-            <!-- الحقل 1: الاسم -->
             <div class="form-group">
                 <label class="form-label">الاسم الكامل</label>
                 <input type="text" class="form-input" id="userName" placeholder="أدخل اسمك الكامل" required>
             </div>
             
-            <!-- الحقل 2: رقم الهاتف -->
             <div class="form-group">
                 <label class="form-label">رقم الهاتف</label>
                 <input type="tel" class="form-input" id="userPhone" 
@@ -484,7 +383,6 @@ body, html {
                 </small>
             </div>
             
-            <!-- الحقل 3: المدينة -->
             <div class="form-group">
                 <label class="form-label">المدينة</label>
                 <select class="form-select" id="userCity" required>
@@ -537,21 +435,19 @@ body, html {
                 </select>
             </div>
             
-            <!-- الحقل 4: العنوان -->
             <div class="form-group">
                 <label class="form-label">العنوان التفصيلي</label>
                 <textarea class="form-input" id="userAddress" rows="3" placeholder="أدخل عنوانك التفصيلي" required></textarea>
             </div>
             
-            <!-- زر الحفظ -->
             <button type="submit" class="save-btn">💾 حفظ البيانات</button>
         </form>
     </div>
 </div>
 
 <!-- التنبيه -->
-<div class="alert-custom" id="alertBox">✅ تم حفظ البيانات</div>
-<div class="overlay" id="alertOverlay"></div>
+<div class="alert-custom" id="alertBox">✅ تم حفظ البيانات بنجاح</div>
+<div class="alert-overlay" id="alertOverlay"></div>
 
 <!-- الشريط السفلي -->
 <iframe src="bottom-nav.html" style="width:100%; height:80px; border:none; position: fixed; bottom: 0; left: 0; z-index: 1000;"></iframe>
@@ -560,7 +456,7 @@ body, html {
 // وظائف القائمة المنسدلة
 function toggleMenu() {
     const menu = document.getElementById('dropdownMenu');
-    const overlay = document.getElementById('overlay');
+    const overlay = document.getElementById('navOverlay');
     
     if (menu.classList.contains('show')) {
         closeMenu();
@@ -572,7 +468,7 @@ function toggleMenu() {
 
 function closeMenu() {
     const menu = document.getElementById('dropdownMenu');
-    const overlay = document.getElementById('overlay');
+    const overlay = document.getElementById('navOverlay');
     
     menu.classList.remove('show');
     overlay.style.display = 'none';
@@ -588,25 +484,15 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// إغلاق القائمة عند النقر على رابط
-document.querySelectorAll('.dropdown-item').forEach(item => {
-    item.addEventListener('click', function() {
-        closeMenu();
-    });
-});
-
 // تحقق من رقم الهاتف
 function validatePhone(input) {
-    // إزالة أي حروف من المدخل
     input.value = input.value.replace(/[^0-9]/g, '');
-    
-    // تحديد الطول إلى 10 أرقام
     if (input.value.length > 10) {
         input.value = input.value.slice(0, 10);
     }
 }
 
-// تحميل البيانات المحفوظة إذا موجودة
+// تحميل البيانات المحفوظة
 window.addEventListener('load', function() {
     const savedData = JSON.parse(localStorage.getItem('userProfile'));
     if (savedData) {
@@ -629,22 +515,35 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
         savedAt: new Date().toISOString()
     };
     
+    // التحقق من صحة البيانات
+    if (userData.phone.length !== 10) {
+        showAlert('⚠️ رقم الهاتف يجب أن يكون 10 أرقام');
+        return;
+    }
+    
+    if (!userData.city) {
+        showAlert('⚠️ يرجى اختيار المدينة');
+        return;
+    }
+    
     // حفظ في localStorage
     localStorage.setItem('userProfile', JSON.stringify(userData));
-    
-    // عرض التنبيه
+    showAlert('✅ تم حفظ البيانات بنجاح');
+});
+
+function showAlert(message) {
     const alertBox = document.getElementById('alertBox');
     const alertOverlay = document.getElementById('alertOverlay');
     
+    alertBox.textContent = message;
     alertBox.style.display = 'block';
     alertOverlay.style.display = 'block';
     
-    // إخفاء التنبيه بعد 3 ثواني
     setTimeout(function() {
         alertBox.style.display = 'none';
         alertOverlay.style.display = 'none';
     }, 3000);
-});
+}
 </script>
 </body>
 </html>
