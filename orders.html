@@ -80,8 +80,7 @@
   .dropdown-menu {
       position: absolute;
       top: 65px;
-      right: 20px; /* ⬅️ عدلنا من left لـ right */
-      transform: none; /* ⬅️ أزلنا التحويل */
+      right: 20px;
       background: linear-gradient(135deg, #ffffff, #fff5f7);
       border-radius: 15px;
       box-shadow: 0 8px 30px rgba(255, 105, 180, 0.3);
@@ -102,7 +101,7 @@
   @keyframes slideDown {
       from {
           opacity: 0;
-          transform: translateY(-10px); /* ⬅️ أزلنا translateX */
+          transform: translateY(-10px);
       }
       to {
           opacity: 1;
@@ -169,7 +168,7 @@
       .dropdown-menu {
           min-width: 180px;
           top: 60px;
-          right: 15px; /* ⬅️ تكيف مع الشاشات الصغيرة */
+          right: 15px;
       }
       
       .dropdown-item {
@@ -197,7 +196,7 @@
       .dropdown-menu {
           min-width: 160px;
           top: 55px;
-          right: 10px; /* ⬅️ تكيف مع الشاشات الصغيرة */
+          right: 10px;
       }
       
       .dropdown-item {
@@ -225,7 +224,7 @@
       .dropdown-menu {
           min-width: 220px;
           top: 70px;
-          right: 25px; /* ⬅️ تكيف مع الشاشات الكبيرة */
+          right: 25px;
       }
       
       .dropdown-item {
@@ -239,8 +238,8 @@
     font-family: Tahoma; 
     background:#f9f9f9; 
     margin: 0;
-    padding-top: 70px; /* مساحة للشريط العلوي */
-    padding-bottom: 80px; /* مساحة للشريط السفلي */
+    padding-top: 70px;
+    padding-bottom: 80px;
     direction: rtl; 
   }
   h2 { 
@@ -272,23 +271,16 @@
   .status-delivered { background: #d4edda; color: #155724; }
   .status-cancelled { background: #f8d7da; color: #721c24; }
   
-  .btn-delete { 
-    background:#e63946; 
+  .btn-action { 
+    background: linear-gradient(45deg, #ff69b4, #ff1493);
     color:white; 
     border:none; 
-    padding:6px 12px; 
-    border-radius:4px; 
+    padding:8px 16px; 
+    border-radius:6px; 
     cursor:pointer; 
-    margin-top:10px; 
-  }
-  .btn-restore { 
-    background:#198754; 
-    color:white; 
-    border:none; 
-    padding:6px 12px; 
-    border-radius:4px; 
-    cursor:pointer; 
-    margin-top:10px; 
+    margin-top:10px;
+    font-weight: bold;
+    font-size: 14px;
   }
   
   .user-info {
@@ -314,13 +306,20 @@
     font-size: 16px;
   }
   
-  .debug-info {
-    background: #fff3cd;
-    padding: 10px;
-    margin: 10px 15px;
-    border-radius: 8px;
-    border-right: 4px solid #ffc107;
-    font-size: 14px;
+  /* تنبيهات متوافقة مع المتجر */
+  .alert-custom { 
+    position: fixed; 
+    top: 80px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    background: linear-gradient(45deg, #ff416c, #ff4b2b); 
+    color: white; 
+    padding: 12px 20px; 
+    border-radius: 8px; 
+    font-size: 16px; 
+    font-weight: bold; 
+    z-index: 3000; 
+    display: none; 
   }
 </style>
 </head>
@@ -345,6 +344,9 @@
 <!-- حجب القائمة عند النقر خارجها -->
 <div class="overlay" id="overlay" onclick="closeMenu()"></div>
 
+<!-- تنبيهات -->
+<div id="alertBox" class="alert-custom"></div>
+
 <!-- الشريط السفلي -->
 <iframe src="bottom-nav.html" style="width:100%; height:80px; border:none; position: fixed; bottom: 0; left: 0; z-index: 1000;"></iframe>
 
@@ -354,12 +356,6 @@
 <div id="userInfo" class="user-info" style="display:none;">
     <strong>👤 العميل: </strong><span id="customerName"></span> - 
     <strong>📞 الهاتف: </strong><span id="customerPhone"></span>
-</div>
-
-<!-- ✅ معلومات التصحيح -->
-<div id="debugInfo" class="debug-info" style="display:none;">
-    <strong>🐛 معلومات التصحيح:</strong>
-    <div id="debugStatus"></div>
 </div>
 
 <!-- ✅ الطلبات -->
@@ -422,19 +418,21 @@ document.querySelectorAll('.dropdown-item').forEach(item => {
     });
 });
 
+// ✅ عرض التنبيه
+function showAlert(msg){
+  let box = document.getElementById("alertBox");
+  box.innerHTML = msg;
+  box.style.display = "block";
+  setTimeout(()=> box.style.display="none", 3000);
+}
+
 // ✅ عند تحميل الصفحة
 window.onload = function() {
-    console.log("🔍 بيانات المستخدم من localStorage:", userProfile);
-    
     if (userProfile && userProfile.name && userProfile.phone) {
         // عرض معلومات المستخدم
         document.getElementById('userInfo').style.display = 'block';
         document.getElementById('customerName').textContent = userProfile.name;
         document.getElementById('customerPhone').textContent = userProfile.phone;
-        
-        // عرض معلومات التصحيح
-        document.getElementById('debugInfo').style.display = 'block';
-        document.getElementById('debugStatus').textContent = `جاري البحث عن طلبات للرقم: ${userProfile.phone}`;
         
         // تحميل الطلبات
         loadUserOrders(userProfile.phone);
@@ -445,16 +443,9 @@ window.onload = function() {
                 <div style="font-size: 3rem; margin-bottom: 15px;">📝</div>
                 <h3 style="color: #d63384;">بياناتك الشخصية مطلوبة</h3>
                 <p>يجب تسجيل بياناتك الشخصية أولاً لعرض الطلبات</p>
-                <button onclick="goToProfile()" style="
-                    background: linear-gradient(45deg, #ff69b4, #ff1493);
-                    color: white;
-                    border: none;
-                    padding: 12px 24px;
-                    border-radius: 8px;
-                    font-size: 16px;
-                    cursor: pointer;
-                    margin-top: 15px;
-                ">👤 تسجيل البيانات</button>
+                <button onclick="goToProfile()" class="btn-action" style="margin-top: 15px;">
+                    👤 تسجيل البيانات
+                </button>
             </div>
         `;
     }
@@ -462,17 +453,12 @@ window.onload = function() {
 
 // ✅ تحميل طلبات المستخدم
 function loadUserOrders(userPhone) {
-    console.log("🔍 جاري البحث عن طلبات للرقم: " + userPhone);
-    
     db.ref("orders").on("value", function(snapshot) {
         let data = snapshot.val();
         let container = document.getElementById("orders");
         
-        console.log("📦 البيانات المستلمة من Firebase:", data);
-        
         if (!data) {
             container.innerHTML = '<div class="no-orders">🚫 لا توجد طلبات في قاعدة البيانات</div>';
-            document.getElementById('debugStatus').textContent = '❌ لا توجد طلبات في قاعدة البيانات';
             return;
         }
 
@@ -480,25 +466,14 @@ function loadUserOrders(userPhone) {
         
         // البحث في جميع الطلبات
         Object.entries(data).forEach(([orderId, order]) => {
-            console.log(`🔍 فحص الطلب ${orderId}:`, order);
-            
             // التحقق إذا كان الرقم مطابق
             if (order.customer && order.customer.phone === userPhone) {
-                console.log(`✅ وجد طلب مطابق: ${orderId}`);
                 userOrders.push({
                     id: orderId,
                     ...order
                 });
-            } else {
-                console.log(`❌ الطلب ${orderId} لا يطابق الرقم`, order.customer);
             }
         });
-
-        console.log("📊 الطلبات الموجودة للمستخدم:", userOrders);
-
-        // تحديث معلومات التصحيح
-        document.getElementById('debugStatus').textContent = 
-            `تم العثور على ${userOrders.length} طلب للرقم: ${userPhone}`;
 
         if (userOrders.length === 0) {
             container.innerHTML = `
@@ -506,16 +481,9 @@ function loadUserOrders(userPhone) {
                     <div style="font-size: 3rem; margin-bottom: 15px;">📭</div>
                     <h3 style="color: #d63384;">لا توجد طلبات</h3>
                     <p>لم تقم بإرسال أي طلبات بعد</p>
-                    <button onclick="goToStore()" style="
-                        background: linear-gradient(45deg, #ff69b4, #ff1493);
-                        color: white;
-                        border: none;
-                        padding: 12px 24px;
-                        border-radius: 8px;
-                        font-size: 16px;
-                        cursor: pointer;
-                        margin-top: 15px;
-                    ">🛍️ تسوق الآن</button>
+                    <button onclick="goToStore()" class="btn-action" style="margin-top: 15px;">
+                        🛍️ تسوق الآن
+                    </button>
                 </div>
             `;
             return;
@@ -552,10 +520,10 @@ function loadUserOrders(userPhone) {
             let statusText = getStatusText(order.status || "قيد الانتظار");
             
             let actionBtn = "";
-            if (order.status === "تم الحذف من الزبون") {
-                actionBtn = `<button class="btn-restore" onclick="restoreOrder('${order.id}')">♻ إعادة إرسال الطلب</button>`;
+            if (order.status === "ملغى") {
+                actionBtn = `<button class="btn-action" onclick="restoreOrder('${order.id}')" style="background:linear-gradient(45deg, #28a745, #20c997);">🔄 إعادة إرسال الطلب</button>`;
             } else if (order.status !== "قيد التوصيل" && order.status !== "تم التسليم" && order.status !== "ملغى") {
-                actionBtn = `<button class="btn-delete" onclick="deleteOrder('${order.id}')">🗑 حذف الطلب</button>`;
+                actionBtn = `<button class="btn-action" onclick="deleteOrder('${order.id}')" style="background:linear-gradient(45deg, #dc3545, #c82333);">🗑 إلغاء الطلب</button>`;
             }
 
             let orderDiv = document.createElement("div");
@@ -582,19 +550,11 @@ function loadUserOrders(userPhone) {
                 <div style="font-size: 3rem; margin-bottom: 15px;">❌</div>
                 <h3 style="color: #d63384;">خطأ في الاتصال</h3>
                 <p>تعذر تحميل الطلبات. تأكد من اتصال الإنترنت.</p>
-                <button onclick="location.reload()" style="
-                    background: #6c757d;
-                    color: white;
-                    border: none;
-                    padding: 12px 24px;
-                    border-radius: 8px;
-                    font-size: 16px;
-                    cursor: pointer;
-                    margin-top: 15px;
-                ">🔄 إعادة المحاولة</button>
+                <button onclick="location.reload()" class="btn-action" style="background:#6c757d; margin-top:15px;">
+                    🔄 إعادة المحاولة
+                </button>
             </div>
         `;
-        document.getElementById('debugStatus').textContent = '❌ خطأ في الاتصال: ' + error.message;
     });
 }
 
@@ -605,8 +565,7 @@ function getStatusText(status) {
         'تم التأكيد': '✅ تم التأكيد', 
         'قيد التوصيل': '🚚 قيد التوصيل',
         'تم التسليم': '🎉 تم التسليم',
-        'ملغى': '❌ ملغى',
-        'تم الحذف من الزبون': '🗑 تم الحذف'
+        'ملغى': '❌ ملغى'
     };
     return statusMap[status] || status;
 }
@@ -617,33 +576,32 @@ function getStatusClass(status) {
         'تم التأكيد': 'status-confirmed',
         'قيد التوصيل': 'status-shipping', 
         'تم التسليم': 'status-delivered',
-        'ملغى': 'status-cancelled',
-        'تم الحذف من الزبون': 'status-cancelled'
+        'ملغى': 'status-cancelled'
     };
     return classMap[status] || 'status-pending';
 }
 
 // ✅ دوال الإجراءات
 function deleteOrder(orderId) {
-    if (confirm("❌ هل أنت متأكد أنك تريد حذف هذه الطلبية؟")) {
-        db.ref("orders/" + orderId).update({ status: "تم الحذف من الزبون" })
+    if (confirm("⚠️ هل أنت متأكد من أنك تريد إلغاء هذا الطلب؟")) {
+        db.ref("orders/" + orderId).update({ status: "ملغى" })
         .then(() => {
-            alert("✅ تم حذف الطلب بنجاح");
+            showAlert("✅ تم إلغاء الطلب بنجاح");
         })
         .catch(error => {
-            alert("❌ حدث خطأ: " + error.message);
+            showAlert("❌ خطأ في إلغاء الطلب");
         });
     }
 }
 
 function restoreOrder(orderId) {
-    if (confirm("♻ هل تريد إعادة إرسال هذه الطلبية؟")) {
+    if (confirm("🔄 هل تريد إعادة إرسال هذا الطلب؟")) {
         db.ref("orders/" + orderId).update({ status: "قيد الانتظار" })
         .then(() => {
-            alert("✅ تم إعادة إرسال الطلب بنجاح");
+            showAlert("✅ تم إعادة إرسال الطلب بنجاح");
         })
         .catch(error => {
-            alert("❌ حدث خطأ: " + error.message);
+            showAlert("❌ خطأ في إعادة الإرسال");
         });
     }
 }
