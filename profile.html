@@ -17,6 +17,230 @@ body, html {
     padding-top: 70px; /* ⬅️ مساحة للشريط العلوي */
 }
 
+/* ===== الشريط العلوي الثابت والمتجاوب ===== */
+.top-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(135deg, #ff69b4, #ff1493);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(255, 105, 180, 0.4);
+    border-bottom: 2px solid #ffb6c1;
+}
+
+/* اسم المتجر على اليمين - نص عادي غير قابل للنقر */
+.store-name {
+    color: white;
+    font-weight: bold;
+    font-size: 1.3rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    padding: 8px 20px;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: default;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+}
+
+/* تأثير اللمعة للاسم */
+.store-name::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s;
+}
+
+.store-name:hover::before {
+    left: 100%;
+}
+
+/* أيقونة القائمة على اليسار */
+.menu-icon {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.menu-icon:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* القائمة المنسدلة */
+.dropdown-menu {
+    position: absolute;
+    top: 65px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ffffff, #fff5f7);
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(255, 105, 180, 0.3);
+    padding: 0;
+    min-width: 200px;
+    display: none;
+    z-index: 1001;
+    border: 2px solid #ffe4ec;
+    backdrop-filter: blur(10px);
+    text-align: center;
+}
+
+.dropdown-menu.show {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.dropdown-item {
+    display: block;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: #d63384;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: center;
+}
+
+.dropdown-item:hover {
+    background: linear-gradient(45deg, #fff0f6, #ffe4ec);
+    color: #ff1493;
+}
+
+/* الخط الفاصل بين العناصر */
+.menu-divider {
+    width: 80%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #ffb6c1, transparent);
+    margin: 0 auto;
+}
+
+/* حجب القائمة عند النقر خارجها */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    z-index: 999;
+    display: none;
+}
+
+/* تصميم متجاوب لجميع الشاشات */
+@media (max-width: 768px) {
+    .top-navbar {
+        height: 55px;
+        padding: 0 15px;
+    }
+    
+    .store-name {
+        font-size: 1.1rem;
+        padding: 6px 15px;
+    }
+    
+    .menu-icon {
+        font-size: 1.2rem;
+        padding: 6px 10px;
+    }
+    
+    .dropdown-menu {
+        min-width: 180px;
+        top: 60px;
+    }
+    
+    .dropdown-item {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .top-navbar {
+        height: 50px;
+        padding: 0 10px;
+    }
+    
+    .store-name {
+        font-size: 1rem;
+        padding: 5px 12px;
+    }
+    
+    .menu-icon {
+        font-size: 1.1rem;
+        padding: 5px 8px;
+    }
+    
+    .dropdown-menu {
+        min-width: 160px;
+        top: 55px;
+    }
+    
+    .dropdown-item {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .top-navbar {
+        height: 65px;
+        padding: 0 25px;
+    }
+    
+    .store-name {
+        font-size: 1.5rem;
+        padding: 10px 25px;
+    }
+    
+    .menu-icon {
+        font-size: 1.6rem;
+        padding: 10px 15px;
+    }
+    
+    .dropdown-menu {
+        min-width: 220px;
+        top: 70px;
+    }
+    
+    .dropdown-item {
+        padding: 16px 22px;
+        font-size: 1.1rem;
+    }
+}
+
 .profile-container {
     max-width: 500px;
     margin: 20px auto;
@@ -215,8 +439,24 @@ body, html {
 </head>
 <body>
 
-<!-- الشريط العلوي -->
-<iframe src="top-nav.html" style="width:100%; height:60px; border:none; position: fixed; top: 0; left: 0; z-index: 1000;"></iframe>
+<!-- الشريط العلوي المدمج مباشرة -->
+<nav class="top-navbar">
+    <!-- أيقونة القائمة على اليسار -->
+    <button class="menu-icon" onclick="toggleMenu()">☰</button>
+    
+    <!-- اسم المتجر على اليمين - نص عادي -->
+    <div class="store-name">🌸 لأجلك سيدتي</div>
+    
+    <!-- القائمة المنسدلة -->
+    <div class="dropdown-menu" id="dropdownMenu">
+        <a href="profile.html" class="dropdown-item" onclick="closeMenu()">👤 بياناتي</a>
+        <div class="menu-divider"></div>
+        <a href="orders.html" class="dropdown-item" onclick="closeMenu()">📦 طلباتي</a>
+    </div>
+</nav>
+
+<!-- حجب القائمة عند النقر خارجها -->
+<div class="overlay" id="overlay" onclick="closeMenu()"></div>
 
 <!-- المحتوى الرئيسي -->
 <div class="profile-container">
@@ -311,12 +551,50 @@ body, html {
 
 <!-- التنبيه -->
 <div class="alert-custom" id="alertBox">✅ تم حفظ البيانات</div>
-<div class="overlay" id="overlay"></div>
+<div class="overlay" id="alertOverlay"></div>
 
 <!-- الشريط السفلي -->
 <iframe src="bottom-nav.html" style="width:100%; height:80px; border:none; position: fixed; bottom: 0; left: 0; z-index: 1000;"></iframe>
 
 <script>
+// وظائف القائمة المنسدلة
+function toggleMenu() {
+    const menu = document.getElementById('dropdownMenu');
+    const overlay = document.getElementById('overlay');
+    
+    if (menu.classList.contains('show')) {
+        closeMenu();
+    } else {
+        menu.classList.add('show');
+        overlay.style.display = 'block';
+    }
+}
+
+function closeMenu() {
+    const menu = document.getElementById('dropdownMenu');
+    const overlay = document.getElementById('overlay');
+    
+    menu.classList.remove('show');
+    overlay.style.display = 'none';
+}
+
+// إغلاق القائمة عند النقر خارجها
+document.addEventListener('click', function(event) {
+    const menu = document.getElementById('dropdownMenu');
+    const icon = document.querySelector('.menu-icon');
+    
+    if (!menu.contains(event.target) && !icon.contains(event.target)) {
+        closeMenu();
+    }
+});
+
+// إغلاق القائمة عند النقر على رابط
+document.querySelectorAll('.dropdown-item').forEach(item => {
+    item.addEventListener('click', function() {
+        closeMenu();
+    });
+});
+
 // تحقق من رقم الهاتف
 function validatePhone(input) {
     // إزالة أي حروف من المدخل
@@ -356,15 +634,15 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
     
     // عرض التنبيه
     const alertBox = document.getElementById('alertBox');
-    const overlay = document.getElementById('overlay');
+    const alertOverlay = document.getElementById('alertOverlay');
     
     alertBox.style.display = 'block';
-    overlay.style.display = 'block';
+    alertOverlay.style.display = 'block';
     
     // إخفاء التنبيه بعد 3 ثواني
     setTimeout(function() {
         alertBox.style.display = 'none';
-        overlay.style.display = 'none';
+        alertOverlay.style.display = 'none';
     }, 3000);
 });
 </script>
