@@ -1,16 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
     .bottom-nav {
         position: fixed;
         bottom: 0;
+        left: 0;
+        right: 0;
         width: 100%;
         background: linear-gradient(135deg, #ffb6c1, #ff8fab);
         display: flex;
         justify-content: space-around;
         align-items: center;
-        padding: 12px 0;
+        padding: 10px 5px;
         box-shadow: 0 -4px 20px rgba(255, 107, 157, 0.3);
         border-top: 2px solid #ff6b9d;
         z-index: 1000;
@@ -42,12 +52,14 @@
         background: none;
         border: none;
         cursor: pointer;
-        padding: 8px 5px;
+        padding: 6px 4px;
         width: 25%;
-        border-radius: 15px;
+        border-radius: 12px;
         transition: all 0.3s ease;
         min-height: 45px;
         justify-content: center;
+        flex-shrink: 0;
+        margin: 0 2px;
     }
 
     .nav-btn:hover {
@@ -55,49 +67,203 @@
         transform: translateY(-2px);
     }
 
+    .nav-btn:active {
+        transform: translateY(0);
+    }
+
     .nav-btn span:first-child {
         font-size: 18px;
-        margin-bottom: 3px;
+        margin-bottom: 2px;
         filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+        line-height: 1;
     }
 
     .nav-btn span:last-child {
         font-weight: 600;
         text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         white-space: nowrap;
+        line-height: 1.2;
+        text-align: center;
     }
 
-    /* تصميم متجاوب */
+    /* تصميم متجاوب محسّن */
+    
+    /* هواتف صغيرة جداً (iPhone SE etc) */
     @media (max-width: 320px) {
+        .bottom-nav {
+            padding: 8px 3px;
+        }
+        
+        .nav-btn {
+            font-size: 9px;
+            padding: 4px 2px;
+            min-height: 38px;
+            margin: 0 1px;
+            border-radius: 8px;
+        }
+        
+        .nav-btn span:first-child {
+            font-size: 14px;
+            margin-bottom: 1px;
+        }
+        
+        .nav-btn span:last-child {
+            font-size: 9px;
+        }
+    }
+
+    /* هواتف متوسطة (iPhone 6/7/8 etc) */
+    @media (min-width: 321px) and (max-width: 375px) {
+        .bottom-nav {
+            padding: 9px 4px;
+        }
+        
         .nav-btn {
             font-size: 10px;
             padding: 5px 3px;
-            min-height: 40px;
+            min-height: 42px;
+            margin: 0 1px;
         }
+        
         .nav-btn span:first-child {
             font-size: 16px;
+            margin-bottom: 2px;
         }
     }
 
-    @media (min-width: 375px) and (max-width: 414px) {
+    /* هواتف كبيرة (iPhone Plus etc) */
+    @media (min-width: 376px) and (max-width: 414px) {
+        .bottom-nav {
+            padding: 10px 5px;
+        }
+        
         .nav-btn {
             font-size: 11px;
             padding: 6px 4px;
             min-height: 45px;
+            margin: 0 2px;
         }
+        
         .nav-btn span:first-child {
             font-size: 18px;
         }
     }
 
-    @media (min-width: 768px) {
+    /* أجهزة لوحية صغيرة */
+    @media (min-width: 415px) and (max-width: 768px) {
+        .bottom-nav {
+            padding: 12px 8px;
+        }
+        
         .nav-btn {
-            font-size: 13px;
+            font-size: 12px;
             padding: 8px 6px;
             min-height: 50px;
+            margin: 0 3px;
         }
+        
         .nav-btn span:first-child {
             font-size: 20px;
+            margin-bottom: 3px;
+        }
+    }
+
+    /* أجهزة لوحية كبيرة وشاشات صغيرة */
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .bottom-nav {
+            padding: 14px 10px;
+            max-width: 768px;
+            margin: 0 auto;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .nav-btn {
+            font-size: 13px;
+            padding: 10px 8px;
+            min-height: 55px;
+            margin: 0 4px;
+            border-radius: 15px;
+        }
+        
+        .nav-btn span:first-child {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+    }
+
+    /* شاشات كبيرة */
+    @media (min-width: 1025px) {
+        .bottom-nav {
+            padding: 15px 12px;
+            max-width: 800px;
+            margin: 0 auto;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 25px 25px 0 0;
+        }
+        
+        .nav-btn {
+            font-size: 14px;
+            padding: 12px 10px;
+            min-height: 60px;
+            margin: 0 5px;
+            border-radius: 18px;
+        }
+        
+        .nav-btn span:first-child {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px);
+        }
+    }
+
+    /* تحسينات للأجهزة التي تدعم اللمس */
+    @media (hover: none) and (pointer: coarse) {
+        .nav-btn:hover {
+            transform: none;
+            background: none;
+        }
+        
+        .nav-btn:active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(0.95);
+        }
+    }
+
+    /* دعم للوضع الأفقي */
+    @media (max-height: 500px) and (orientation: landscape) {
+        .bottom-nav {
+            padding: 6px 4px;
+            min-height: 40px;
+        }
+        
+        .nav-btn {
+            flex-direction: row;
+            min-height: 35px;
+            gap: 5px;
+        }
+        
+        .nav-btn span:first-child {
+            margin-bottom: 0;
+            font-size: 16px;
+        }
+        
+        .nav-btn span:last-child {
+            font-size: 10px;
+        }
+    }
+
+    /* تحسينات للأجهزة عالية الدقة */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        .nav-btn {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
     }
     </style>
@@ -105,17 +271,11 @@
 <body>
 
 <div class="bottom-nav">
-    <!-- المفضلة -->
-    <button class="nav-btn" onclick="comingSoon('المفضلة')">
-        <span>❤️</span>
-        <span>المفضلة</span>
-    </button>
-    
-    <!-- مسكات العرائس -->
-    <button class="nav-btn" onclick="comingSoon('مسكات العرائس')">
-        <span>💍</span>
-        <span>مسكات العرائس</span>
-    </button>
+    <!-- الرئيسية -->
+    <a href="home.html" class="nav-btn" target="_top">
+        <span>🏠</span>
+        <span>الرئيسية</span>
+    </a>
     
     <!-- المنتجات -->
     <a href="products.html" class="nav-btn" target="_top">
@@ -123,10 +283,16 @@
         <span>المنتجات</span>
     </a>
     
-    <!-- الرئيسية -->
-    <a href="home.html" class="nav-btn" target="_top">
-        <span>🏠</span>
-        <span>الرئيسية</span>
+    <!-- مسكات العرائس -->
+    <button class="nav-btn" onclick="comingSoon('مسكات العرائس')">
+        <span>💍</span>
+        <span>مسكات العرائس</span>
+    </button>
+    
+    <!-- المفضلة -->
+    <a href="favorites.html" class="nav-btn" target="_top">
+        <span>❤️</span>
+        <span>المفضلة</span>
     </a>
 </div>
 
@@ -135,6 +301,21 @@
 function comingSoon(serviceName) {
     alert(`خدمة ${serviceName} قريباً إن شاء الله! 🎀`);
 }
+
+// إضافة مساحة في أسفل الصفحة لمنع تداخل المحتوى مع الشريط
+document.addEventListener('DOMContentLoaded', function() {
+    const bottomNav = document.querySelector('.bottom-nav');
+    const navHeight = bottomNav.offsetHeight;
+    
+    // إضافة مساحة في body
+    document.body.style.paddingBottom = navHeight + 'px';
+    
+    // تحديث المساحة عند تغيير حجم النافذة
+    window.addEventListener('resize', function() {
+        const newNavHeight = bottomNav.offsetHeight;
+        document.body.style.paddingBottom = newNavHeight + 'px';
+    });
+});
 </script>
 
 </body>
