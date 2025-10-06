@@ -1,7 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background: linear-gradient(135deg, #ffb6c1, #ff8fab);
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 12px 0;
+        box-shadow: 0 -4px 20px rgba(255, 107, 157, 0.3);
+        border-top: 2px solid #ff6b9d;
+        z-index: 1000;
+        animation: gentleGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes gentleGlow {
+        0% {
+            background: linear-gradient(135deg, #ffb6c1, #ff8fab);
+            box-shadow: 0 -2px 15px rgba(255, 107, 157, 0.4);
+        }
+        50% {
+            background: linear-gradient(135deg, #ff8fab, #ff6b9d);
+            box-shadow: 0 -2px 25px rgba(255, 107, 157, 0.7);
+        }
+        100% {
+            background: linear-gradient(135deg, #ffb6c1, #ff8fab);
+            box-shadow: 0 -2px 15px rgba(255, 107, 157, 0.4);
+        }
+    }
+
+    .nav-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: white;
+        font-size: 11px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px 5px;
+        width: 25%;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        min-height: 45px;
+        justify-content: center;
+    }
+
+    .nav-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .nav-btn span:first-child {
+        font-size: 18px;
+        margin-bottom: 3px;
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+    }
+
+    .nav-btn span:last-child {
+        font-weight: 600;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        white-space: nowrap;
+    }
+
+    /* تصميم متجاوب */
+    @media (max-width: 320px) {
+        .nav-btn {
+            font-size: 10px;
+            padding: 5px 3px;
+            min-height: 40px;
+        }
+        .nav-btn span:first-child {
+            font-size: 16px;
+        }
+    }
+
+    @media (min-width: 375px) and (max-width: 414px) {
+        .nav-btn {
+            font-size: 11px;
+            padding: 6px 4px;
+            min-height: 45px;
+        }
+        .nav-btn span:first-child {
+            font-size: 18px;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .nav-btn {
+            font-size: 13px;
+            padding: 8px 6px;
+            min-height: 50px;
+        }
+        .nav-btn span:first-child {
+            font-size: 20px;
+        }
+    }
+    </style>
+</head>
+<body>
+
 <div class="bottom-nav">
     <!-- المفضلة -->
     <button class="nav-btn" onclick="comingSoon('المفضلة')">
-        <span>❤</span>
+        <span>❤️</span>
         <span>المفضلة</span>
     </button>
     
@@ -12,127 +118,24 @@
     </button>
     
     <!-- المنتجات -->
-    <a href="products.html" class="nav-btn">
-        <span>🛍</span>
+    <a href="products.html" class="nav-btn" target="_top">
+        <span>🛍️</span>
         <span>المنتجات</span>
     </a>
     
     <!-- الرئيسية -->
-    <a href="home.html" class="nav-btn">
+    <a href="home.html" class="nav-btn" target="_top">
         <span>🏠</span>
         <span>الرئيسية</span>
     </a>
 </div>
 
-<style>
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background: linear-gradient(135deg, #ffb6c1, #ff8fab);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 8px 0;
-    border-top: 2px solid #ff6b9d;
-    z-index: 1000;
-    animation: gentleGlow 3s ease-in-out infinite;
-}
-
-@keyframes gentleGlow {
-    0% {
-        background: linear-gradient(135deg, #ffb6c1, #ff8fab);
-        box-shadow: 0 -2px 15px rgba(255, 107, 157, 0.4);
-    }
-    50% {
-        background: linear-gradient(135deg, #ff8fab, #ff6b9d);
-        box-shadow: 0 -2px 25px rgba(255, 107, 157, 0.7);
-    }
-    100% {
-        background: linear-gradient(135deg, #ffb6c1, #ff8fab);
-        box-shadow: 0 -2px 15px rgba(255, 107, 157, 0.4);
-    }
-}
-
-.nav-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-decoration: none;
-    color: white;
-    font-size: 11px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 6px 4px;
-    width: 22%;
-    border-radius: 15px;
-    transition: all 0.3s ease;
-    min-height: 45px;
-    justify-content: center;
-}
-
-.nav-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-}
-
-.nav-btn span:first-child {
-    font-size: 18px;
-    margin-bottom: 3px;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
-}
-
-.nav-btn span:last-child {
-    font-weight: 600;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-    white-space: nowrap;
-}
-
-/* تصميم متجاوب محسن */
-@media (max-width: 320px) {
-    .nav-btn {
-        font-size: 10px;
-        padding: 5px 3px;
-        min-height: 40px;
-    }
-    .nav-btn span:first-child {
-        font-size: 16px;
-    }
-}
-
-@media (min-width: 375px) and (max-width: 414px) {
-    .nav-btn {
-        font-size: 11px;
-        padding: 6px 4px;
-        min-height: 45px;
-    }
-    .nav-btn span:first-child {
-        font-size: 18px;
-    }
-}
-
-@media (min-width: 768px) {
-    .nav-btn {
-        font-size: 13px;
-        padding: 8px 6px;
-        min-height: 50px;
-    }
-    .nav-btn span:first-child {
-        font-size: 20px;
-    }
-}
-
-/* ضبط المسافات */
-body {
-    margin: 0;
-    padding: 0;
-    padding-bottom: 65px; /* مساحة للأزرار */
-}
-</style>
-
 <script>
+// دالة مؤقتة للخدمات القادمة
 function comingSoon(serviceName) {
-    alert(خدمة ${serviceName} قريباً إن شاء الله! 💖);
+    alert(`خدمة ${serviceName} قريباً إن شاء الله! 🎀`);
 }
 </script>
+
+</body>
+</html>
