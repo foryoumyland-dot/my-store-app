@@ -487,6 +487,68 @@ body {
     gap: 10px; 
     justify-content: center;
 }
+
+/* تنبيه البيانات */
+.data-alert {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #ff69b4, #ff1493);
+    color: white;
+    padding: 30px;
+    border-radius: 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    z-index: 2000;
+    display: none;
+    box-shadow: 0 15px 40px rgba(255, 105, 180, 0.5);
+    text-align: center;
+    border: 3px solid white;
+    animation: alertPop 0.5s ease;
+}
+
+.data-alert-buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.data-alert-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.data-alert-btn.primary {
+    background: white;
+    color: #d63384;
+}
+
+.data-alert-btn.secondary {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid white;
+}
+
+.data-alert-btn:hover {
+    transform: translateY(-2px);
+}
+
+@keyframes alertPop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
 </style>
 </head>
 <body>
@@ -537,6 +599,18 @@ body {
 
 <!-- ✅ تنبيه -->
 <div id="alertBox" class="alert-custom"></div>
+
+<!-- ✅ تنبيه البيانات -->
+<div id="dataAlert" class="data-alert">
+    <div style="font-size: 3rem; margin-bottom: 15px;">📝</div>
+    <h4 style="margin-bottom: 15px;">بياناتك الشخصية مطلوبة</h4>
+    <p style="margin-bottom: 20px; line-height: 1.5;">يجب تسجيل بياناتك الشخصية أولاً لإرسال الطلب</p>
+    <div class="data-alert-buttons">
+        <button class="data-alert-btn primary" onclick="goToProfile()">👤 تسجيل البيانات</button>
+        <button class="data-alert-btn secondary" onclick="closeDataAlert()">❌ إلغاء</button>
+    </div>
+</div>
+<div class="overlay" id="dataAlertOverlay" style="display: none;"></div>
 
 <!-- ✅ نافذة تكبير الصور -->
 <div id="imageModal" onclick="closeImage()">
@@ -632,7 +706,8 @@ function loadProducts() {
             qty: p.stock || 10,
             images: p.images || [],
             sizes: p.sizes || [],
-            colors: p.colors || []
+            colors: p.colors || [],
+            types: p.types || [] // إضافة حقل النوع
           });
         }
       }
@@ -669,6 +744,7 @@ function showCategory(cat){
           <div class="product-stock">📦 ${p.qty} متوفر</div>
           ${p.sizes && p.sizes.length ? `<select id="size-${p.id}" class="form-select mb-2" style="font-size: 12px;"><option value="">المقاس</option>${p.sizes.map(s=>`<option value="${s}">${s}</option>`).join("")}</select>` : ""}
           ${p.colors && p.colors.length ? `<select id="color-${p.id}" class="form-select mb-2" style="font-size: 12px;"><option value="">اللون</option>${p.colors.map(c=>`<option value="${c}">${c}</option>`).join("")}</select>` : ""}
+          ${p.types && p.types.length ? `<select id="type-${p.id}" class="form-select mb-2" style="font-size: 12px;"><option value="">النوع</option>${p.types.map(t=>`<option value="${t}">${t}</option>`).join("")}</select>` : ""}
           <div class="input-group mb-2">
             <button class="btn btn-outline-danger" style="font-size: 12px; padding: 4px 8px;" onclick="changeQty('${p.id}',-1)">➖</button>
             <input type="text" id="qty-${p.id}" class="form-control text-center" value="1" readonly style="font-size: 12px;">
@@ -689,10 +765,18 @@ function toggleFavorite(productId) {
     showAlert(favorites[productId] ? "❤️ تم الإضافة إلى المفضلة" : "🤍 تم الإزالة من المفضلة");
 }
 
-/* ✅ إرسال الطلب - إصلاح الخطأ */
+/* ✅ إرسال الطلب - مع التحقق من البيانات */
 function sendOrder() {
     if (cart.length === 0) {
         showAlert("⚠️ السلة فارغة");
+        closeConfirmSend();
+        return;
+    }
+    
+    // التحقق من وجود بيانات المستخدم
+    const userData = JSON.parse(localStorage.getItem('userProfile'));
+    if (!userData || !userData.name || !userData.phone || !userData.city || !userData.address) {
+        showDataAlert();
         closeConfirmSend();
         return;
     }
@@ -702,10 +786,11 @@ function sendOrder() {
         items: cart,
         total: total,
         timestamp: Date.now(),
-        status: "قيد الانتظار"
+        status: "قيد الانتظار",
+        customer: userData // إضافة بيانات العميل للطلب
     };
     
-    // إصلاح الخطأ: استخدام then/catch بشكل صحيح
+    // إرسال الطلب
     db.ref("orders").push(orderData, (error) => {
         if (error) {
             showAlert("❌ خطأ في إرسال الطلب: " + error.message);
@@ -738,14 +823,16 @@ function addToCart(id,name, price, stock){
   if(qty > stock) { showAlert("⚠️ الكمية غير متوفرة"); return; }
   let size = document.getElementById("size-"+id)?.value || "";
   let color = document.getElementById("color-"+id)?.value || "";
+  let type = document.getElementById("type-"+id)?.value || "";
 
   if((document.getElementById("size-"+id) && size==="") ||
-     (document.getElementById("color-"+id) && color==="")){
+     (document.getElementById("color-"+id) && color==="") ||
+     (document.getElementById("type-"+id) && type==="")){
     showAlert("⚠️ اختر الخيارات المطلوبة");
     return;
   }
 
-  cart.push({id,name, price, qty, size, color});
+  cart.push({id,name, price, qty, size, color, type});
   localStorage.setItem("cart", JSON.stringify(cart));
   updateCart();
   showAlert("✅ تمت إضافة المنتج إلى السلة");
@@ -760,7 +847,7 @@ function updateCart(){
     container.innerHTML += `
       <div class="d-flex justify-content-between align-items-center mb-2">
         <div style="font-size: 14px;">
-          - ${it.name} ${it.size? "| مقاس: "+it.size:""} ${it.color? "| لون: "+it.color:""} × ${it.qty} (${it.price * it.qty} د)
+          - ${it.name} ${it.size? "| مقاس: "+it.size:""} ${it.color? "| لون: "+it.color:""} ${it.type? "| نوع: "+it.type:""} × ${it.qty} (${it.price * it.qty} د)
         </div>
         <div>
           <button class="btn btn-sm btn-outline-secondary" onclick="editCartQty(${index},-1)">➖</button>
@@ -848,6 +935,21 @@ document.querySelectorAll('.dropdown-item').forEach(item => {
         closeMenu();
     });
 });
+
+// وظائف تنبيه البيانات
+function showDataAlert() {
+    document.getElementById('dataAlert').style.display = 'block';
+    document.getElementById('dataAlertOverlay').style.display = 'block';
+}
+
+function closeDataAlert() {
+    document.getElementById('dataAlert').style.display = 'none';
+    document.getElementById('dataAlertOverlay').style.display = 'none';
+}
+
+function goToProfile() {
+    window.location.href = 'profile.html';
+}
 
 window.onload = function(){
     loadCategories();
