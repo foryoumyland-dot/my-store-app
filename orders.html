@@ -80,8 +80,8 @@
   .dropdown-menu {
       position: absolute;
       top: 65px;
-      left: 50%;
-      transform: translateX(-50%);
+      right: 20px; /* ⬅️ عدلنا من left لـ right */
+      transform: none; /* ⬅️ أزلنا التحويل */
       background: linear-gradient(135deg, #ffffff, #fff5f7);
       border-radius: 15px;
       box-shadow: 0 8px 30px rgba(255, 105, 180, 0.3);
@@ -102,11 +102,11 @@
   @keyframes slideDown {
       from {
           opacity: 0;
-          transform: translateX(-50%) translateY(-10px);
+          transform: translateY(-10px); /* ⬅️ أزلنا translateX */
       }
       to {
           opacity: 1;
-          transform: translateX(-50%) translateY(0);
+          transform: translateY(0);
       }
   }
 
@@ -169,6 +169,7 @@
       .dropdown-menu {
           min-width: 180px;
           top: 60px;
+          right: 15px; /* ⬅️ تكيف مع الشاشات الصغيرة */
       }
       
       .dropdown-item {
@@ -196,6 +197,7 @@
       .dropdown-menu {
           min-width: 160px;
           top: 55px;
+          right: 10px; /* ⬅️ تكيف مع الشاشات الصغيرة */
       }
       
       .dropdown-item {
@@ -223,6 +225,7 @@
       .dropdown-menu {
           min-width: 220px;
           top: 70px;
+          right: 25px; /* ⬅️ تكيف مع الشاشات الكبيرة */
       }
       
       .dropdown-item {
@@ -310,6 +313,15 @@
     padding: 20px;
     font-size: 16px;
   }
+  
+  .debug-info {
+    background: #fff3cd;
+    padding: 10px;
+    margin: 10px 15px;
+    border-radius: 8px;
+    border-right: 4px solid #ffc107;
+    font-size: 14px;
+  }
 </style>
 </head>
 <body>
@@ -342,6 +354,12 @@
 <div id="userInfo" class="user-info" style="display:none;">
     <strong>👤 العميل: </strong><span id="customerName"></span> - 
     <strong>📞 الهاتف: </strong><span id="customerPhone"></span>
+</div>
+
+<!-- ✅ معلومات التصحيح -->
+<div id="debugInfo" class="debug-info" style="display:none;">
+    <strong>🐛 معلومات التصحيح:</strong>
+    <div id="debugStatus"></div>
 </div>
 
 <!-- ✅ الطلبات -->
@@ -406,11 +424,17 @@ document.querySelectorAll('.dropdown-item').forEach(item => {
 
 // ✅ عند تحميل الصفحة
 window.onload = function() {
+    console.log("🔍 بيانات المستخدم من localStorage:", userProfile);
+    
     if (userProfile && userProfile.name && userProfile.phone) {
         // عرض معلومات المستخدم
         document.getElementById('userInfo').style.display = 'block';
         document.getElementById('customerName').textContent = userProfile.name;
         document.getElementById('customerPhone').textContent = userProfile.phone;
+        
+        // عرض معلومات التصحيح
+        document.getElementById('debugInfo').style.display = 'block';
+        document.getElementById('debugStatus').textContent = `جاري البحث عن طلبات للرقم: ${userProfile.phone}`;
         
         // تحميل الطلبات
         loadUserOrders(userProfile.phone);
@@ -444,8 +468,11 @@ function loadUserOrders(userPhone) {
         let data = snapshot.val();
         let container = document.getElementById("orders");
         
+        console.log("📦 البيانات المستلمة من Firebase:", data);
+        
         if (!data) {
             container.innerHTML = '<div class="no-orders">🚫 لا توجد طلبات في قاعدة البيانات</div>';
+            document.getElementById('debugStatus').textContent = '❌ لا توجد طلبات في قاعدة البيانات';
             return;
         }
 
@@ -453,16 +480,25 @@ function loadUserOrders(userPhone) {
         
         // البحث في جميع الطلبات
         Object.entries(data).forEach(([orderId, order]) => {
+            console.log(`🔍 فحص الطلب ${orderId}:`, order);
+            
             // التحقق إذا كان الرقم مطابق
             if (order.customer && order.customer.phone === userPhone) {
+                console.log(`✅ وجد طلب مطابق: ${orderId}`);
                 userOrders.push({
                     id: orderId,
                     ...order
                 });
+            } else {
+                console.log(`❌ الطلب ${orderId} لا يطابق الرقم`, order.customer);
             }
         });
 
-        console.log("الطلبات الموجودة:", userOrders);
+        console.log("📊 الطلبات الموجودة للمستخدم:", userOrders);
+
+        // تحديث معلومات التصحيح
+        document.getElementById('debugStatus').textContent = 
+            `تم العثور على ${userOrders.length} طلب للرقم: ${userPhone}`;
 
         if (userOrders.length === 0) {
             container.innerHTML = `
@@ -539,6 +575,26 @@ function loadUserOrders(userPhone) {
             `;
             container.appendChild(orderDiv);
         });
+    }, function(error) {
+        console.error("❌ خطأ في جلب البيانات:", error);
+        document.getElementById('orders').innerHTML = `
+            <div class="no-orders">
+                <div style="font-size: 3rem; margin-bottom: 15px;">❌</div>
+                <h3 style="color: #d63384;">خطأ في الاتصال</h3>
+                <p>تعذر تحميل الطلبات. تأكد من اتصال الإنترنت.</p>
+                <button onclick="location.reload()" style="
+                    background: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    cursor: pointer;
+                    margin-top: 15px;
+                ">🔄 إعادة المحاولة</button>
+            </div>
+        `;
+        document.getElementById('debugStatus').textContent = '❌ خطأ في الاتصال: ' + error.message;
     });
 }
 
