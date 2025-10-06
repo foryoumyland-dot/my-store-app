@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<base href="/my-store-app/">
 <title>طلباتي</title>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -270,17 +271,26 @@
   .status-shipping { background: #d1e7ff; color: #004085; }
   .status-delivered { background: #d4edda; color: #155724; }
   .status-cancelled { background: #f8d7da; color: #721c24; }
+  .status-cancelled-by-customer { background: #f8d7da; color: #721c24; }
   
   .btn-action { 
-    background: linear-gradient(45deg, #ff69b4, #ff1493);
-    color:white; 
-    border:none; 
-    padding:8px 16px; 
-    border-radius:6px; 
-    cursor:pointer; 
-    margin-top:10px;
+    color: white; 
+    border: none; 
+    padding: 10px 16px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    margin-top: 10px;
     font-weight: bold;
     font-size: 14px;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-cancel {
+    background: linear-gradient(45deg, #dc3545, #c82333);
+  }
+  
+  .btn-restore {
+    background: linear-gradient(45deg, #28a745, #20c997);
   }
   
   .user-info {
@@ -304,6 +314,36 @@
     color: #d63384;
     padding: 20px;
     font-size: 16px;
+  }
+  
+  /* نافذة التأكيد */
+  .confirm-modal { 
+    display: none; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0,0,0,0.5); 
+    z-index: 5000; 
+    justify-content: center; 
+    align-items: center; 
+  }
+  .confirm-content { 
+    background: white; 
+    padding: 25px; 
+    border-radius: 15px; 
+    text-align: center; 
+    box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+    max-width: 400px;
+    width: 90%;
+    margin: 20px;
+  }
+  .confirm-buttons { 
+    margin-top: 20px; 
+    display: flex; 
+    gap: 10px; 
+    justify-content: center;
   }
   
   /* تنبيهات متوافقة مع المتجر */
@@ -344,6 +384,19 @@
 <!-- حجب القائمة عند النقر خارجها -->
 <div class="overlay" id="overlay" onclick="closeMenu()"></div>
 
+<!-- نافذة التأكيد -->
+<div id="confirmModal" class="confirm-modal">
+  <div class="confirm-content">
+    <div id="confirmIcon" style="font-size: 3rem; margin-bottom: 15px;">⚠️</div>
+    <h5 id="confirmTitle" style="color: #d63384;"></h5>
+    <p id="confirmMessage"></p>
+    <div class="confirm-buttons">
+      <button id="confirmAction" class="btn-action" style="min-width: 100px;"></button>
+      <button id="confirmCancel" class="btn-action" style="background: #6c757d; min-width: 100px;">❌ إلغاء</button>
+    </div>
+  </div>
+</div>
+
 <!-- تنبيهات -->
 <div id="alertBox" class="alert-custom"></div>
 
@@ -379,6 +432,8 @@ const db = firebase.database();
 
 // ✅ بيانات المستخدم من localStorage
 let userProfile = JSON.parse(localStorage.getItem('userProfile'));
+
+let currentOrderId = null;
 
 // وظائف القائمة المنسدلة
 function toggleMenu() {
@@ -419,11 +474,43 @@ document.querySelectorAll('.dropdown-item').forEach(item => {
 });
 
 // ✅ عرض التنبيه
-function showAlert(msg){
+function showAlert(msg, type = 'success'){
   let box = document.getElementById("alertBox");
   box.innerHTML = msg;
+  
+  if (type === 'success') {
+    box.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
+  } else if (type === 'error') {
+    box.style.background = 'linear-gradient(45deg, #dc3545, #c82333)';
+  } else {
+    box.style.background = 'linear-gradient(45deg, #ff416c, #ff4b2b)';
+  }
+  
   box.style.display = "block";
   setTimeout(()=> box.style.display="none", 3000);
+}
+
+// ✅ نافذة التأكيد
+function showConfirm(title, message, actionText, actionCallback) {
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+    document.getElementById('confirmAction').textContent = actionText;
+    
+    if (actionText.includes('إلغاء')) {
+        document.getElementById('confirmAction').className = 'btn-action btn-cancel';
+        document.getElementById('confirmIcon').textContent = '⚠️';
+    } else {
+        document.getElementById('confirmAction').className = 'btn-action btn-restore';
+        document.getElementById('confirmIcon').textContent = '🔄';
+    }
+    
+    document.getElementById('confirmAction').onclick = actionCallback;
+    document.getElementById('confirmModal').style.display = 'flex';
+}
+
+function closeConfirm() {
+    document.getElementById('confirmModal').style.display = 'none';
+    currentOrderId = null;
 }
 
 // ✅ عند تحميل الصفحة
@@ -443,7 +530,7 @@ window.onload = function() {
                 <div style="font-size: 3rem; margin-bottom: 15px;">📝</div>
                 <h3 style="color: #d63384;">بياناتك الشخصية مطلوبة</h3>
                 <p>يجب تسجيل بياناتك الشخصية أولاً لعرض الطلبات</p>
-                <button onclick="goToProfile()" class="btn-action" style="margin-top: 15px;">
+                <button onclick="goToProfile()" class="btn-action btn-restore" style="margin-top: 15px;">
                     👤 تسجيل البيانات
                 </button>
             </div>
@@ -481,7 +568,7 @@ function loadUserOrders(userPhone) {
                     <div style="font-size: 3rem; margin-bottom: 15px;">📭</div>
                     <h3 style="color: #d63384;">لا توجد طلبات</h3>
                     <p>لم تقم بإرسال أي طلبات بعد</p>
-                    <button onclick="goToStore()" class="btn-action" style="margin-top: 15px;">
+                    <button onclick="goToStore()" class="btn-action btn-restore" style="margin-top: 15px;">
                         🛍️ تسوق الآن
                     </button>
                 </div>
@@ -520,10 +607,17 @@ function loadUserOrders(userPhone) {
             let statusText = getStatusText(order.status || "قيد الانتظار");
             
             let actionBtn = "";
-            if (order.status === "ملغى") {
-                actionBtn = `<button class="btn-action" onclick="restoreOrder('${order.id}')" style="background:linear-gradient(45deg, #28a745, #20c997);">🔄 إعادة إرسال الطلب</button>`;
-            } else if (order.status !== "قيد التوصيل" && order.status !== "تم التسليم" && order.status !== "ملغى") {
-                actionBtn = `<button class="btn-action" onclick="deleteOrder('${order.id}')" style="background:linear-gradient(45deg, #dc3545, #c82333);">🗑 إلغاء الطلب</button>`;
+            // فقط إذا كان الطلب ملغي من الزبون يمكن إعادة إرساله
+            if (order.status === "تم الإلغاء من الزبون") {
+                actionBtn = `<button class="btn-action btn-restore" onclick="restoreOrder('${order.id}')">🔄 إعادة إرسال الطلب</button>`;
+            } 
+            // يمكن إلغاء الطلب فقط إذا كان في حالة يمكن إلغاؤها ولم يتم إلغاؤه من الإدارة
+            else if (order.status !== "ملغى" && 
+                     order.status !== "تم التسليم" && 
+                     order.status !== "قيد التوصيل" &&
+                     order.status !== "تم الإلغاء من الزبون" &&
+                     !order.adminDeleted) {
+                actionBtn = `<button class="btn-action btn-cancel" onclick="cancelOrder('${order.id}')">🗑 إلغاء الطلب</button>`;
             }
 
             let orderDiv = document.createElement("div");
@@ -565,7 +659,8 @@ function getStatusText(status) {
         'تم التأكيد': '✅ تم التأكيد', 
         'قيد التوصيل': '🚚 قيد التوصيل',
         'تم التسليم': '🎉 تم التسليم',
-        'ملغى': '❌ ملغى'
+        'ملغى': '❌ ملغى من الإدارة',
+        'تم الإلغاء من الزبون': '🗑 تم الإلغاء من الزبون'
     };
     return statusMap[status] || status;
 }
@@ -576,35 +671,55 @@ function getStatusClass(status) {
         'تم التأكيد': 'status-confirmed',
         'قيد التوصيل': 'status-shipping', 
         'تم التسليم': 'status-delivered',
-        'ملغى': 'status-cancelled'
+        'ملغى': 'status-cancelled',
+        'تم الإلغاء من الزبون': 'status-cancelled-by-customer'
     };
     return classMap[status] || 'status-pending';
 }
 
 // ✅ دوال الإجراءات
-function deleteOrder(orderId) {
-    if (confirm("⚠️ هل أنت متأكد من أنك تريد إلغاء هذا الطلب؟")) {
-        db.ref("orders/" + orderId).update({ status: "ملغى" })
-        .then(() => {
-            showAlert("✅ تم إلغاء الطلب بنجاح");
-        })
-        .catch(error => {
-            showAlert("❌ خطأ في إلغاء الطلب");
-        });
-    }
+function cancelOrder(orderId) {
+    currentOrderId = orderId;
+    showConfirm(
+        '⚠️ تأكيد إلغاء الطلب',
+        'هل أنت متأكد من أنك تريد إلغاء هذا الطلب؟ يمكنك إعادة إرساله لاحقاً إذا رغبت.',
+        '🗑 نعم، إلغاء الطلب',
+        function() {
+            db.ref("orders/" + orderId).update({ status: "تم الإلغاء من الزبون" })
+            .then(() => {
+                showAlert('✅ تم إلغاء الطلب بنجاح', 'success');
+                closeConfirm();
+            })
+            .catch(error => {
+                showAlert('❌ حدث خطأ في إلغاء الطلب', 'error');
+                closeConfirm();
+            });
+        }
+    );
 }
 
 function restoreOrder(orderId) {
-    if (confirm("🔄 هل تريد إعادة إرسال هذا الطلب؟")) {
-        db.ref("orders/" + orderId).update({ status: "قيد الانتظار" })
-        .then(() => {
-            showAlert("✅ تم إعادة إرسال الطلب بنجاح");
-        })
-        .catch(error => {
-            showAlert("❌ خطأ في إعادة الإرسال");
-        });
-    }
+    currentOrderId = orderId;
+    showConfirm(
+        '🔄 تأكيد إعادة الإرسال',
+        'هل تريد إعادة إرسال هذا الطلب؟ سيتم إرساله للإدارة مرة أخرى.',
+        '🔄 نعم، إعادة الإرسال',
+        function() {
+            db.ref("orders/" + orderId).update({ status: "قيد الانتظار" })
+            .then(() => {
+                showAlert('✅ تم إعادة إرسال الطلب بنجاح', 'success');
+                closeConfirm();
+            })
+            .catch(error => {
+                showAlert('❌ حدث خطأ في إعادة الإرسال', 'error');
+                closeConfirm();
+            });
+        }
+    );
 }
+
+// ✅ إغلاق نافذة التأكيد
+document.getElementById('confirmCancel').onclick = closeConfirm;
 
 // ✅ دوال التنقل
 function goToProfile() {
