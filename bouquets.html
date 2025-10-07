@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مسكات العرائس - متجرنا</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #ff69b4;
+            --secondary-color: #ffb6c1;
+            --dark-pink: #db7093;
+            --light-pink: #fff0f5;
+            --soft-pink: #ffe4e9;
+            --accent-color: #ff1493;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--light-pink) 0%, var(--secondary-color) 100%);
+            color: #8b4513;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 25px 0 15px;
+            margin-bottom: 20px;
+        }
+        
+        .logo-container {
+            background: transparent;
+            display: inline-block;
+        }
+        
+        .logo {
+            max-width: 350px;
+            height: auto;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(219, 112, 147, 0.15);
+            transition: all 0.3s ease;
+            border: 2px solid var(--secondary-color);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(219, 112, 147, 0.25);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+        
+        .product-info {
+            padding: 15px;
+            background: linear-gradient(to bottom, white, var(--soft-pink));
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .product-name {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: var(--dark-pink);
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .product-price {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        
+        .whatsapp-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .whatsapp-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+            background: linear-gradient(135deg, #128C7E, #25D366);
+        }
+        
+        .facebook-section {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, var(--soft-pink), var(--secondary-color));
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid white;
+            box-shadow: 0 4px 15px rgba(219, 112, 147, 0.15);
+        }
+        
+        .facebook-text {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--dark-pink);
+            font-weight: 600;
+        }
+        
+        .facebook-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #1877F2, #0e5aac);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3);
+            font-size: 0.9rem;
+        }
+        
+        .facebook-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(24, 119, 242, 0.4);
+        }
+        
+        .no-products {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(219, 112, 147, 0.15);
+            border: 2px dashed var(--secondary-color);
+        }
+        
+        .no-products h3 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--dark-pink);
+        }
+        
+        .no-products p {
+            font-size: 1rem;
+            color: #8b4513;
+            opacity: 0.8;
+        }
+
+        /* نافذة التكبير */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-content {
+            position: relative;
+            margin: auto;
+            display: block;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            top: 50%;
+            transform: translateY(-50%);
+            animation: zoomIn 0.3s ease;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        
+        .close-modal:hover {
+            color: var(--secondary-color);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes zoomIn {
+            from { transform: translateY(-50%) scale(0.8); opacity: 0; }
+            to { transform: translateY(-50%) scale(1); opacity: 1; }
+        }
+        
+        /* تحسينات للشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .logo {
+                max-width: 280px;
+            }
+            
+            .product-image {
+                height: 180px;
+            }
+            
+            .modal-content {
+                width: 95%;
+            }
+            
+            .close-modal {
+                right: 20px;
+                font-size: 30px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .product-image {
+                height: 160px;
+            }
+            
+            .product-info {
+                padding: 12px;
+            }
+            
+            .product-name {
+                font-size: 1.1rem;
+            }
+            
+            .facebook-section {
+                padding: 20px;
+            }
+            
+            .logo {
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- نافذة تكبير الصورة -->
+    <div id="imageModal" class="image-modal">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="https://i.postimg.cc/13Bp4vYr/inbound5542497244784630529.png" alt="مسكات العرائس" class="logo">
+            </div>
+        </header>
+        
+        <section class="products-grid" id="productsContainer">
+            <!-- المنتجات تظهر فوراً -->
+        </section>
+        
+        <section class="facebook-section">
+            <p class="facebook-text">لطلب أي تصميم خاص يرجى التواصل على صفحتنا الفيسبوك</p>
+            <a href="https://www.facebook.com/profile.php?id=100089989680343" class="facebook-btn" target="_blank">
+                <span>📘</span> صفحتنا على الفيسبوك
+            </a>
+        </section>
+    </div>
+
+    <script>
+        // تكوين Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDInTSRi4Lf_KO_ltoAajJhBOHTmfnCIvU",
+            authDomain: "store-email-1846c.firebaseapp.com",
+            databaseURL: "https://store-email-1846c-default-rtdb.firebaseio.com",
+            projectId: "store-email-1846c",
+            storageBucket: "store-email-1846c.firebasestorage.app",
+            messagingSenderId: "238351247429",
+            appId: "1:238351247429:web:5d83284ed44dc2e5ac5b2c"
+        };
+
+        // تهيئة Firebase
+        let database;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+        } catch (error) {
+            console.error('خطأ في الاتصال بـ Firebase:', error);
+        }
+
+        // تحميل وعرض المنتجات
+        function loadProducts() {
+            const productsContainer = document.getElementById('productsContainer');
+            
+            if (!database) {
+                showNoProducts();
+                return;
+            }
+
+            // الاستماع للتحديثات في الوقت الحقيقي
+            database.ref('products').on('value', (snapshot) => {
+                const productsData = snapshot.val();
+                const products = productsData ? Object.values(productsData) : [];
+                
+                if (products.length === 0) {
+                    showNoProducts();
+                } else {
+                    displayProducts(products);
+                }
+            }, (error) => {
+                console.error('خطأ في تحميل المنتجات:', error);
+                showNoProducts();
+            });
+        }
+
+        // عرض رسالة لا توجد منتجات
+        function showNoProducts() {
+            const productsContainer = document.getElementById('productsContainer');
+            productsContainer.innerHTML = `
+                <div class="no-products">
+                    <h3>🎀 مرحباً بكم في متجر مسكات العرائس 🎀</h3>
+                    <p>لا توجد منتجات مضافة حالياً</p>
+                    <p style="margin-top: 10px; font-size: 0.9rem;">سيتم عرض المنتجات هنا قريباً...</p>
+                </div>
+            `;
+        }
+
+        // عرض المنتجات
+        function displayProducts(products) {
+            const productsContainer = document.getElementById('productsContainer');
+            
+            // ترتيب المنتجات من الأحدث إلى الأقدم
+            products.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            
+            productsContainer.innerHTML = products.map((product, index) => `
+                <div class="product-card">
+                    <img src="${product.image}" alt="${product.name}" class="product-image" 
+                         onclick="openImageModal('${product.image}')"
+                         onerror="this.src='https://via.placeholder.com/300x200/ffb6c1/ffffff?text=صورة+منتج'">
+                    <div class="product-info">
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-price">${product.price} دينار ليبي</p>
+                        <a href="https://wa.me/218942656425?text=${encodeURIComponent(`مرحباً، أريد حجز ${product.name} بسعر ${product.price} دينار ليبي`)}" class="whatsapp-btn" target="_blank">
+                            <span>💬</span> حجز عبر واتساب
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // فتح نافذة تكبير الصورة
+        function openImageModal(imageSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'block';
+            modalImg.src = imageSrc;
+        }
+
+        // إغلاق نافذة التكبير
+        document.querySelector('.close-modal').addEventListener('click', function() {
+            document.getElementById('imageModal').style.display = 'none';
+        });
+
+        // إغلاق النافذة عند النقر خارج الصورة
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+
+        // إغلاق النافذة بالزر Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.getElementById('imageModal').style.display = 'none';
+            }
+        });
+
+        // بدء تحميل المنتجات عند اكتمال تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+        });
+    </script>
+</body>
+</html>
