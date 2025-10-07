@@ -285,10 +285,10 @@
     </a>
     
     <!-- مسكات العرائس -->
-    <button class="nav-btn" onclick="comingSoon('مسكات العرائس')">
+    <a href="bouquets.html" class="nav-btn" target="_top">
         <span>💍</span>
         <span>مسكات العرائس</span>
-    </button>
+    </a>
     
     <!-- المفضلة -->
     <a href="favorites.html" class="nav-btn" target="_top">
@@ -298,11 +298,6 @@
 </div>
 
 <script>
-// دالة مؤقتة للخدمات القادمة
-function comingSoon(serviceName) {
-    alert(`خدمة ${serviceName} قريباً إن شاء الله! 🎀`);
-}
-
 // إضافة مساحة في أسفل الصفحة لمنع تداخل المحتوى مع الشريط
 document.addEventListener('DOMContentLoaded', function() {
     const bottomNav = document.querySelector('.bottom-nav');
