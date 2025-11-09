@@ -1011,11 +1011,11 @@ function showCategory(cat){
 /* 🆕 دالة جديدة: الحصول على المخزون المتوفر لتركيبة معينة */
 function getAvailableStock(productId, color, size) {
     const product = getProductById(productId);
-    if (!product || !product.stockDetails) return 0;
+    if (!product || !product.stockDetails) return product?.totalStock || 0;
     
     // تحديد اللون والمقاس الافتراضيين في حال عدم وجودهما في المنتج
-    const finalColor = product.colors.length > 0 ? color : "";
-    const finalSize = product.sizes.length > 0 ? size : "";
+    const finalColor = (product.colors && product.colors.length > 0) ? color : "";
+    const finalSize = (product.sizes && product.sizes.length > 0) ? size : "";
 
     // البحث عن تفاصيل المخزون المطابقة للون والمقاس
     const stockItem = product.stockDetails.find(item => 
@@ -1040,14 +1040,13 @@ function updateStockStatus(productId) {
     const selectedSize = sizeSelect ? sizeSelect.value : "";
     const selectedColor = colorSelect ? colorSelect.value : "";
     
-    let availableStock = product.totalStock; // القيمة الافتراضية هي المخزون الكلي
+    let availableStock = product.totalStock || 0; // القيمة الافتراضية هي المخزون الكلي
 
     // 1. حساب المخزون المتاح للتركيبة المختارة
     const requiresColor = product.colors && product.colors.length > 0;
     const requiresSize = product.sizes && product.sizes.length > 0;
     const requiresSelection = requiresColor || requiresSize;
     const isReadyToSelect = (!requiresColor || selectedColor) && (!requiresSize || selectedSize);
-
 
     if (requiresSelection) {
         if (isReadyToSelect) {
@@ -1136,8 +1135,8 @@ async function sendOrder() {
                 let stockReduced = false;
                 
                 // تحديد اللون والمقاس الافتراضيين
-                const finalColor = currentProduct.colors && currentProduct.colors.length > 0 ? item.color : "";
-                const finalSize = currentProduct.sizes && currentProduct.sizes.length > 0 ? item.size : "";
+                const finalColor = (currentProduct.colors && currentProduct.colors.length > 0) ? item.color : "";
+                const finalSize = (currentProduct.sizes && currentProduct.sizes.length > 0) ? item.size : "";
 
                 // إذا كان هناك مخزون تفصيلي (stockDetails)
                 if (currentProduct.stockDetails && currentProduct.stockDetails.length > 0) {
@@ -1209,6 +1208,8 @@ async function sendOrder() {
                 localStorage.setItem("cart", JSON.stringify(cart));
                 updateCart();
                 closeCart();
+                // إعادة تحميل المنتجات لتحديث المخزون المعروض
+                loadProducts();
             }
         });
     } else {
@@ -1261,7 +1262,7 @@ function addToCart(productId){ // استقبال الـ id فقط
   }
 
   // 🆕 التحقق من المخزون التفصيلي/الكلي
-  let availableStock = product.totalStock;
+  let availableStock = product.totalStock || 0;
 
   if (product.stockDetails && product.stockDetails.length > 0) {
       availableStock = getAvailableStock(productId, color, size);
@@ -1335,7 +1336,7 @@ function editCartQty(index,delta){
     const product = getProductById(item.id);
     if (!product) return;
     
-    let availableStock = product.totalStock;
+    let availableStock = product.totalStock || 0;
     if (product.stockDetails && product.stockDetails.length > 0) {
         availableStock = getAvailableStock(item.id, item.color, item.size);
     }
