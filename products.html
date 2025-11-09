@@ -265,6 +265,7 @@ body {
     box-shadow: 0 8px 25px rgba(255, 105, 180, 0.2);
 }
 
+/* تم استبدال product-image بتصميم معرض الصور الجديد */
 .product-image {
     width: 100%;
     height: 200px;
@@ -458,8 +459,7 @@ body {
 }
 
 /* ✅ باقي الأنماط */
-#imageModal { display: none; position: fixed; z-index: 4000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }
-#imageModal img { max-width: 90%; max-height: 90%; border-radius: 8px; }
+/* تم حذف #imageModal والأنماط المتعلقة به واستبدالها بالأنماط الجديدة في الأسفل */
 
 .confirm-modal { 
     display: none; 
@@ -550,19 +550,228 @@ body {
         transform: translate(-50%, -50%) scale(1);
     }
 }
+
+/* 🆕 معرض الصور الجديد - CSS المضاف */
+.product-gallery {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 15px 15px 0 0;
+}
+
+.main-product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.main-product-image:hover {
+    transform: scale(1.05);
+}
+
+.thumbnail-container {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    padding: 0 10px;
+}
+
+.thumbnail {
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.thumbnail.active {
+    border-color: #ff69b4;
+    opacity: 1;
+}
+
+.thumbnail:hover {
+    opacity: 1;
+}
+
+.image-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: #d63384;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.image-nav-btn:hover {
+    background: white;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.image-nav-btn.prev {
+    right: 10px;
+}
+
+.image-nav-btn.next {
+    left: 10px;
+}
+
+.image-counter {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 10;
+}
+
+/* معرض الصور الموسع */
+.image-gallery-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.95);
+    z-index: 4000;
+    justify-content: center;
+    align-items: center;
+}
+
+.gallery-main-image {
+    max-width: 90%;
+    max-height: 80%;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.gallery-thumbnails {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+}
+
+.gallery-thumbnail {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.gallery-thumbnail.active {
+    border-color: #ff69b4;
+    opacity: 1;
+}
+
+.gallery-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    color: white;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.gallery-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.gallery-nav-btn.prev {
+    right: 20px;
+}
+
+.gallery-nav-btn.next {
+    left: 20px;
+}
+
+.gallery-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.gallery-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.gallery-counter {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    background: rgba(0,0,0,0.5);
+    padding: 5px 10px;
+    border-radius: 10px;
+    z-index: 10;
+}
 </style>
 </head>
 <body>
 
-<!-- الشريط العلوي المدمج مباشرة -->
 <nav class="top-navbar">
-    <!-- أيقونة القائمة على اليسار -->
     <button class="menu-icon" onclick="toggleMenu()">☰</button>
     
-    <!-- اسم المتجر على اليمين - نص عادي -->
     <div class="store-name">🌸 لأجلك سيدتي</div>
     
-    <!-- القائمة المنسدلة -->
     <div class="dropdown-menu" id="dropdownMenu">
         <a href="profile.html" class="dropdown-item" onclick="closeMenu()">👤 بياناتي</a>
         <div class="menu-divider"></div>
@@ -570,24 +779,18 @@ body {
     </div>
 </nav>
 
-<!-- حجب القائمة عند النقر خارجها -->
 <div class="overlay" id="overlay" onclick="closeMenu()"></div>
 
-<!-- ✅ العنوان -->
 <div class="page-title" style="text-align: center; margin: 20px 0; color: #d63384; font-weight: bold; font-size: 2rem;">🛍️ منتجاتنا</div>
 
-<!-- ✅ الأقسام -->
 <div id="categoriesBar"></div>
 
-<!-- ✅ المنتجات -->
 <div class="products-grid" id="productsContainer"></div>
 
-<!-- ✅ أيقونة السلة -->
 <div id="cartIcon">
   🛒 <span id="cartCount">0</span>
 </div>
 
-<!-- ✅ السلة -->
 <div id="cartPanel">
   <h4>🛒 سلة المشتريات</h4>
   <div id="cartItems"></div>
@@ -598,10 +801,8 @@ body {
   <button class="btn btn-secondary w-100 mt-2" onclick="closeCart()">⬅️ رجوع</button>
 </div>
 
-<!-- ✅ تنبيه -->
 <div id="alertBox" class="alert-custom"></div>
 
-<!-- ✅ تنبيه البيانات -->
 <div id="dataAlert" class="data-alert">
     <div style="font-size: 3rem; margin-bottom: 15px;">📝</div>
     <h4 style="margin-bottom: 15px;">بياناتك الشخصية مطلوبة</h4>
@@ -613,12 +814,6 @@ body {
 </div>
 <div class="overlay" id="dataAlertOverlay" style="display: none;"></div>
 
-<!-- ✅ نافذة تكبير الصور -->
-<div id="imageModal" onclick="closeImage()">
-  <img id="modalImg" src="">
-</div>
-
-<!-- ✅ نافذة تأكيد الإرسال -->
 <div id="confirmSendModal" class="confirm-modal">
   <div class="confirm-content">
     <h5 style="color: #d63384;">📦 تأكيد إرسال الطلب</h5>
@@ -630,7 +825,6 @@ body {
   </div>
 </div>
 
-<!-- ✅ نافذة تأكيد التفريغ -->
 <div id="confirmClearModal" class="confirm-modal">
   <div class="confirm-content">
     <h5 style="color: #d63384;">🗑️ تأكيد تفريغ السلة</h5>
@@ -640,6 +834,15 @@ body {
       <button class="btn btn-secondary" onclick="closeConfirmClear()">❌ إلغاء</button>
     </div>
   </div>
+</div>
+
+<div id="imageGalleryModal" class="image-gallery-modal">
+    <button class="gallery-close" onclick="closeImageGallery()">✕</button>
+    <div class="gallery-counter" id="galleryCounter">1/5</div>
+    <button class="gallery-nav-btn prev" onclick="prevGalleryImage()">❮</button>
+    <img class="gallery-main-image" id="galleryMainImage" src="">
+    <button class="gallery-nav-btn next" onclick="nextGalleryImage()">❯</button>
+    <div class="gallery-thumbnails" id="galleryThumbnails"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -661,6 +864,11 @@ let products = {};
 let currentCategory = "";
 let categoriesMap = {};
 let favorites = JSON.parse(localStorage.getItem("favorites")) || {};
+
+/* متغيرات معرض الصور الموسع */
+let currentGalleryImages = [];
+let currentGalleryIndex = 0;
+
 
 /* ✅ تحميل الأقسام */
 function loadCategories() {
@@ -731,18 +939,35 @@ function showCategory(cat){
   
   products[cat].forEach((p,i)=>{
     const isFavorite = favorites[p.id];
-    const mainImage = p.images && p.images.length > 0 ? p.images[0] : '';
+    const hasMultipleImages = p.images && p.images.length > 1;
     
     container.innerHTML += `
       <div class="product-card">
         <button class="heart-btn ${isFavorite ? 'active' : ''}" onclick="toggleFavorite('${p.id}')">
             ${isFavorite ? '❤️' : '🤍'}
         </button>
-        <img src="${mainImage}" class="product-image" onclick="openImage('${mainImage}')" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0i>🛍️ لا توجد صورة</dGV4dD48L3N2Zz4='">
+        <div class="product-gallery" id="gallery-${p.id}">
+          ${hasMultipleImages ? `<div class="image-counter">1/${p.images.length}</div>` : ''}
+          <img src="${p.images[0] || getDefaultImage()}" class="main-product-image" 
+               onclick="openImageGallery('${p.id}')" 
+               onerror="this.src='${getDefaultImage()}'"
+               data-current-index="0">
+          
+          ${hasMultipleImages ? `
+            <button class="image-nav-btn prev" onclick="changeProductImage('${p.id}', -1)">❮</button>
+            <button class="image-nav-btn next" onclick="changeProductImage('${p.id}', 1)">❯</button>
+            <div class="thumbnail-container" id="thumbnails-${p.id}">
+              ${p.images.map((img, index) => `
+                <img src="${img}" class="thumbnail ${index === 0 ? 'active' : ''}" 
+                     onclick="setProductImage('${p.id}', ${index})"
+                     onerror="this.src='${getDefaultImage()}'">
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
         <div class="product-body">
           <h5 class="product-title">${p.name}</h5>
           <div class="product-price">💵 ${p.price} د</div>
-          <div class="product-stock">📦 ${p.qty} متوفر</div>
           ${p.sizes && p.sizes.length ? `<select id="size-${p.id}" class="form-select mb-2" style="font-size: 12px;"><option value="">المقاس</option>${p.sizes.map(s=>`<option value="${s}">${s}</option>`).join("")}</select>` : ""}
           ${p.colors && p.colors.length ? `<select id="color-${p.id}" class="form-select mb-2" style="font-size: 12px;"><option value="">اللون</option>${p.colors.map(c=>`<option value="${c}">${c}</option>`).join("")}</select>` : ""}
           ${p.types && p.types.length ? `<select id="type-${p.id}" class="form-select mb-2" style="font-size: 12px;"><option value="">النوع</option>${p.types.map(t=>`<option value="${t}">${t}</option>`).join("")}</select>` : ""}
@@ -968,16 +1193,108 @@ function showAlert(msg){
   setTimeout(()=> box.style.display="none", 2500);
 }
 
-function openImage(src){ 
-    if(src && src.startsWith('data:image')) {
-        document.getElementById("modalImg").src = src; 
-        document.getElementById("imageModal").style.display = "flex"; 
+/* ❌ تم حذف دالة openImage القديمة */
+/* ❌ تم حذف دالة closeImage القديمة */
+
+/* 🆕 دوال معرض الصور المتعدد - JavaScript المضاف */
+function changeProductImage(productId, direction) {
+    const product = getProductById(productId);
+    if (!product || !product.images || product.images.length <= 1) return;
+    
+    const gallery = document.getElementById(`gallery-${productId}`);
+    const mainImage = gallery.querySelector('.main-product-image');
+    
+    let currentIndex = parseInt(mainImage.dataset.currentIndex || 0);
+    let newIndex = (currentIndex + direction + product.images.length) % product.images.length;
+    
+    updateProductImageDisplay(productId, newIndex);
+}
+
+function setProductImage(productId, index) {
+    updateProductImageDisplay(productId, index);
+}
+
+function updateProductImageDisplay(productId, index) {
+    const product = getProductById(productId);
+    if (!product || !product.images) return;
+    
+    const gallery = document.getElementById(`gallery-${productId}`);
+    const mainImage = gallery.querySelector('.main-product-image');
+    const thumbnails = gallery.querySelectorAll('.thumbnail');
+    const counter = gallery.querySelector('.image-counter');
+    
+    mainImage.src = product.images[index] || getDefaultImage();
+    mainImage.dataset.currentIndex = index;
+    
+    thumbnails.forEach((thumb, i) => {
+        thumb.classList.toggle('active', i === index);
+    });
+    
+    if (counter) {
+        counter.textContent = `${index + 1}/${product.images.length}`;
     }
 }
-function closeImage(){ document.getElementById("imageModal").style.display = "none"; }
+
+function openImageGallery(productId) {
+    const product = getProductById(productId);
+    if (!product || !product.images || product.images.length === 0) return;
+    
+    // الحصول على الفهرس الحالي من معرض الصور المصغر للمنتج
+    const mainImageElement = document.getElementById(`gallery-${productId}`).querySelector('.main-product-image');
+    currentGalleryIndex = parseInt(mainImageElement.dataset.currentIndex || 0);
+    
+    currentGalleryImages = product.images;
+    
+    updateGalleryDisplay();
+    document.getElementById('imageGalleryModal').style.display = 'flex';
+}
+
+function updateGalleryDisplay() {
+    document.getElementById('galleryMainImage').src = currentGalleryImages[currentGalleryIndex] || getDefaultImage();
+    document.getElementById('galleryCounter').textContent = `${currentGalleryIndex + 1}/${currentGalleryImages.length}`;
+    
+    const thumbnailsContainer = document.getElementById('galleryThumbnails');
+    thumbnailsContainer.innerHTML = '';
+    
+    currentGalleryImages.forEach((img, index) => {
+        const thumb = document.createElement('img');
+        thumb.className = `gallery-thumbnail ${index === currentGalleryIndex ? 'active' : ''}`;
+        thumb.src = img || getDefaultImage();
+        thumb.onclick = () => {
+            currentGalleryIndex = index;
+            updateGalleryDisplay();
+        };
+        thumbnailsContainer.appendChild(thumb);
+    });
+}
+
+function nextGalleryImage() {
+    currentGalleryIndex = (currentGalleryIndex + 1) % currentGalleryImages.length;
+    updateGalleryDisplay();
+}
+
+function prevGalleryImage() {
+    currentGalleryIndex = (currentGalleryIndex - 1 + currentGalleryImages.length) % currentGalleryImages.length;
+    updateGalleryDisplay();
+}
+
+function closeImageGallery() {
+    document.getElementById('imageGalleryModal').style.display = 'none';
+}
+
+function getProductById(productId) {
+    for (const category in products) {
+        const product = products[category].find(p => p.id === productId);
+        if (product) return product;
+    }
+    return null;
+}
+
+function getDefaultImage() {
+    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPjx0c3BhbiB4PSI1MCUiIHk9IjUwJSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+UtyDZhNmE2YQg2KfZhNiv2YrYqTwvdHNwY24+PC90ZXh0Pjwvc3ZnPg==';
+}
 </script>
 
-<!-- الشريط السفلي -->
 <iframe src="bottom-nav.html" style="width:100%; height:80px; border:none; position: fixed; bottom: 0; left: 0; z-index: 1000;"></iframe>
 </body>
 </html>
