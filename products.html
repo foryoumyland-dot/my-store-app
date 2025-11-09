@@ -7,7 +7,7 @@
 <title>🛍️ متجري</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 <style>
-/* ... (جميع أنماط CSS السابقة تبقى كما هي) ... */
+/* ... (جميع أنماط CSS السابقة تبقى كما هي، للحفاظ على حجم الكود سأختصرها) ... */
 body { 
     background:#fff0f6; 
     font-family: Tahoma; 
@@ -16,6 +16,7 @@ body {
     padding-bottom: 80px; 
     padding-top: 70px; 
 }
+
 /* ===== الشريط العلوي الثابت والمتجاوب ===== */
 .top-navbar {
     position: fixed;
@@ -32,6 +33,7 @@ body {
     box-shadow: 0 4px 20px rgba(255, 105, 180, 0.4);
     border-bottom: 2px solid #ffb6c1;
 }
+
 .store-name {
     color: white;
     font-weight: bold;
@@ -47,6 +49,7 @@ body {
     position: relative;
     overflow: hidden;
 }
+
 .store-name::before {
     content: '';
     position: absolute;
@@ -57,9 +60,11 @@ body {
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
     transition: left 0.5s;
 }
+
 .store-name:hover::before {
     left: 100%;
 }
+
 .menu-icon {
     background: rgba(255, 255, 255, 0.2);
     border: 2px solid rgba(255, 255, 255, 0.3);
@@ -71,11 +76,13 @@ body {
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
 }
+
 .menu-icon:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: scale(1.1);
     border-color: rgba(255, 255, 255, 0.5);
 }
+
 .dropdown-menu {
     position: absolute;
     top: 65px;
@@ -92,10 +99,12 @@ body {
     backdrop-filter: blur(10px);
     text-align: center;
 }
+
 .dropdown-menu.show {
     display: block;
     animation: slideDown 0.3s ease;
 }
+
 @keyframes slideDown {
     from {
         opacity: 0;
@@ -106,6 +115,7 @@ body {
         transform: translateX(-50%) translateY(0);
     }
 }
+
 .dropdown-item {
     display: block;
     padding: 15px 20px;
@@ -119,16 +129,19 @@ body {
     width: 100%;
     text-align: center;
 }
+
 .dropdown-item:hover {
     background: linear-gradient(45deg, #fff0f6, #ffe4ec);
     color: #ff1493;
 }
+
 .menu-divider {
     width: 80%;
     height: 1px;
     background: linear-gradient(90deg, transparent, #ffb6c1, transparent);
     margin: 0 auto;
 }
+
 .overlay {
     position: fixed;
     top: 0;
@@ -139,79 +152,98 @@ body {
     z-index: 999;
     display: none;
 }
+
 @media (max-width: 768px) {
     .top-navbar {
         height: 55px;
         padding: 0 15px;
     }
+    
     .store-name {
         font-size: 1.1rem;
         padding: 6px 15px;
     }
+    
     .menu-icon {
         font-size: 1.2rem;
         padding: 6px 10px;
     }
+    
     .dropdown-menu {
         min-width: 180px;
         top: 60px;
     }
+    
     .dropdown-item {
         padding: 12px 16px;
         font-size: 0.9rem;
     }
 }
+
 @media (max-width: 480px) {
     .top-navbar {
         height: 50px;
         padding: 0 10px;
     }
+    
     .store-name {
         font-size: 1rem;
         padding: 5px 12px;
     }
+    
     .menu-icon {
         font-size: 1.1rem;
         padding: 5px 8px;
     }
+    
     .dropdown-menu {
         min-width: 160px;
         top: 55px;
     }
+    
     .dropdown-item {
         padding: 10px 14px;
         font-size: 0.85rem;
     }
 }
+
 @media (min-width: 1200px) {
     .top-navbar {
         height: 65px;
         padding: 0 25px;
     }
+    
     .store-name {
         font-size: 1.5rem;
         padding: 10px 25px;
     }
+    
     .menu-icon {
         font-size: 1.6rem;
         padding: 10px 15px;
     }
+    
     .dropdown-menu {
         min-width: 220px;
         top: 70px;
     }
+    
     .dropdown-item {
         padding: 16px 22px;
         font-size: 1.1rem;
     }
 }
+
 .card img { height: auto; width: 100%; object-fit: contain; cursor:pointer; }
+
+/* ✅ تصميم جديد للمنتجات */
 .products-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 15px;
     padding: 15px;
 }
+
 .product-card {
     background: white;
     border-radius: 15px;
@@ -221,10 +253,13 @@ body {
     position: relative;
     overflow: hidden;
 }
+
 .product-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 25px rgba(255, 105, 180, 0.2);
 }
+
+/* تم استبدال product-image بتصميم معرض الصور الجديد */
 .product-image {
     width: 100%;
     height: 200px;
@@ -232,9 +267,11 @@ body {
     border-radius: 15px 15px 0 0;
     cursor: pointer;
 }
+
 .product-body {
     padding: 15px;
 }
+
 .product-title {
     font-size: 16px;
     font-weight: bold;
@@ -242,17 +279,21 @@ body {
     margin-bottom: 8px;
     line-height: 1.3;
 }
+
 .product-price {
     font-size: 18px;
     font-weight: bold;
     color: #e91e63;
     margin-bottom: 5px;
 }
+
 .product-stock {
     font-size: 12px;
     color: #666;
     margin-bottom: 10px;
 }
+
+/* ✅ قلب المفضلة */
 .heart-btn {
     position: absolute;
     top: 10px;
@@ -270,13 +311,17 @@ body {
     transition: all 0.3s ease;
     z-index: 10;
 }
+
 .heart-btn:hover {
     background: white;
     transform: scale(1.1);
 }
+
 .heart-btn.active {
     color: #e91e63;
 }
+
+/* ✅ أزرار الأقسام */
 #categoriesBar { 
     text-align: center; 
     margin: 20px 0; 
@@ -286,6 +331,7 @@ body {
     justify-content: center;
     gap: 8px;
 }
+
 #categoriesBar .btn { 
     border-radius: 20px; 
     padding: 8px 16px; 
@@ -295,15 +341,18 @@ body {
     color: #d63384;
     background: white;
 }
+
 #categoriesBar .btn:hover,
 #categoriesBar .btn.active {
     background: linear-gradient(45deg, #ff69b4, #ff1493);
     color: white;
     border-color: #ff69b4;
 }
+
+/* ✅ أيقونة السلة - تم التعديل لأسفل الصفحة */
 #cartIcon { 
     position: fixed; 
-    bottom: 100px; 
+    bottom: 100px; /* فوق الشريط السفلي مباشرة */
     right: 20px; 
     background: #d63384; 
     color: #fff; 
@@ -315,10 +364,12 @@ body {
     z-index: 999; 
     transition: all 0.3s ease;
 }
+
 #cartIcon:hover {
     transform: scale(1.1);
     background: #e91e63;
 }
+
 #cartCount { 
     position: absolute; 
     top: -5px; 
@@ -329,6 +380,8 @@ body {
     padding: 2px 7px; 
     font-size: 14px; 
 }
+
+/* ✅ السلة */
 #cartPanel { 
     position: fixed; 
     top: 0; 
@@ -342,8 +395,11 @@ body {
     padding: 20px; 
     overflow-y: auto; 
 }
+
 #cartPanel.open { right: 0; }
 #cartPanel h4 { color:#d63384; font-weight:bold; }
+
+/* ✅ تنبيه */
 .alert-custom { 
     position: fixed; 
     top: 80px; 
@@ -358,29 +414,36 @@ body {
     z-index: 3000; 
     display: none; 
 }
+
+/* ✅ تصميم متجاوب */
 @media (max-width: 768px) {
     .products-grid {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
         gap: 12px;
         padding: 10px;
     }
+    
     .product-image {
         height: 180px;
     }
 }
+
 @media (max-width: 480px) {
     .products-grid {
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
         gap: 10px;
         padding: 8px;
     }
+    
     .product-image {
         height: 160px;
     }
+    
     #categoriesBar .btn {
         font-size: 12px;
         padding: 6px 12px;
     }
+    
     #cartIcon {
         bottom: 90px;
         right: 15px;
@@ -388,6 +451,9 @@ body {
         font-size: 20px;
     }
 }
+
+/* ✅ باقي الأنماط */
+
 .confirm-modal { 
     display: none; 
     position: fixed; 
@@ -415,6 +481,8 @@ body {
     gap: 10px; 
     justify-content: center;
 }
+
+/* تنبيه البيانات */
 .data-alert {
     position: fixed;
     top: 50%;
@@ -433,12 +501,14 @@ body {
     border: 3px solid white;
     animation: alertPop 0.5s ease;
 }
+
 .data-alert-buttons {
     margin-top: 20px;
     display: flex;
     gap: 10px;
     justify-content: center;
 }
+
 .data-alert-btn {
     padding: 10px 20px;
     border: none;
@@ -447,18 +517,22 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
 }
+
 .data-alert-btn.primary {
     background: white;
     color: #d63384;
 }
+
 .data-alert-btn.secondary {
     background: rgba(255, 255, 255, 0.2);
     color: white;
     border: 2px solid white;
 }
+
 .data-alert-btn:hover {
     transform: translateY(-2px);
 }
+
 @keyframes alertPop {
     0% {
         opacity: 0;
@@ -469,6 +543,8 @@ body {
         transform: translate(-50%, -50%) scale(1);
     }
 }
+
+/* 🆕 معرض الصور الجديد - CSS المضاف */
 .product-gallery {
     position: relative;
     width: 100%;
@@ -476,6 +552,7 @@ body {
     overflow: hidden;
     border-radius: 15px 15px 0 0;
 }
+
 .main-product-image {
     width: 100%;
     height: 100%;
@@ -483,9 +560,11 @@ body {
     cursor: pointer;
     transition: transform 0.3s ease;
 }
+
 .main-product-image:hover {
     transform: scale(1.05);
 }
+
 .thumbnail-container {
     position: absolute;
     bottom: 10px;
@@ -496,6 +575,7 @@ body {
     gap: 5px;
     padding: 0 10px;
 }
+
 .thumbnail {
     width: 30px;
     height: 30px;
@@ -506,13 +586,16 @@ body {
     opacity: 0.7;
     transition: all 0.3s ease;
 }
+
 .thumbnail.active {
     border-color: #ff69b4;
     opacity: 1;
 }
+
 .thumbnail:hover {
     opacity: 1;
 }
+
 .image-nav-btn {
     position: absolute;
     top: 50%;
@@ -531,16 +614,20 @@ body {
     transition: all 0.3s ease;
     z-index: 10;
 }
+
 .image-nav-btn:hover {
     background: white;
     transform: translateY(-50%) scale(1.1);
 }
+
 .image-nav-btn.prev {
     right: 10px;
 }
+
 .image-nav-btn.next {
     left: 10px;
 }
+
 .image-counter {
     position: absolute;
     top: 10px;
@@ -553,6 +640,8 @@ body {
     font-weight: bold;
     z-index: 10;
 }
+
+/* معرض الصور الموسع */
 .image-gallery-modal {
     display: none;
     position: fixed;
@@ -565,12 +654,14 @@ body {
     justify-content: center;
     align-items: center;
 }
+
 .gallery-main-image {
     max-width: 90%;
     max-height: 80%;
     object-fit: contain;
     border-radius: 10px;
 }
+
 .gallery-thumbnails {
     position: absolute;
     bottom: 20px;
@@ -581,6 +672,7 @@ body {
     gap: 10px;
     padding: 10px;
 }
+
 .gallery-thumbnail {
     width: 60px;
     height: 60px;
@@ -591,10 +683,12 @@ body {
     opacity: 0.7;
     transition: all 0.3s ease;
 }
+
 .gallery-thumbnail.active {
     border-color: #ff69b4;
     opacity: 1;
 }
+
 .gallery-nav-btn {
     position: absolute;
     top: 50%;
@@ -611,18 +705,21 @@ body {
     font-size: 20px;
     color: white;
     transition: all 0.3s ease;
-    z-index: 10;
 }
+
 .gallery-nav-btn:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: translateY(-50%) scale(1.1);
 }
+
 .gallery-nav-btn.prev {
     right: 20px;
 }
+
 .gallery-nav-btn.next {
     left: 20px;
 }
+
 .gallery-close {
     position: absolute;
     top: 20px;
@@ -640,10 +737,12 @@ body {
     color: white;
     transition: all 0.3s ease;
 }
+
 .gallery-close:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: scale(1.1);
 }
+
 .gallery-counter {
     position: absolute;
     top: 20px;
@@ -982,7 +1081,7 @@ function toggleFavorite(productId) {
     showAlert(favorites[productId] ? "❤️ تم الإضافة إلى المفضلة" : "🤍 تم الإزالة من المفضلة");
 }
 
-/* ❌ sendOrder() - تم تحديثها لتخصم الكمية من المخزون في Firebase */
+/* 🚀 sendOrder() - دالة إرسال الطلب (مع الخصم الآمن من المخزون) */
 async function sendOrder() {
     if (cart.length === 0) {
         showAlert("⚠️ السلة فارغة");
@@ -990,7 +1089,7 @@ async function sendOrder() {
         return;
     }
     
-    // التحقق من وجود بيانات المستخدم
+    // التحقق من بيانات المستخدم (نفس المنطق السابق)
     const userData = JSON.parse(localStorage.getItem('userProfile'));
     if (!userData || !userData.name || !userData.phone || !userData.city || !userData.address) {
         showDataAlert();
@@ -998,100 +1097,100 @@ async function sendOrder() {
         return;
     }
     
-    // 1. بدء المعاملة لضمان التزامن
-    let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    const stockUpdates = [];
-    let isStockAvailable = true;
-    
     closeConfirmSend();
     showAlert("⏳ يتم التحقق من المخزون وإرسال الطلب...");
-    
-    // 2. التحقق من المخزون وتنفيذ الخصم (Transaction) لكل صنف في السلة
+
+    let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    let allTransactionsSuccessful = true;
+    let failedItemName = "";
+
+    // 1. تنفيذ معاملة الخصم لكل صنف في السلة
     for (const item of cart) {
         const productRef = db.ref(`products/${item.id}`);
         
+        // استخدام المعاملة لضمان تحديث المخزون بأمان (Transaction)
         await productRef.transaction(currentProduct => {
             if (currentProduct) {
                 let requiredQty = item.qty;
-                let foundStockDetail = false;
                 let newTotalStock = currentProduct.totalStock || 0;
+                let stockReduced = false;
 
-                // تحديث stockDetails
+                // إذا كان هناك مخزون تفصيلي (stockDetails)
                 if (currentProduct.stockDetails && currentProduct.stockDetails.length > 0) {
-                    currentProduct.stockDetails = currentProduct.stockDetails.map(detail => {
-                        if (detail.color === item.color && detail.size === item.size) {
-                            foundStockDetail = true;
-                            if (detail.quantity >= requiredQty) {
-                                detail.quantity -= requiredQty;
-                                newTotalStock -= requiredQty;
-                            } else {
-                                // الكمية غير كافية
-                                isStockAvailable = false;
-                                return firebase.database.MAX_PRIORITY; // إلغاء المعاملة بـ NaN
-                            }
+                    
+                    // البحث عن التركيبة المطابقة
+                    let detailIndex = currentProduct.stockDetails.findIndex(detail => 
+                        detail.color === item.color && detail.size === item.size
+                    );
+
+                    if (detailIndex !== -1) {
+                        let detail = currentProduct.stockDetails[detailIndex];
+                        if (detail.quantity >= requiredQty) {
+                            detail.quantity -= requiredQty; // خصم من المخزون التفصيلي
+                            newTotalStock -= requiredQty;
+                            stockReduced = true;
                         }
-                        return detail;
-                    });
-                } else if (!item.color && !item.size) {
-                    // المنتج لا يستخدم مخزون تفصيلي، فقط stock/totalStock
+                    } 
+                
+                } else {
+                    // المنتج يستخدم فقط المخزون الكلي (totalStock/stock)
                     if (newTotalStock >= requiredQty) {
-                         newTotalStock -= requiredQty;
-                    } else {
-                        isStockAvailable = false;
-                        return firebase.database.MAX_PRIORITY; // إلغاء المعاملة
+                         newTotalStock -= requiredQty; // خصم من المخزون الكلي
+                         stockReduced = true;
                     }
-                    foundStockDetail = true; // نعتبر أننا وجدنا المخزون
                 }
-
-                // إذا لم نجد التركيبة المطلوبة وكانت مطلوبة، تعتبر غير متوفرة
-                if (!foundStockDetail && (item.color || item.size)) {
-                    isStockAvailable = false;
-                    return firebase.database.MAX_PRIORITY; // إلغاء المعاملة
-                }
-
-                // إذا كان المخزون متاحاً، قم بتحديث القيمة الإجمالية والتفاصيل
-                if (isStockAvailable) {
+                
+                // 2. التحقق من نجاح عملية الخصم
+                if (stockReduced) {
+                    // تحديث القيم في قاعدة البيانات
                     currentProduct.totalStock = newTotalStock;
-                    currentProduct.stock = newTotalStock; // تحديث حقل المخزون القديم أيضاً
-                    return currentProduct;
+                    currentProduct.stock = newTotalStock; 
+                    return currentProduct; // النجاح: تحديث المنتج في DB
+                } else {
+                    // الفشل: المخزون غير كافٍ أو التركيبة غير موجودة
+                    allTransactionsSuccessful = false;
+                    failedItemName = item.name;
+                    return; // الإلغاء: عدم تحديث المنتج في DB
                 }
+
             }
-            // إذا كان المنتج غير موجود أو غير متوفر
-            isStockAvailable = false;
-            return; // إلغاء المعاملة
+            // فشل آخر: المنتج غير موجود
+            allTransactionsSuccessful = false;
+            failedItemName = item.name;
+            return;
         })
         .then(result => {
+            // التحقق النهائي من التزام المعاملة
             if (!result.committed) {
-                isStockAvailable = false;
+                allTransactionsSuccessful = false;
             }
         })
         .catch(error => {
             console.error(`Transaction failed for item ${item.name}:`, error);
-            isStockAvailable = false;
+            allTransactionsSuccessful = false;
         });
         
-        // إذا فشل أي جزء من العملية، توقف
-        if (!isStockAvailable) {
-            showAlert(`❌ فشل إرسال الطلب. الكمية المطلوبة لمنتج "${item.name}" غير متوفرة حالياً.`);
+        // التوقف فوراً عند فشل أي عملية خصم
+        if (!allTransactionsSuccessful) {
+            showAlert(`❌ فشل إرسال الطلب. الكمية المطلوبة لمنتج "${failedItemName}" غير متوفرة حالياً.`);
+            loadProducts(); // لإعادة تحديث واجهة العرض بناءً على المخزون الحالي
             return;
         }
     }
     
-    // 3. إذا كان المخزون متاحاً وتم الخصم بنجاح:
-    if (isStockAvailable) {
+    // 3. إذا نجحت جميع عمليات الخصم، أرسل الطلب
+    if (allTransactionsSuccessful) {
         let orderData = {
             items: cart,
             total: total,
             timestamp: Date.now(),
             status: "قيد الانتظار",
-            customer: userData // إضافة بيانات العميل للطلب
+            customer: userData 
         };
         
-        // إرسال الطلب بعد خصم المخزون
         db.ref("orders").push(orderData, (error) => {
             if (error) {
                 showAlert("❌ خطأ في إرسال الطلب: " + error.message);
-                console.error("Firebase error:", error);
             } else {
                 showAlert("✅ تم إرسال الطلب بنجاح وتم خصم الكمية من المخزون");
                 cart = [];
@@ -1100,15 +1199,23 @@ async function sendOrder() {
                 closeCart();
             }
         });
-    } else {
-         // إذا وصل هنا، فهذا يعني أن عملية التحقق أو الخصم فشلت في منتصف الطريق
-         // رسالة الخطأ يتم إظهارها بالفعل داخل الحلقة
-         loadProducts(); // لإعادة تحديث واجهة العرض بناءً على المخزون الحالي
     }
 }
 
-/* ✅ باقي الدوال (بدون تغيير) */
 
+/* ✅ باقي الدوال (بدون تغيير) */
+function changeQty(id,delta){
+  let input = document.getElementById(`qty-${id}`);
+  let value = parseInt(input.value) || 1;
+  value += delta;
+  if(value < 1) value = 1;
+  input.value = value;
+}
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+updateCart();
+
+/* ✅ إضافة للسلة - تم تعديل منطق التحقق من المخزون */
 function addToCart(productId){ // استقبال الـ id فقط
   const product = getProductById(productId);
   if (!product) { showAlert("❌ المنتج غير موجود"); return; }
@@ -1129,14 +1236,23 @@ function addToCart(productId){ // استقبال الـ id فقط
   // 🆕 التحقق من المخزون التفصيلي
   const availableStock = getAvailableStock(productId, color, size);
 
-  if(availableStock === 0) { 
+  if(availableStock === 0 && (product.stockDetails && product.stockDetails.length > 0)) { 
       showAlert("⚠️ هذه التركيبة غير متوفرة حالياً"); 
       return; 
   }
-  if(qty > availableStock) { 
-      showAlert(`⚠️ الكمية المطلوبة غير متوفرة. المتوفر: ${availableStock}`); 
-      return; 
+
+  // إذا كان المنتج لا يستخدم المخزون التفصيلي، نستخدم المخزون الكلي
+  if((!product.stockDetails || product.stockDetails.length === 0) && qty > product.totalStock) {
+       showAlert(`⚠️ الكمية المطلوبة غير متوفرة. المتوفر: ${product.totalStock}`); 
+       return;
   }
+  
+  // إذا كان يستخدم المخزون التفصيلي، نستخدم الكمية المتاحة للتركيبة
+  if((product.stockDetails && product.stockDetails.length > 0) && qty > availableStock) {
+      showAlert(`⚠️ الكمية المطلوبة غير متوفرة. المتوفر: ${availableStock}`); 
+      return;
+  }
+
 
   // إضافة المنتج للسلة
   cart.push({
