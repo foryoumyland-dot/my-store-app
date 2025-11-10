@@ -992,7 +992,10 @@ function showCategory(cat){
             `<select id="color-${p.id}" class="form-select mb-2 color-select" style="font-size: 12px;" onchange="updateStockStatus('${p.id}')"><option value="">اللون</option>${p.colors.map(c=>`<option value="${c}">${c}</option>`).join("")}</select>` 
             : ""}
 
-          ${p.types && p.types.length ? `<select id="type-${p.id}" class="form-select mb-2" style="font-size: 12px;"><option value="">النوع</option>${p.types.map(t=>`<option value="${t}">${t}</option>`).join("")}</select>` : ""}
+          ${p.types && p.types.length ? 
+            // 💡 تم إضافة onchange="updateStockStatus" هنا أيضاً للتحقق من الموديل/النوع
+            `<select id="type-${p.id}" class="form-select mb-2 type-select" style="font-size: 12px;" onchange="updateStockStatus('${p.id}')"><option value="">موديل الهاتف</option>${p.types.map(t=>`<option value="${t}">${t}</option>`).join("")}</select>` 
+            : ""}
           
           <p id="stock-alert-${p.id}" style="font-size: 12px; color: red; font-weight: bold; margin-bottom: 5px;">${isOutOfStock ? '🔴 المنتج غير متوفر حالياً' : ''}</p>
           
@@ -1012,51 +1015,63 @@ function showCategory(cat){
   });
 }
 
-/* 🆕 دالة جديدة: الحصول على المخزون المتوفر لتركيبة معينة */
-function getAvailableStock(productId, color, size) {
+/* 🆕 دالة مُعدلة: الحصول على المخزون المتوفر لتركيبة معينة */
+function getAvailableStock(productId, color, size, type) { // 💡 تم إضافة حقل النوع
     const product = getProductById(productId);
     if (!product || !product.stockDetails) return product?.totalStock || 0;
     
-    // تحديد اللون والمقاس الافتراضيين في حال عدم وجودهما في المنتج
+    // تحديد القيم الافتراضية
     const finalColor = (product.colors && product.colors.length > 0) ? color : "";
     const finalSize = (product.sizes && product.sizes.length > 0) ? size : "";
+    const finalType = (product.types && product.types.length > 0) ? type : ""; // 💡 القيمة النهائية للنوع
 
-    // البحث عن تفاصيل المخزون المطابقة للون والمقاس
+    // البحث عن تفاصيل المخزون المطابقة للون والمقاس والنوع
     const stockItem = product.stockDetails.find(item => 
-        (item.color === finalColor) && (item.size === finalSize)
+        (item.color === finalColor) && 
+        (item.size === finalSize) &&
+        (item.type === finalType) // 💡 تضمين النوع في البحث
     );
     
     // إرجاع الكمية، أو 0 إذا لم يتم العثور عليها
     return stockItem ? stockItem.quantity : 0;
 }
 
-/* 🆕 دالة جديدة: تحديث حالة الأزرار والقوائم عند تغيير اللون أو المقاس */
+/* 🆕 دالة مُعدلة: تحديث حالة الأزرار والقوائم عند تغيير اللون أو المقاس أو النوع */
 function updateStockStatus(productId) {
     const product = getProductById(productId);
     if (!product) return;
 
     const sizeSelect = document.getElementById(`size-${productId}`);
     const colorSelect = document.getElementById(`color-${productId}`);
+    const typeSelect = document.getElementById(`type-${productId}`); // 💡 تحديد النوع
+    
     const addBtn = document.getElementById(`add-btn-${productId}`);
     const stockAlert = document.getElementById(`stock-alert-${productId}`);
     const qtyInput = document.getElementById(`qty-${productId}`);
 
     const selectedSize = sizeSelect ? sizeSelect.value : "";
     const selectedColor = colorSelect ? colorSelect.value : "";
+    const selectedType = typeSelect ? typeSelect.value : ""; // 💡 القيمة المختارة للنوع
     
-    let availableStock = product.totalStock || 0; // القيمة الافتراضية هي المخزون الكلي
+    let availableStock = product.totalStock || 0; 
 
-    // 1. حساب المخزون المتاح للتركيبة المختارة
+    // 1. تحديد الأبعاد المطلوبة للاختيار
     const requiresColor = product.colors && product.colors.length > 0;
     const requiresSize = product.sizes && product.sizes.length > 0;
-    const requiresSelection = requiresColor || requiresSize;
-    const isReadyToSelect = (!requiresColor || selectedColor) && (!requiresSize || selectedSize);
+    const requiresType = product.types && product.types.length > 0; // 💡 تحديد متطلبات النوع
+    const requiresSelection = requiresColor || requiresSize || requiresType;
+    
+    // التحقق مما إذا تم اختيار كل الأبعاد المطلوبة
+    const isReadyToSelect = 
+        (!requiresColor || selectedColor) && 
+        (!requiresSize || selectedSize) &&
+        (!requiresType || selectedType); // 💡 التحقق من اختيار النوع
 
     if (requiresSelection) {
         if (isReadyToSelect) {
-             availableStock = getAvailableStock(productId, selectedColor, selectedSize);
+             // 💡 استخدام دالة البحث الجديدة مع النوع
+             availableStock = getAvailableStock(productId, selectedColor, selectedSize, selectedType); 
         } else {
-             // إذا كانت الخيارات مطلوبة ولم يتم اختيارها، نعتبر المخزون غير متاح
              availableStock = 0; 
         }
     } else {
@@ -1070,7 +1085,13 @@ function updateStockStatus(productId) {
     let isDisabled = false;
 
     if (requiresSelection && !isReadyToSelect) {
-        message = "⚠️ يرجى اختيار" + (requiresColor && !selectedColor ? " اللون" : "") + (requiresColor && requiresSize ? " و" : "") + (requiresSize && !selectedSize ? " المقاس" : "") + " أولاً";
+        // بناء رسالة التنبيه بالخيارات المفقودة
+        const missingOptions = [];
+        if (requiresColor && !selectedColor) missingOptions.push(" اللون");
+        if (requiresSize && !selectedSize) missingOptions.push(" المقاس");
+        if (requiresType && !selectedType) missingOptions.push(" موديل الهاتف"); // 💡 رسالة واضحة
+        
+        message = "⚠️ يرجى اختيار" + missingOptions.join(" و") + " أولاً";
         isDisabled = true;
     } else if (availableStock === 0) {
         message = "🔴 غير متوفر حالياً" + (requiresSelection ? " بهذه التركيبة" : "");
@@ -1145,19 +1166,23 @@ async function sendOrder() {
             let newTotalStock = currentProduct.totalStock !== undefined ? currentProduct.totalStock : 0;
             let stockReduced = false;
             
+            // 💡 تحديد القيم الافتراضية
             const finalColor = (currentProduct.colors && currentProduct.colors.length > 0) ? item.color : "";
             const finalSize = (currentProduct.sizes && currentProduct.sizes.length > 0) ? item.size : "";
+            const finalType = (currentProduct.types && currentProduct.types.length > 0) ? item.type : ""; // 💡 تحديد النوع
 
             // إذا كان هناك مخزون تفصيلي (stockDetails)
             if (currentProduct.stockDetails && currentProduct.stockDetails.length > 0) {
                 
                 let detailIndex = currentProduct.stockDetails.findIndex(detail => 
-                    detail.color === finalColor && detail.size === finalSize
+                    detail.color === finalColor && 
+                    detail.size === finalSize &&
+                    detail.type === finalType // 💡 تضمين النوع في البحث
                 );
 
                 if (detailIndex === -1) {
                      // 🔴 فشل #2: التركيبة غير موجودة
-                     failedItemName = item.name + (item.color || item.size ? ` (التركيبة غير موجودة: ${item.color} ${item.size})` : "");
+                     failedItemName = item.name + (item.color || item.size || item.type ? ` (التركيبة غير موجودة: ${item.color} ${item.size} ${item.type})` : "");
                      return; 
                 }
                 
@@ -1184,7 +1209,7 @@ async function sendOrder() {
                 return currentProduct; // تحديث المنتج في DB
             } else {
                 // 🔴 فشل #3: المخزون غير كافٍ
-                failedItemName = item.name + (item.color || item.size ? ` (المخزون غير كافٍ: ${item.color} ${item.size})` : "");
+                failedItemName = item.name + (item.color || item.size || item.type ? ` (المخزون غير كافٍ للتركيبة: ${item.color} ${item.size} ${item.type})` : "");
                 return; // الإلغاء: عدم تحديث المنتج في DB
             }
         });
@@ -1232,7 +1257,7 @@ async function sendOrder() {
 }
 
 
-/* ✅ باقي الدوال (تم تعديل changeQty و addToCart) */
+/* ✅ باقي الدوال (تم تعديل changeQty و addToCart و editCartQty) */
 function changeQty(id,delta){
   let input = document.getElementById(`qty-${id}`);
   let value = parseInt(input.value) || 1;
@@ -1248,8 +1273,8 @@ function changeQty(id,delta){
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 updateCart();
 
-/* ✅ إضافة للسلة - تم تعديل منطق التحقق من المخزون */
-function addToCart(productId){ // استقبال الـ id فقط
+/* ✅ إضافة للسلة - تم تعديل منطق التحقق من المخزون ليشمل النوع */
+function addToCart(productId){ 
   const product = getProductById(productId);
   if (!product) { showAlert("❌ المنتج غير موجود"); return; }
   
@@ -1258,13 +1283,13 @@ function addToCart(productId){ // استقبال الـ id فقط
   let color = document.getElementById(`color-${productId}`)?.value || "";
   let type = document.getElementById(`type-${productId}`)?.value || "";
 
-  // التحقق من أن الخيارات المطلوبة قد تم اختيارها
+  // 💡 التحقق من أن الخيارات المطلوبة قد تم اختيارها (بما في ذلك النوع)
   const requiresColor = product.colors && product.colors.length > 0;
   const requiresSize = product.sizes && product.sizes.length > 0;
   const requiresType = product.types && product.types.length > 0;
 
   if((requiresSize && size==="") || (requiresColor && color==="") || (requiresType && type==="")){
-    showAlert("⚠️ اختر جميع الخيارات المطلوبة (اللون والمقاس/النوع)");
+    showAlert("⚠️ اختر جميع الخيارات المطلوبة (اللون والمقاس/موديل الهاتف)");
     return;
   }
   
@@ -1273,11 +1298,12 @@ function addToCart(productId){ // استقبال الـ id فقط
       return;
   }
 
-  // 🆕 التحقق من المخزون التفصيلي/الكلي
+  // 🆕 التحقق من المخزون التفصيلي/الكلي بناءً على التركيبة الكاملة
   let availableStock = product.totalStock || 0;
 
   if (product.stockDetails && product.stockDetails.length > 0) {
-      availableStock = getAvailableStock(productId, color, size);
+      // 💡 استخدام دالة البحث الجديدة مع النوع
+      availableStock = getAvailableStock(productId, color, size, type);
   }
   
   if(qty > availableStock) {
@@ -1290,7 +1316,7 @@ function addToCart(productId){ // استقبال الـ id فقط
       item.id === productId && 
       item.color === color && 
       item.size === size && 
-      item.type === type
+      item.type === type // 💡 تضمين النوع في مطابقة العنصر
   );
   
   if (existingItemIndex !== -1) {
@@ -1328,7 +1354,7 @@ function updateCart(){
     container.innerHTML += `
       <div class="d-flex justify-content-between align-items-center mb-2">
         <div style="font-size: 14px;">
-          - ${it.name} ${it.size? "| مقاس: "+it.size:""} ${it.color? "| لون: "+it.color:""} ${it.type? "| نوع: "+it.type:""} × ${it.qty} (${it.price * it.qty} د)
+          - ${it.name} ${it.size? "| مقاس: "+it.size:""} ${it.color? "| لون: "+it.color:""} ${it.type? "| موديل: "+it.type:""} × ${it.qty} (${it.price * it.qty} د)
         </div>
         <div>
           <button class="btn btn-sm btn-outline-secondary" onclick="editCartQty(${index},-1)">➖</button>
@@ -1342,7 +1368,7 @@ function updateCart(){
   document.getElementById("cartTotal").innerHTML = `<b>الإجمالي: ${total} د</b><br><small style="color:#d63384;">💵 سعر التوصيل يختلف حسب المدينة</small>`;
 }
 
-// تم تعديل editCartQty لتعمل على التحقق من المخزون
+// تم تعديل editCartQty لتعمل على التحقق من المخزون (بما في ذلك النوع)
 function editCartQty(index,delta){ 
     const item = cart[index];
     const product = getProductById(item.id);
@@ -1350,14 +1376,15 @@ function editCartQty(index,delta){
     
     let availableStock = product.totalStock || 0;
     if (product.stockDetails && product.stockDetails.length > 0) {
-        availableStock = getAvailableStock(item.id, item.color, item.size);
+        // 💡 استخدام دالة البحث الجديدة مع النوع
+        availableStock = getAvailableStock(item.id, item.color, item.size, item.type);
     }
 
     item.qty += delta; 
     if(item.qty < 1) item.qty = 1; 
     if(item.qty > availableStock) item.qty = availableStock; // لا يمكن أن تتجاوز الكمية المتاحة
 
-    if(item.qty === 0) { // في حال أصبحت الكمية صفر (وهذا لا ينبغي أن يحدث مع <1)
+    if(item.qty === 0) { 
         removeFromCart(index);
     } else {
         localStorage.setItem("cart", JSON.stringify(cart)); 
