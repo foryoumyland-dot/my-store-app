@@ -1126,7 +1126,7 @@ async function sendOrder() {
 
     let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
     let allTransactionsSuccessful = true;
-    let failedItemName = "";
+    let failedItemName = ""; // متغير لتخزين اسم المنتج الذي فشل
 
     // 1. تنفيذ معاملة الخصم لكل صنف في السلة
     for (const item of cart) {
@@ -1134,10 +1134,11 @@ async function sendOrder() {
         
         // استخدام المعاملة لضمان تحديث المخزون بأمان (Transaction)
         const result = await productRef.transaction(currentProduct => {
+            
             if (!currentProduct) {
-                // المنتج غير موجود
+                // 🔴 فشل #1: المنتج غير موجود
                 failedItemName = item.name + " (غير موجود في المخزون)";
-                return; 
+                return; // إلغاء المعاملة (Aborting)
             }
             
             let requiredQty = item.qty;
@@ -1155,14 +1156,14 @@ async function sendOrder() {
                 );
 
                 if (detailIndex === -1) {
-                     // 🔴 فشل: التركيبة غير موجودة
+                     // 🔴 فشل #2: التركيبة غير موجودة
                      failedItemName = item.name + (item.color || item.size ? ` (التركيبة غير موجودة: ${item.color} ${item.size})` : "");
-                     return; // إلغاء المعاملة 
+                     return; 
                 }
                 
                 let detail = currentProduct.stockDetails[detailIndex];
                 if (detail.quantity >= requiredQty) {
-                    detail.quantity -= requiredQty; // خصم من المخزون التفصيلي
+                    detail.quantity -= requiredQty; 
                     newTotalStock -= requiredQty;
                     stockReduced = true;
                 }
@@ -1170,21 +1171,20 @@ async function sendOrder() {
             } else {
                 // المنتج يستخدم فقط المخزون الكلي (totalStock)
                 if (newTotalStock >= requiredQty) {
-                     newTotalStock -= requiredQty; // خصم من المخزون الكلي
+                     newTotalStock -= requiredQty; 
                      stockReduced = true;
                 }
             }
             
             // 2. التحقق من نجاح عملية الخصم
             if (stockReduced) {
-                // النجاح: تحديث القيم في قاعدة البيانات
+                // ✅ النجاح: تحديث القيم
                 currentProduct.totalStock = newTotalStock;
-                // تحديث المخزون القديم 'stock' لأغراض التوافق
                 if (currentProduct.stock !== undefined) currentProduct.stock = newTotalStock; 
-                return currentProduct; // النجاح: تحديث المنتج في DB
+                return currentProduct; // تحديث المنتج في DB
             } else {
-                // 🔴 فشل: المخزون غير كافٍ
-                failedItemName = item.name + (item.color || item.size ? ` (${item.color} ${item.size})` : "");
+                // 🔴 فشل #3: المخزون غير كافٍ
+                failedItemName = item.name + (item.color || item.size ? ` (المخزون غير كافٍ: ${item.color} ${item.size})` : "");
                 return; // الإلغاء: عدم تحديث المنتج في DB
             }
         });
@@ -1192,7 +1192,12 @@ async function sendOrder() {
         // التحقق النهائي من التزام المعاملة
         if (!result.committed) {
              allTransactionsSuccessful = false;
-             break; // التوقف فوراً عند فشل أي عملية خصم
+             
+             // قيمة احتياطية في حال فشل الـ commit لأسباب خارج منطق الكود الداخلي
+             if (!failedItemName) {
+                 failedItemName = item.name + " (فشل غير محدد)";
+             }
+             break; 
         }
     }
     
@@ -1215,7 +1220,6 @@ async function sendOrder() {
                 localStorage.setItem("cart", JSON.stringify(cart));
                 updateCart();
                 closeCart();
-                // إعادة تحميل المنتجات لتحديث المخزون المعروض
                 loadProducts();
             }
         });
@@ -1223,7 +1227,7 @@ async function sendOrder() {
         // 🚨 عرض رسالة الخطأ المخصصة بوضوح
         const failedMsg = failedItemName ? `المنتج "${failedItemName}"` : "أحد المنتجات";
         showAlert(`❌ فشل إرسال الطلب. الكمية المطلوبة لـ ${failedMsg} غير متوفرة حالياً أو التركيبة غير صحيحة.`, 5000);
-        loadProducts(); // لإعادة تحديث واجهة العرض بناءً على المخزون الحالي
+        loadProducts(); 
     }
 }
 
