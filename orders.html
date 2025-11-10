@@ -365,15 +365,11 @@
 </head>
 <body>
 
-<!-- الشريط العلوي المدمج مباشرة -->
 <nav class="top-navbar">
-    <!-- أيقونة القائمة على اليسار -->
     <button class="menu-icon" onclick="toggleMenu()">☰</button>
     
-    <!-- اسم المتجر على اليمين - نص عادي -->
     <div class="store-name">🌸 لأجلك سيدتي</div>
     
-    <!-- القائمة المنسدلة -->
     <div class="dropdown-menu" id="dropdownMenu">
         <a href="profile.html" class="dropdown-item" onclick="closeMenu()">👤 بياناتي</a>
         <div class="menu-divider"></div>
@@ -381,10 +377,8 @@
     </div>
 </nav>
 
-<!-- حجب القائمة عند النقر خارجها -->
 <div class="overlay" id="overlay" onclick="closeMenu()"></div>
 
-<!-- نافذة التأكيد -->
 <div id="confirmModal" class="confirm-modal">
   <div class="confirm-content">
     <div id="confirmIcon" style="font-size: 3rem; margin-bottom: 15px;">⚠️</div>
@@ -397,21 +391,17 @@
   </div>
 </div>
 
-<!-- تنبيهات -->
 <div id="alertBox" class="alert-custom"></div>
 
-<!-- الشريط السفلي -->
 <iframe src="bottom-nav.html" style="width:100%; height:80px; border:none; position: fixed; bottom: 0; left: 0; z-index: 1000;"></iframe>
 
 <h2>📦 طلباتي</h2>
 
-<!-- ✅ معلومات المستخدم -->
 <div id="userInfo" class="user-info" style="display:none;">
     <strong>👤 العميل: </strong><span id="customerName"></span> - 
     <strong>📞 الهاتف: </strong><span id="customerPhone"></span>
 </div>
 
-<!-- ✅ الطلبات -->
 <div id="orders" class="loading">🔄 جاري تحميل الطلبات...</div>
 
 <script>
@@ -434,6 +424,13 @@ const db = firebase.database();
 let userProfile = JSON.parse(localStorage.getItem('userProfile'));
 
 let currentOrderId = null;
+
+// 🆕 دالة تنظيف رقم الهاتف (مضافة لضمان مطابقة التنسيق)
+function cleanPhoneNumber(phone) {
+    if (!phone) return "";
+    // إزالة جميع المسافات والشرطات وأقواس التجميع
+    return phone.toString().replace(/[\s\-\(\)\.]/g, '').trim(); 
+}
 
 // وظائف القائمة المنسدلة
 function toggleMenu() {
@@ -513,16 +510,19 @@ function closeConfirm() {
     currentOrderId = null;
 }
 
-// ✅ عند تحميل الصفحة
+// ✅ عند تحميل الصفحة (تعديل: استخدام الدالة النظيفة)
 window.onload = function() {
     if (userProfile && userProfile.name && userProfile.phone) {
+        // 🆕 تنظيف رقم الهاتف قبل العرض والتحميل
+        const cleanedPhone = cleanPhoneNumber(userProfile.phone);
+
         // عرض معلومات المستخدم
         document.getElementById('userInfo').style.display = 'block';
         document.getElementById('customerName').textContent = userProfile.name;
-        document.getElementById('customerPhone').textContent = userProfile.phone;
+        document.getElementById('customerPhone').textContent = cleanedPhone;
         
-        // تحميل الطلبات
-        loadUserOrders(userProfile.phone);
+        // تحميل الطلبات باستخدام الرقم النظيف
+        loadUserOrders(cleanedPhone);
     } else {
         // إذا لا توجد بيانات مستخدم
         document.getElementById('orders').innerHTML = `
@@ -538,8 +538,8 @@ window.onload = function() {
     }
 };
 
-// ✅ تحميل طلبات المستخدم
-function loadUserOrders(userPhone) {
+// ✅ تحميل طلبات المستخدم (تعديل: استخدام الدالة النظيفة في المقارنة)
+function loadUserOrders(cleanedUserPhone) { // استقبلنا الرقم النظيف هنا
     db.ref("orders").on("value", function(snapshot) {
         let data = snapshot.val();
         let container = document.getElementById("orders");
@@ -553,8 +553,12 @@ function loadUserOrders(userPhone) {
         
         // البحث في جميع الطلبات
         Object.entries(data).forEach(([orderId, order]) => {
-            // التحقق إذا كان الرقم مطابق
-            if (order.customer && order.customer.phone === userPhone) {
+            
+            // 🆕 تنظيف رقم الهاتف في الطلب قبل المقارنة
+            const orderCustomerPhone = order.customer && order.customer.phone ? cleanPhoneNumber(order.customer.phone) : null;
+
+            // التحقق إذا كان الرقم مطابق (المقارنة الآن تتم بين الأرقام النظيفة)
+            if (orderCustomerPhone === cleanedUserPhone) {
                 userOrders.push({
                     id: orderId,
                     ...order
@@ -607,16 +611,14 @@ function loadUserOrders(userPhone) {
             let statusText = getStatusText(order.status || "قيد الانتظار");
             
             let actionBtn = "";
-            // فقط إذا كان الطلب ملغي من الزبون يمكن إعادة إرساله
+            
+            // 1. زر إعادة الإرسال (يظهر إذا ألغي من الزبون)
             if (order.status === "تم الإلغاء من الزبون") {
                 actionBtn = `<button class="btn-action btn-restore" onclick="restoreOrder('${order.id}')">🔄 إعادة إرسال الطلب</button>`;
             } 
-            // يمكن إلغاء الطلب فقط إذا كان في حالة يمكن إلغاؤها ولم يتم إلغاؤه من الإدارة
-            else if (order.status !== "ملغى" && 
-                     order.status !== "تم التسليم" && 
-                     order.status !== "قيد التوصيل" &&
-                     order.status !== "تم الإلغاء من الزبون" &&
-                     !order.adminDeleted) {
+            
+            // 2. زر إلغاء الطلب (يظهر فقط إذا كانت الحالة "قيد الانتظار")
+            else if (order.status === "قيد الانتظار") {
                 actionBtn = `<button class="btn-action btn-cancel" onclick="cancelOrder('${order.id}')">🗑 إلغاء الطلب</button>`;
             }
 
