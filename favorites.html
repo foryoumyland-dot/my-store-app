@@ -636,7 +636,7 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// تحميل الأقسام والمنتجات (بدون تغيير)
+// تحميل الأقسام والمنتجات (مع إضافة حقل 'models')
 function loadCategoriesAndProducts() {
     db.ref("categories").on("value", snap => {
         const cats = snap.val() || {};
@@ -655,7 +655,6 @@ function loadProducts() {
         products = {};
         const data = snap.val() || {};
         
-        // تجميع المنتجات في خريطة تسهل الوصول إليها بالمعرف (للاستخدام في الـ Modal)
         const allProducts = {};
 
         Object.keys(data).forEach(id => {
@@ -674,29 +673,26 @@ function loadProducts() {
                         qty: p.stock || 10,
                         images: p.images || [],
                         sizes: p.sizes || [],
-                        colors: p.colors || []
+                        colors: p.colors || [],
+                        // *** الحقل الجديد لموديلات الهاتف ***
+                        models: p.models || []
                     };
                     
-                    // حفظ المنتج في قائمة جميع المنتجات
                     allProducts[id] = productData;
                     
-                    // حفظ المنتج لتصنيفه حسب الفئة (للاستخدام في العرض)
                     if (!products[categoryName]) products[categoryName] = [];
                     products[categoryName].push(productData);
                 }
             }
         });
         
-        // تحديث قائمة المنتجات لسهولة البحث عند فتح الـ Modal
-        // تحويل المنتجات من قائمة (مصنفة بالفئة) إلى خريطة (مصنفة بالـ id)
         window.allProductsMap = allProducts;
         
-        // عرض المنتجات المفضلة
         displayFavorites();
     });
 }
 
-// عرض المنتجات المفضلة (بدون تغيير يذكر)
+// عرض المنتجات المفضلة (بدون تغيير)
 function displayFavorites() {
     const container = document.getElementById('favoritesContainer');
     const emptyState = document.getElementById('emptyState');
@@ -705,7 +701,6 @@ function displayFavorites() {
     
     const favoriteProducts = [];
     
-    // استخراج المنتجات المفضلة من خريطة جميع المنتجات (allProductsMap)
     Object.keys(favorites).forEach(productId => {
         if (window.allProductsMap && window.allProductsMap[productId]) {
             favoriteProducts.push(window.allProductsMap[productId]);
@@ -721,12 +716,10 @@ function displayFavorites() {
     container.style.display = 'block';
     emptyState.style.display = 'none';
     
-    // استخدام شبكة المنتجات
     const grid = document.createElement('div');
     grid.className = 'products-grid';
     container.appendChild(grid);
     
-    // عرض المنتجات المفضلة
     favoriteProducts.forEach(product => {
         const mainImage = product.images && product.images.length > 0 ? product.images[0] : '';
         
@@ -765,7 +758,7 @@ function removeFromFavorites(productId) {
     showAlert("🗑️ تم إزالة المنتج من المفضلة");
 }
 
-// ************ وظائف الـ Modal الجديدة والمعدلة ************
+// ************ وظائف الـ Modal المعدلة ************
 
 // فتح نافذة الخيارات المنبثقة
 function openOptionsModal(productId) {
@@ -805,7 +798,6 @@ function openOptionsModal(productId) {
         colorsHTML += `<select id="productColor" class="form-select mb-3">`;
         colorsHTML += `<option value="" disabled selected>--- اختر اللون ---</option>`;
         currentProduct.colors.forEach(color => {
-            // محاولة عرض دائرة اللون إذا كان اسم اللون هو كود سداسي
             const isColorCode = /^#([0-9A-F]{3}){1,2}$/i.test(color.split(' ')[0]);
             const colorValue = color.split(' ')[0];
             const colorName = color.split(' ').slice(1).join(' ') || color;
@@ -821,7 +813,21 @@ function openOptionsModal(productId) {
         modalBody.innerHTML += colorsHTML;
     }
 
-    // 3. إذا لم تكن هناك خيارات
+    // *** 3. خيارات موديل الهاتف (Models) - الإضافة الجديدة ***
+    if (currentProduct.models && currentProduct.models.length > 0) {
+        hasOptions = true;
+        let modelsHTML = `<label for="productModel">موديل الهاتف:</label>`;
+        modelsHTML += `<select id="productModel" class="form-select mb-3">`;
+        modelsHTML += `<option value="" disabled selected>--- اختر الموديل ---</option>`;
+        currentProduct.models.forEach(model => {
+            modelsHTML += `<option value="${model}">${model}</option>`;
+        });
+        modelsHTML += `</select>`;
+        modalBody.innerHTML += modelsHTML;
+    }
+
+
+    // 4. إذا لم تكن هناك خيارات
     if (!hasOptions) {
         modalBody.innerHTML = `<p class="text-center text-success fw-bold">هذا المنتج لا يتطلب خيارات إضافية، سيتم إضافته مباشرة.</p>`;
     }
@@ -849,11 +855,13 @@ function closeOptionsModal(event) {
 function confirmAddToCart(product, hasOptions) {
     let size = "";
     let color = "";
+    let model = ""; // *** المتغير الجديد للموديل ***
     let isValid = true;
 
     // جلب الخيارات المختارة
     const sizeSelect = document.getElementById('productSize');
     const colorSelect = document.getElementById('productColor');
+    const modelSelect = document.getElementById('productModel'); // *** الحقل الجديد للموديل ***
 
     if (sizeSelect) {
         size = sizeSelect.value;
@@ -871,6 +879,15 @@ function confirmAddToCart(product, hasOptions) {
         }
     }
     
+    // *** التحقق من اختيار موديل الهاتف ***
+    if (modelSelect) {
+        model = modelSelect.value;
+        if (model === "") {
+            showAlert("⚠️ يجب اختيار موديل الهاتف.");
+            isValid = false;
+        }
+    }
+    
     // إذا لم تكن هناك خيارات (hasOptions === false)، نعتبره صالحاً للإضافة
     if (hasOptions && !isValid) {
         return; // إيقاف الإضافة إذا كانت هناك خيارات مطلوبة ولم يتم اختيارها
@@ -884,7 +901,8 @@ function confirmAddToCart(product, hasOptions) {
         price: product.price,
         qty: 1,
         size: size,
-        color: color
+        color: color,
+        model: model // *** تخزين الموديل في السلة ***
     });
     
     localStorage.setItem("cart", JSON.stringify(cart));
