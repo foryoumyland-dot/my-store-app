@@ -349,6 +349,109 @@
             border: 2px solid white;
         }
 
+        /* ===== نافذة الخيارات المنبثقة (Modal) ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+            text-align: right;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            color: #d63384;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .modal-body label {
+            display: block;
+            font-weight: bold;
+            color: #d63384;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        .modal-body select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ffb6c1;
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: #fff;
+        }
+
+        .modal-footer {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .modal-confirm-btn {
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+
+        .modal-confirm-btn:hover {
+            background: linear-gradient(135deg, #ff1493, #d63384);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* تنسيق الألوان داخل قائمة الخيارات */
+        .color-option {
+            display: inline-block;
+            margin-left: 10px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid #ccc;
+            vertical-align: middle;
+        }
+        
         .alert-overlay {
             position: fixed;
             top: 0;
@@ -382,6 +485,10 @@
             
             .page-title {
                 font-size: 1.7rem;
+            }
+
+            .modal-content {
+                max-width: 95%;
             }
         }
 
@@ -426,7 +533,6 @@
 </head>
 <body>
 
-<!-- الشريط العلوي -->
 <nav class="top-navbar">
     <button class="menu-icon" onclick="toggleMenu()">☰</button>
     <div class="store-name">🌸 لأجلك سيدتي</div>
@@ -441,14 +547,11 @@
 
 <div class="nav-overlay" id="navOverlay" onclick="closeMenu()"></div>
 
-<!-- المحتوى الرئيسي -->
 <h1 class="page-title">❤️ منتجاتي المفضلة</h1>
 
 <div id="favoritesContainer">
-    <!-- سيتم ملء هذا القسم بالمنتجات المفضلة -->
-</div>
+    </div>
 
-<!-- حالة عدم وجود منتجات -->
 <div id="emptyState" class="empty-state" style="display: none;">
     <div class="icon">❤️</div>
     <h3>لا توجد منتجات في المفضلة</h3>
@@ -456,11 +559,25 @@
     <a href="products.html" class="browse-btn">🛍️ تصفح المتجر</a>
 </div>
 
-<!-- تنبيه -->
+<div id="optionsModal" class="modal-overlay" onclick="closeOptionsModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalTitle">اختيار الخيارات</h5>
+            <button type="button" class="modal-close-btn" onclick="closeOptionsModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            </div>
+        <div class="modal-footer">
+            <button class="modal-confirm-btn" id="confirmButton">
+                ✅ تأكيد الإضافة للسلة
+            </button>
+        </div>
+    </div>
+</div>
+
 <div class="alert-custom" id="alertBox"></div>
 <div class="alert-overlay" id="alertOverlay"></div>
 
-<!-- الشريط السفلي -->
 <iframe src="bottom-nav.html" style="width:100%; height:80px; border:none; position: fixed; bottom: 0; left: 0; z-index: 1000;"></iframe>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -485,7 +602,10 @@ let products = {};
 let categoriesMap = {};
 let favorites = JSON.parse(localStorage.getItem("favorites")) || {};
 
-// وظائف القائمة المنسدلة
+// متغير لتخزين المنتج الحالي الذي يتم التعامل معه في الـ Modal
+let currentProduct = null;
+
+// وظائف القائمة المنسدلة (بدون تغيير)
 function toggleMenu() {
     const menu = document.getElementById('dropdownMenu');
     const overlay = document.getElementById('navOverlay');
@@ -516,9 +636,8 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// تحميل الأقسام والمنتجات
+// تحميل الأقسام والمنتجات (بدون تغيير)
 function loadCategoriesAndProducts() {
-    // تحميل الأقسام
     db.ref("categories").on("value", snap => {
         const cats = snap.val() || {};
         categoriesMap = {};
@@ -527,7 +646,6 @@ function loadCategoriesAndProducts() {
             categoriesMap[id] = cats[id].name;
         });
         
-        // تحميل المنتجات
         loadProducts();
     });
 }
@@ -537,6 +655,9 @@ function loadProducts() {
         products = {};
         const data = snap.val() || {};
         
+        // تجميع المنتجات في خريطة تسهل الوصول إليها بالمعرف (للاستخدام في الـ Modal)
+        const allProducts = {};
+
         Object.keys(data).forEach(id => {
             const p = data[id];
             
@@ -544,8 +665,7 @@ function loadProducts() {
                 const categoryName = categoriesMap[p.category];
                 
                 if (categoryName) {
-                    if (!products[categoryName]) products[categoryName] = [];
-                    products[categoryName].push({
+                    const productData = {
                         id: id,
                         name: p.name,
                         price: p.price,
@@ -555,32 +675,41 @@ function loadProducts() {
                         images: p.images || [],
                         sizes: p.sizes || [],
                         colors: p.colors || []
-                    });
+                    };
+                    
+                    // حفظ المنتج في قائمة جميع المنتجات
+                    allProducts[id] = productData;
+                    
+                    // حفظ المنتج لتصنيفه حسب الفئة (للاستخدام في العرض)
+                    if (!products[categoryName]) products[categoryName] = [];
+                    products[categoryName].push(productData);
                 }
             }
         });
+        
+        // تحديث قائمة المنتجات لسهولة البحث عند فتح الـ Modal
+        // تحويل المنتجات من قائمة (مصنفة بالفئة) إلى خريطة (مصنفة بالـ id)
+        window.allProductsMap = allProducts;
         
         // عرض المنتجات المفضلة
         displayFavorites();
     });
 }
 
-// عرض المنتجات المفضلة
+// عرض المنتجات المفضلة (بدون تغيير يذكر)
 function displayFavorites() {
     const container = document.getElementById('favoritesContainer');
     const emptyState = document.getElementById('emptyState');
     
     container.innerHTML = '';
     
-    // الحصول على جميع المنتجات المفضلة
     const favoriteProducts = [];
     
-    Object.keys(products).forEach(category => {
-        products[category].forEach(product => {
-            if (favorites[product.id]) {
-                favoriteProducts.push(product);
-            }
-        });
+    // استخراج المنتجات المفضلة من خريطة جميع المنتجات (allProductsMap)
+    Object.keys(favorites).forEach(productId => {
+        if (window.allProductsMap && window.allProductsMap[productId]) {
+            favoriteProducts.push(window.allProductsMap[productId]);
+        }
     });
     
     if (favoriteProducts.length === 0) {
@@ -591,6 +720,11 @@ function displayFavorites() {
     
     container.style.display = 'block';
     emptyState.style.display = 'none';
+    
+    // استخدام شبكة المنتجات
+    const grid = document.createElement('div');
+    grid.className = 'products-grid';
+    container.appendChild(grid);
     
     // عرض المنتجات المفضلة
     favoriteProducts.forEach(product => {
@@ -609,7 +743,7 @@ function displayFavorites() {
                 <div class="product-price">💵 ${product.price} د</div>
                 <div class="product-stock">📦 ${product.qty} متوفر</div>
                 <div class="action-buttons">
-                    <button class="add-to-cart-btn" onclick="addToCartFromFavorites('${product.id}')">
+                    <button class="add-to-cart-btn" onclick="openOptionsModal('${product.id}')">
                         🛒 أضف للسلة
                     </button>
                     <button class="remove-btn" onclick="removeFromFavorites('${product.id}')">
@@ -619,11 +753,11 @@ function displayFavorites() {
             </div>
         `;
         
-        container.appendChild(productCard);
+        grid.appendChild(productCard);
     });
 }
 
-// إزالة من المفضلة
+// إزالة من المفضلة (بدون تغيير)
 function removeFromFavorites(productId) {
     delete favorites[productId];
     localStorage.setItem("favorites", JSON.stringify(favorites));
@@ -631,35 +765,134 @@ function removeFromFavorites(productId) {
     showAlert("🗑️ تم إزالة المنتج من المفضلة");
 }
 
-// إضافة إلى السلة من المفضلة
-function addToCartFromFavorites(productId) {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+// ************ وظائف الـ Modal الجديدة والمعدلة ************
+
+// فتح نافذة الخيارات المنبثقة
+function openOptionsModal(productId) {
+    currentProduct = window.allProductsMap[productId];
+    const modal = document.getElementById('optionsModal');
+    const modalBody = document.getElementById('modalBody');
+    const modalTitle = document.getElementById('modalTitle');
+    const confirmButton = document.getElementById('confirmButton');
     
-    // البحث عن المنتج في جميع الأقسام
-    let productToAdd = null;
-    Object.keys(products).forEach(category => {
-        const product = products[category].find(p => p.id === productId);
-        if (product) {
-            productToAdd = product;
-        }
-    });
+    if (!currentProduct) {
+        showAlert("❌ حدث خطأ: لم يتم العثور على بيانات المنتج.");
+        return;
+    }
     
-    if (productToAdd) {
-        cart.push({
-            id: productToAdd.id,
-            name: productToAdd.name,
-            price: productToAdd.price,
-            qty: 1,
-            size: "",
-            color: ""
+    modalTitle.textContent = `🛒 إضافة "${currentProduct.name}" للسلة`;
+    modalBody.innerHTML = '';
+    
+    let hasOptions = false;
+
+    // 1. خيارات المقاسات (Sizes)
+    if (currentProduct.sizes && currentProduct.sizes.length > 0) {
+        hasOptions = true;
+        let sizesHTML = `<label for="productSize">المقاس:</label>`;
+        sizesHTML += `<select id="productSize" class="form-select mb-3">`;
+        sizesHTML += `<option value="" disabled selected>--- اختر المقاس ---</option>`;
+        currentProduct.sizes.forEach(size => {
+            sizesHTML += `<option value="${size}">${size}</option>`;
         });
-        
-        localStorage.setItem("cart", JSON.stringify(cart));
-        showAlert("✅ تمت إضافة المنتج إلى السلة");
+        sizesHTML += `</select>`;
+        modalBody.innerHTML += sizesHTML;
+    }
+
+    // 2. خيارات الألوان (Colors)
+    if (currentProduct.colors && currentProduct.colors.length > 0) {
+        hasOptions = true;
+        let colorsHTML = `<label for="productColor">اللون:</label>`;
+        colorsHTML += `<select id="productColor" class="form-select mb-3">`;
+        colorsHTML += `<option value="" disabled selected>--- اختر اللون ---</option>`;
+        currentProduct.colors.forEach(color => {
+            // محاولة عرض دائرة اللون إذا كان اسم اللون هو كود سداسي
+            const isColorCode = /^#([0-9A-F]{3}){1,2}$/i.test(color.split(' ')[0]);
+            const colorValue = color.split(' ')[0];
+            const colorName = color.split(' ').slice(1).join(' ') || color;
+            
+            let colorDisplay = colorName;
+            if (isColorCode) {
+                colorDisplay = `<span class="color-option" style="background-color: ${colorValue};" title="${colorName}"></span> ${colorName}`;
+            }
+
+            colorsHTML += `<option value="${colorName}">${colorDisplay}</option>`;
+        });
+        colorsHTML += `</select>`;
+        modalBody.innerHTML += colorsHTML;
+    }
+
+    // 3. إذا لم تكن هناك خيارات
+    if (!hasOptions) {
+        modalBody.innerHTML = `<p class="text-center text-success fw-bold">هذا المنتج لا يتطلب خيارات إضافية، سيتم إضافته مباشرة.</p>`;
+    }
+    
+    // ربط زر التأكيد بالوظيفة الجديدة
+    confirmButton.onclick = function() {
+        confirmAddToCart(currentProduct, hasOptions);
+    };
+
+    modal.style.display = 'flex';
+}
+
+// إغلاق نافذة الخيارات المنبثقة
+function closeOptionsModal(event) {
+    if (event && event.target.id === 'optionsModal') {
+        document.getElementById('optionsModal').style.display = 'none';
+        currentProduct = null;
+    } else if (!event) {
+        document.getElementById('optionsModal').style.display = 'none';
+        currentProduct = null;
     }
 }
 
-// عرض التنبيه
+// تأكيد الإضافة إلى السلة من الـ Modal
+function confirmAddToCart(product, hasOptions) {
+    let size = "";
+    let color = "";
+    let isValid = true;
+
+    // جلب الخيارات المختارة
+    const sizeSelect = document.getElementById('productSize');
+    const colorSelect = document.getElementById('productColor');
+
+    if (sizeSelect) {
+        size = sizeSelect.value;
+        if (size === "") {
+            showAlert("⚠️ يجب اختيار المقاس.");
+            isValid = false;
+        }
+    }
+    
+    if (colorSelect) {
+        color = colorSelect.value;
+        if (color === "") {
+            showAlert("⚠️ يجب اختيار اللون.");
+            isValid = false;
+        }
+    }
+    
+    // إذا لم تكن هناك خيارات (hasOptions === false)، نعتبره صالحاً للإضافة
+    if (hasOptions && !isValid) {
+        return; // إيقاف الإضافة إذا كانت هناك خيارات مطلوبة ولم يتم اختيارها
+    }
+    
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    
+    cart.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        qty: 1,
+        size: size,
+        color: color
+    });
+    
+    localStorage.setItem("cart", JSON.stringify(cart));
+    showAlert("✅ تمت إضافة المنتج إلى السلة");
+    closeOptionsModal();
+}
+
+// عرض التنبيه (بدون تغيير)
 function showAlert(message) {
     const alertBox = document.getElementById('alertBox');
     const alertOverlay = document.getElementById('alertOverlay');
@@ -674,14 +907,14 @@ function showAlert(message) {
     }, 2000);
 }
 
-// تكبير الصورة
+// تكبير الصورة (بدون تغيير)
 function openImage(src) {
     if (src && !src.startsWith('data:image')) {
         window.open(src, '_blank');
     }
 }
 
-// تحميل الصفحة
+// تحميل الصفحة (بدون تغيير)
 window.addEventListener('load', function() {
     loadCategoriesAndProducts();
 });
