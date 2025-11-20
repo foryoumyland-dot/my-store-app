@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base href="/my-store-app/">
+<title>مرحباً بك - متجرك</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #ffe6f0;
+  font-family: 'Arial', sans-serif;
+  direction: rtl;
+  overflow: hidden;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+  text-align: center;
+}
+
+/* الدائرة والصورة الأولى */
+.logo-circle {
+  width: 220px;
+  height: 220px;
+  margin: 0 auto 30px;
+  border-radius: 50%;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  animation: magicAppear 1.5s ease-out forwards;
+}
+
+.logo-circle::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  right: -12px;
+  bottom: -12px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #ff6b9d, #ff99cc, #ff6b9d, #ff66b2, #ff6b9d);
+  z-index: -1;
+  animation: rainbowGlow 3s ease-in-out infinite;
+  filter: blur(20px);
+  opacity: 0.8;
+}
+
+.logo-circle::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #ff6b9d, #ff99cc, #ff66b2, #ff6b9d);
+  z-index: -2;
+  animation: rotate 6s linear infinite;
+  opacity: 0.6;
+}
+
+.logo-circle img {
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+  animation: floatSpin 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(255, 107, 157, 0.5));
+}
+
+/* حركات الصورة الأولى */
+@keyframes magicAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-360deg);
+    filter: hue-rotate(0deg) blur(30px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.2) rotate(180deg);
+    filter: hue-rotate(180deg) blur(10px);
+  }
+  80% {
+    transform: scale(0.9) rotate(-20deg);
+    filter: hue-rotate(300deg) blur(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+    filter: hue-rotate(360deg) blur(0px);
+  }
+}
+
+@keyframes rainbowGlow {
+  0%, 100% {
+    filter: blur(20px) hue-rotate(0deg);
+    box-shadow: 
+      0 0 80px #ff6b9d,
+      0 0 100px #ff99cc,
+      0 0 120px #ff66b2;
+  }
+  33% {
+    filter: blur(20px) hue-rotate(120deg);
+    box-shadow: 
+      0 0 80px #ff99cc,
+      0 0 100px #ff66b2,
+      0 0 120px #ff6b9d;
+  }
+  66% {
+    filter: blur(20px) hue-rotate(240deg);
+    box-shadow: 
+      0 0 80px #ff66b2,
+      0 0 100px #ff6b9d,
+      0 0 120px #ff99cc;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes floatSpin {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translateY(-15px) rotate(5deg) scale(1.05);
+  }
+  50% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+  }
+  75% {
+    transform: translateY(10px) rotate(-5deg) scale(0.95);
+  }
+}
+
+/* الصورة الثانية (النص) */
+.welcome-image {
+  width: 300px;
+  height: 120px;
+  margin: 20px auto;
+  position: relative;
+  animation: textMagic 2s ease-out 2s forwards;
+  opacity: 0;
+  transform: translateY(60px) scale(0.7);
+  filter: drop-shadow(0 0 30px rgba(255, 107, 157, 0.6));
+}
+
+.welcome-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  animation: textGlow 3s ease-in-out infinite 3s;
+}
+
+.welcome-image::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  background: linear-gradient(45deg, transparent 30%, #ff6b9d, #ff99cc, #ff66b2, transparent 70%);
+  z-index: -1;
+  filter: blur(25px);
+  opacity: 0;
+  animation: textShine 4s ease-in-out infinite 3s;
+}
+
+.welcome-image::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: radial-gradient(circle, rgba(255, 107, 157, 0.3) 0%, transparent 70%);
+  z-index: -1;
+  filter: blur(15px);
+  opacity: 0;
+  animation: pulseGlow 2s ease-in-out infinite 3s;
+}
+
+/* حركات الصورة الثانية */
+@keyframes textMagic {
+  0% {
+    opacity: 0;
+    transform: translateY(60px) scale(0.7) rotateX(90deg);
+    filter: blur(20px) hue-rotate(0deg);
+  }
+  20% {
+    opacity: 0.3;
+    transform: translateY(45px) scale(0.8) rotateX(60deg);
+    filter: blur(15px) hue-rotate(90deg);
+  }
+  40% {
+    opacity: 0.6;
+    transform: translateY(25px) scale(0.9) rotateX(30deg);
+    filter: blur(10px) hue-rotate(180deg);
+  }
+  60% {
+    opacity: 0.8;
+    transform: translateY(-8px) scale(1.1) rotateX(-15deg);
+    filter: blur(5px) hue-rotate(270deg);
+  }
+  80% {
+    opacity: 0.9;
+    transform: translateY(4px) scale(1.05) rotateX(8deg);
+    filter: blur(2px) hue-rotate(320deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotateX(0deg);
+    filter: blur(0px) hue-rotate(360deg);
+  }
+}
+
+@keyframes textGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 20px rgba(255, 107, 157, 0.6)) 
+           drop-shadow(0 0 40px rgba(255, 153, 204, 0.4))
+           drop-shadow(0 0 60px rgba(255, 102, 178, 0.2));
+  }
+  50% {
+    filter: drop-shadow(0 0 30px rgba(255, 107, 157, 0.8))
+           drop-shadow(0 0 60px rgba(255, 153, 204, 0.6))
+           drop-shadow(0 0 90px rgba(255, 102, 178, 0.4));
+  }
+}
+
+@keyframes textShine {
+  0%, 100% {
+    opacity: 0;
+    transform: translateX(-100px) skewX(-15deg);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateX(100px) skewX(-15deg);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+/* تأثيرات إضافية للخلفية */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(255, 107, 157, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 153, 204, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(255, 102, 178, 0.15) 0%, transparent 50%);
+  z-index: -1;
+  animation: backgroundFloat 15s ease-in-out infinite;
+}
+
+@keyframes backgroundFloat {
+  0%, 100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate(-15px, 15px) scale(1.1) rotate(2deg);
+  }
+  66% {
+    transform: translate(15px, -15px) scale(0.9) rotate(-2deg);
+  }
+}
+
+/* جسيمات متحركة */
+.particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.particle {
+  position: absolute;
+  background: radial-gradient(circle, #ff6b9d, transparent);
+  border-radius: 50%;
+  animation: floatParticle 8s ease-in-out infinite;
+}
+
+@keyframes floatParticle {
+  0%, 100% {
+    transform: translate(0, 0) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(100px, -100px) scale(1);
+    opacity: 0.3;
+  }
+  90% {
+    opacity: 0.1;
+  }
+}
+
+/* التجاوب مع الجوال */
+@media (max-width: 480px) {
+  .container {
+    padding: 15px;
+  }
+  
+  .logo-circle {
+    width: 180px;
+    height: 180px;
+    margin-bottom: 25px;
+  }
+  
+  .welcome-image {
+    width: 250px;
+    height: 100px;
+  }
+}
+
+@media (max-width: 360px) {
+  .logo-circle {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .welcome-image {
+    width: 220px;
+    height: 90px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- جسيمات الخلفية -->
+<div class="particles" id="particles"></div>
+
+<!-- الواجهة الرئيسية -->
+<div class="container">
+  <div class="logo-circle">
+    <img src="https://i.postimg.cc/bwThsyP3/inbound1954815092559708389.png" alt="صورة المتجر">
+  </div>
+  
+  <div class="welcome-image">
+    <img src="https://i.postimg.cc/Y0fXbSbx/inbound3113189539850192861.png" alt="أهلاً وسهلاً">
+  </div>
+</div>
+
+<script>
+// إنشاء الجسيمات
+function createParticles() {
+  const particlesContainer = document.getElementById('particles');
+  const particleCount = 15;
+  
+  for (let i = 0; i < particleCount; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    
+    // مواقع وأحجام عشوائية
+    const size = Math.random() * 60 + 20;
+    const left = Math.random() * 100;
+    const top = Math.random() * 100;
+    const delay = Math.random() * 5;
+    
+    particle.style.width = `${size}px`;
+    particle.style.height = `${size}px`;
+    particle.style.left = `${left}%`;
+    particle.style.top = `${top}%`;
+    particle.style.animationDelay = `${delay}s`;
+    
+    particlesContainer.appendChild(particle);
+  }
+}
+
+// التوقيتات:
+// 1. ثانية 0: الصورة الأولى تطلع فوراً
+// 2. ثانية 2: الصورة الثانية تبدأ في الظهور  
+// 3. ثانية 6: يتحول لـ home.html (بعد 4 ثواني من ظهور الصورة الثانية)
+
+setTimeout(() => {
+  window.location.href = 'https://foryoumyland-dot.github.io/my-store-app/home.html';
+}, 6000);
+
+// إنشاء الجسيمات عند التحميل
+createParticles();
+</script>
+
+</body>
+</html>

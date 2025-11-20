@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مسكات العرائس - متجرنا</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #ff69b4;
+            --secondary-color: #ffb6c1;
+            --dark-pink: #db7093;
+            --light-pink: #fff0f5;
+            --soft-pink: #ffe4e9;
+            --accent-color: #ff1493;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--light-pink) 0%, var(--secondary-color) 100%);
+            color: #8b4513;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-top: 70px; /* مساحة للشريط العلوي */
+            padding-bottom: 80px; /* مساحة للشريط السفلي */
+        }
+        
+        /* ===== الشريط العلوي الثابت والمتجاوب ===== */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(255, 105, 180, 0.4);
+            border-bottom: 2px solid #ffb6c1;
+        }
+
+        /* اسم المتجر على اليمين - نص عادي غير قابل للنقر */
+        .store-name {
+            color: white;
+            font-weight: bold;
+            font-size: 1.3rem;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            padding: 8px 20px;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: default;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* تأثير اللمعة للاسم */
+        .store-name::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .store-name:hover::before {
+            left: 100%;
+        }
+
+        /* أيقونة القائمة على اليسار */
+        .menu-icon {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .menu-icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* القائمة المنسدلة */
+        .dropdown-menu {
+            position: absolute;
+            top: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ffffff, #fff5f7);
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(255, 105, 180, 0.3);
+            padding: 0;
+            min-width: 200px;
+            display: none;
+            z-index: 1001;
+            border: 2px solid #ffe4ec;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: #d63384;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: center;
+        }
+
+        .dropdown-item:hover {
+            background: linear-gradient(45deg, #fff0f6, #ffe4ec);
+            color: #ff1493;
+        }
+
+        /* الخط الفاصل بين العناصر */
+        .menu-divider {
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #ffb6c1, transparent);
+            margin: 0 auto;
+        }
+
+        /* حجب القائمة عند النقر خارجها */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 999;
+            display: none;
+        }
+
+        /* تصميم متجاوب لجميع الشاشات */
+        @media (max-width: 768px) {
+            .top-navbar {
+                height: 55px;
+                padding: 0 15px;
+            }
+            
+            .store-name {
+                font-size: 1.1rem;
+                padding: 6px 15px;
+            }
+            
+            .menu-icon {
+                font-size: 1.2rem;
+                padding: 6px 10px;
+            }
+            
+            .dropdown-menu {
+                min-width: 180px;
+                top: 60px;
+            }
+            
+            .dropdown-item {
+                padding: 12px 16px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .top-navbar {
+                height: 50px;
+                padding: 0 10px;
+            }
+            
+            .store-name {
+                font-size: 1rem;
+                padding: 5px 12px;
+            }
+            
+            .menu-icon {
+                font-size: 1.1rem;
+                padding: 5px 8px;
+            }
+            
+            .dropdown-menu {
+                min-width: 160px;
+                top: 55px;
+            }
+            
+            .dropdown-item {
+                padding: 10px 14px;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .top-navbar {
+                height: 65px;
+                padding: 0 25px;
+            }
+            
+            .store-name {
+                font-size: 1.5rem;
+                padding: 10px 25px;
+            }
+            
+            .menu-icon {
+                font-size: 1.6rem;
+                padding: 10px 15px;
+            }
+            
+            .dropdown-menu {
+                min-width: 220px;
+                top: 70px;
+            }
+            
+            .dropdown-item {
+                padding: 16px 22px;
+                font-size: 1.1rem;
+            }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 25px 0 15px;
+            margin-bottom: 20px;
+        }
+        
+        .logo-container {
+            background: transparent;
+            display: inline-block;
+        }
+        
+        .logo {
+            max-width: 350px;
+            height: auto;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(219, 112, 147, 0.15);
+            transition: all 0.3s ease;
+            border: 2px solid var(--secondary-color);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(219, 112, 147, 0.25);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+        
+        .product-info {
+            padding: 15px;
+            background: linear-gradient(to bottom, white, var(--soft-pink));
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .product-name {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: var(--dark-pink);
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .product-price {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        
+        .whatsapp-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .whatsapp-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+            background: linear-gradient(135deg, #128C7E, #25D366);
+        }
+        
+        .facebook-section {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, var(--soft-pink), var(--secondary-color));
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid white;
+            box-shadow: 0 4px 15px rgba(219, 112, 147, 0.15);
+        }
+        
+        .facebook-text {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--dark-pink);
+            font-weight: 600;
+        }
+        
+        .facebook-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #1877F2, #0e5aac);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3);
+            font-size: 0.9rem;
+        }
+        
+        .facebook-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(24, 119, 242, 0.4);
+        }
+        
+        .no-products {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(219, 112, 147, 0.15);
+            border: 2px dashed var(--secondary-color);
+        }
+        
+        .no-products h3 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--dark-pink);
+        }
+        
+        .no-products p {
+            font-size: 1rem;
+            color: #8b4513;
+            opacity: 0.8;
+        }
+
+        /* نافذة التكبير */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-content {
+            position: relative;
+            margin: auto;
+            display: block;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            top: 50%;
+            transform: translateY(-50%);
+            animation: zoomIn 0.3s ease;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        
+        .close-modal:hover {
+            color: var(--secondary-color);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes zoomIn {
+            from { transform: translateY(-50%) scale(0.8); opacity: 0; }
+            to { transform: translateY(-50%) scale(1); opacity: 1; }
+        }
+        
+        /* تحسينات للشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .logo {
+                max-width: 280px;
+            }
+            
+            .product-image {
+                height: 180px;
+            }
+            
+            .modal-content {
+                width: 95%;
+            }
+            
+            .close-modal {
+                right: 20px;
+                font-size: 30px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .product-image {
+                height: 160px;
+            }
+            
+            .product-info {
+                padding: 12px;
+            }
+            
+            .product-name {
+                font-size: 1.1rem;
+            }
+            
+            .facebook-section {
+                padding: 20px;
+            }
+            
+            .logo {
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-navbar">
+        <button class="menu-icon" onclick="toggleMenu()">☰</button>
+        
+        <div class="store-name">🌸 مسكات العرائس</div>
+        
+        <div class="dropdown-menu" id="dropdownMenu">
+            <a href="https://foryoumyland-dot.github.io/my-store-app/profile.html" class="dropdown-item" onclick="closeMenu()">👤 بياناتي</a>
+            <div class="menu-divider"></div>
+            <a href="https://foryoumyland-dot.github.io/my-store-app/orders.html" class="dropdown-item" onclick="closeMenu()">📦 طلباتي</a>
+        </div>
+    </nav>
+
+    <div class="overlay" id="overlay" onclick="closeMenu()"></div>
+
+    <div id="imageModal" class="image-modal">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="https://i.postimg.cc/W48wgNBc/inbound8555679769370467159.png" alt="مسكات العرائس" class="logo">
+            </div>
+        </header>
+        
+        <section class="products-grid" id="productsContainer">
+            </section>
+        
+        <section class="facebook-section">
+            <p class="facebook-text">لطلب أي تصميم خاص يرجى التواصل على صفحتنا الفيسبوك</p>
+            <a href="https://www.facebook.com/profile.php?id=100089989680343" class="facebook-btn" target="_blank">
+                <span>📘</span> صفحتنا على الفيسبوك
+            </a>
+        </section>
+    </div>
+
+    <iframe src="https://foryoumyland-dot.github.io/my-store-app/bottom-nav.html" style="width:100%; height:80px; border:none; position: fixed; bottom: 0; left: 0; z-index: 1000;"></iframe>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // تكوين Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDInTSRi4Lf_KO_ltoAajJhBOHTmfnCIvU",
+            authDomain: "store-email-1846c.firebaseapp.com",
+            databaseURL: "https://store-email-1846c-default-rtdb.firebaseio.com",
+            projectId: "store-email-1846c",
+            storageBucket: "store-email-1846c.firebasestorage.app",
+            messagingSenderId: "238351247429",
+            appId: "1:238351247429:web:5d83284ed44dc2e5ac5b2c"
+        };
+
+        // تهيئة Firebase
+        let database;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+        } catch (error) {
+            console.error('خطأ في الاتصال بـ Firebase:', error);
+        }
+
+        // وظائف القائمة المنسدلة
+        function toggleMenu() {
+            const menu = document.getElementById('dropdownMenu');
+            const overlay = document.getElementById('overlay');
+            
+            if (menu.classList.contains('show')) {
+                closeMenu();
+            } else {
+                menu.classList.add('show');
+                overlay.style.display = 'block';
+            }
+        }
+
+        function closeMenu() {
+            const menu = document.getElementById('dropdownMenu');
+            const overlay = document.getElementById('overlay');
+            
+            menu.classList.remove('show');
+            overlay.style.display = 'none';
+        }
+
+        // إغلاق القائمة عند النقر خارجها
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('dropdownMenu');
+            const icon = document.querySelector('.menu-icon');
+            
+            if (!menu.contains(event.target) && !icon.contains(event.target)) {
+                closeMenu();
+            }
+        });
+
+        // إغلاق القائمة عند النقر على رابط
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', function() {
+                closeMenu();
+            });
+        });
+
+        // تحميل وعرض المنتجات
+        function loadProducts() {
+            const productsContainer = document.getElementById('productsContainer');
+            
+            if (!database) {
+                showNoProducts();
+                return;
+            }
+
+            // الاستماع للتحديثات في الوقت الحقيقي
+            database.ref('products').on('value', (snapshot) => {
+                const productsData = snapshot.val();
+                const products = productsData ? Object.values(productsData) : [];
+                
+                if (products.length === 0) {
+                    showNoProducts();
+                } else {
+                    displayProducts(products);
+                }
+            }, (error) => {
+                console.error('خطأ في تحميل المنتجات:', error);
+                showNoProducts();
+            });
+        }
+
+        // عرض رسالة لا توجد منتجات
+        function showNoProducts() {
+            const productsContainer = document.getElementById('productsContainer');
+            productsContainer.innerHTML = `
+                <div class="no-products">
+                    <h3>🎀 مرحباً بكم في متجر مسكات العرائس 🎀</h3>
+                    <p>لا توجد منتجات مضافة حالياً</p>
+                    <p style="margin-top: 10px; font-size: 0.9rem;">سيتم عرض المنتجات هنا قريباً...</p>
+                </div>
+            `;
+        }
+
+        // عرض المنتجات
+        function displayProducts(products) {
+            const productsContainer = document.getElementById('productsContainer');
+            
+            // ترتيب المنتجات من الأحدث إلى الأقدم
+            products.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            
+            productsContainer.innerHTML = products.map((product, index) => `
+                <div class="product-card">
+                    <img src="${product.image}" alt="${product.name}" class="product-image" 
+                         onclick="openImageModal('${product.image}')"
+                         onerror="this.src='https://via.placeholder.com/300x200/ffb6c1/ffffff?text=صورة+منتج'">
+                    <div class="product-info">
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-price">${product.price} دينار ليبي</p>
+                        <a href="https://api.whatsapp.com/send/?phone=218923872524&text=${encodeURIComponent(`مرحباً، أريد حجز ${product.name} بسعر ${product.price} دينار ليبي`)}" class="whatsapp-btn" target="_blank">
+                            <span>💬</span> حجز عبر واتساب
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // فتح نافذة تكبير الصورة
+        function openImageModal(imageSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'block';
+            modalImg.src = imageSrc;
+        }
+
+        // إغلاق نافذة التكبير
+        document.querySelector('.close-modal').addEventListener('click', function() {
+            document.getElementById('imageModal').style.display = 'none';
+        });
+
+        // إغلاق النافذة عند النقر خارج الصورة
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+
+        // إغلاق النافذة بالزر Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.getElementById('imageModal').style.display = 'none';
+            }
+        });
+
+        // بدء تحميل المنتجات عند اكتمال تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+        });
+    </script>
+</body>
+</html>

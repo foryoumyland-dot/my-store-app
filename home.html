@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<base href="/my-store-app/">
+<title>الرئيسية</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body, html { 
+    width:100%; 
+    height:100%; 
+    font-family:Tahoma, sans-serif; 
+    background: linear-gradient(135deg, #ffe8f0 0%, #fff5f7 100%); 
+    overflow-x: hidden; 
+    padding-bottom: 100px; 
+    padding-top: 70px; /* ⬅️ مساحة للشريط العلوي */
+}
+
+/* ===== الشريط العلوي الثابت والمتجاوب ===== */
+.top-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(135deg, #ff69b4, #ff1493);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(255, 105, 180, 0.4);
+    border-bottom: 2px solid #ffb6c1;
+}
+
+/* اسم المتجر على اليمين - نص عادي غير قابل للنقر */
+.store-name {
+    color: white;
+    font-weight: bold;
+    font-size: 1.3rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    padding: 8px 20px;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: default;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+}
+
+/* تأثير اللمعة للاسم */
+.store-name::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s;
+}
+
+.store-name:hover::before {
+    left: 100%;
+}
+
+/* أيقونة القائمة على اليسار */
+.menu-icon {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.menu-icon:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* القائمة المنسدلة */
+.dropdown-menu {
+    position: absolute;
+    top: 65px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ffffff, #fff5f7);
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(255, 105, 180, 0.3);
+    padding: 0;
+    min-width: 200px;
+    display: none;
+    z-index: 1001;
+    border: 2px solid #ffe4ec;
+    backdrop-filter: blur(10px);
+    text-align: center;
+}
+
+.dropdown-menu.show {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.dropdown-item {
+    display: block;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: #d63384;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: center;
+}
+
+.dropdown-item:hover {
+    background: linear-gradient(45deg, #fff0f6, #ffe4ec);
+    color: #ff1493;
+}
+
+/* الخط الفاصل بين العناصر */
+.menu-divider {
+    width: 80%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #ffb6c1, transparent);
+    margin: 0 auto;
+}
+
+/* حجب القائمة عند النقر خارجها */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    z-index: 999;
+    display: none;
+}
+
+/* تصميم متجاوب لجميع الشاشات */
+@media (max-width: 768px) {
+    .top-navbar {
+        height: 55px;
+        padding: 0 15px;
+    }
+    
+    .store-name {
+        font-size: 1.1rem;
+        padding: 6px 15px;
+    }
+    
+    .menu-icon {
+        font-size: 1.2rem;
+        padding: 6px 10px;
+    }
+    
+    .dropdown-menu {
+        min-width: 180px;
+        top: 60px;
+    }
+    
+    .dropdown-item {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .top-navbar {
+        height: 50px;
+        padding: 0 10px;
+    }
+    
+    .store-name {
+        font-size: 1rem;
+        padding: 5px 12px;
+    }
+    
+    .menu-icon {
+        font-size: 1.1rem;
+        padding: 5px 8px;
+    }
+    
+    .dropdown-menu {
+        min-width: 160px;
+        top: 55px;
+    }
+    
+    .dropdown-item {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .top-navbar {
+        height: 65px;
+        padding: 0 25px;
+    }
+    
+    .store-name {
+        font-size: 1.5rem;
+        padding: 10px 25px;
+    }
+    
+    .menu-icon {
+        font-size: 1.6rem;
+        padding: 10px 15px;
+    }
+    
+    .dropdown-menu {
+        min-width: 220px;
+        top: 70px;
+    }
+    
+    .dropdown-item {
+        padding: 16px 22px;
+        font-size: 1.1rem;
+    }
+}
+
+/* ===== الأيقونة ===== */
+.icon-container { text-align:center; margin:20px 0 20px 0; position: relative; }
+.elegant-frame { width:160px; height:160px; border-radius:50%; background: linear-gradient(135deg,#ff69b4,#ffb6c1,#ff69b4); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 0 30px rgba(255,105,180,0.4); margin-bottom:15px; border:4px solid white; }
+.elegant-frame img { width:110px; height:110px; border-radius:50%; object-fit:cover; }
+
+/* النص الترحيبي */
+.welcome-text { font-size:2rem; font-weight:bold; color:#d63384; margin:10px 0 15px 0; background: linear-gradient(45deg,#d63384,#ff69b4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+
+/* المحتوى الرئيسي */
+.main-content { margin-top:20px; width:100%; overflow:hidden; }
+.welcome-section { background: transparent; text-align:center; padding:20px; margin:15px 0 10px 0; }
+.welcome-section p { font-size:1.2rem; color:#8b4513; line-height:1.6; font-weight:500; padding:15px; }
+
+/* زر تسوقي الآن */
+.shop-now-container { text-align:center; margin:15px 0 30px 0; }
+.shop-now-btn { 
+    background: linear-gradient(135deg, #ff69b4, #ff1493);
+    color: white;
+    border: none;
+    padding: 18px 45px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(255, 105, 180, 0.4);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+}
+.shop-now-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 35px rgba(255, 105, 180, 0.6);
+    color: white;
+    text-decoration: none;
+}
+.shop-now-btn:active {
+    transform: translateY(-2px) scale(1.02);
+}
+.shop-now-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+.shop-now-btn:hover::before {
+    left: 100%;
+}
+
+/* السلايدر - الصور بالحجم الأصلي */
+.carousel-container { width:95%; max-width:1300px; margin:30px auto; border-radius:15px; overflow:hidden; }
+.carousel-item img { width:100%; height:600px; object-fit:cover; display:block; }
+.carousel-caption { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:1.6rem; font-weight:bold; color:white; text-shadow:2px 2px 12px rgba(0,0,0,0.8); text-align:center; background:none; padding:0; }
+
+/* أزرار التواصل */
+.contact-buttons { text-align:center; margin:50px 0 120px 0; padding:0 20px; }
+.contact-buttons a { display:inline-block; margin:15px; padding:15px 30px; border-radius:12px; font-size:1.1rem; font-weight:bold; color:#d63384; text-decoration:none; border:2px solid #d63384; background: rgba(255,255,255,0.9); transition: all 0.3s ease; }
+.contact-buttons a:hover { background: linear-gradient(45deg, #d63384, #ff69b4); color:white; transform:translateY(-3px); box-shadow:0 8px 20px rgba(214,51,132,0.4); }
+
+/* تصميم متجاوب */
+@media (max-width: 768px) {
+    .welcome-text { font-size:1.6rem; }
+    .shop-now-btn { padding: 16px 35px; font-size: 1.2rem; }
+    .carousel-item img { height:400px; }
+    .carousel-caption { font-size:1.2rem; }
+    .contact-buttons a { padding:12px 25px; font-size:1rem; margin:10px; }
+    .contact-buttons { margin:40px 0 100px 0; }
+}
+
+@media (max-width: 480px) {
+    .welcome-text { font-size:1.4rem; }
+    .elegant-frame { width:140px; height:140px; }
+    .elegant-frame img { width:90px; height:90px; }
+    .shop-now-btn { padding: 14px 30px; font-size: 1.1rem; }
+    .carousel-item img { height:300px; }
+    .carousel-caption { font-size:1rem; }
+    .contact-buttons a { padding:10px 20px; font-size:0.9rem; margin:8px; }
+    .contact-buttons { margin:30px 0 90px 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- الشريط العلوي المدمج مباشرة -->
+<nav class="top-navbar">
+    <!-- أيقونة القائمة على اليسار -->
+    <button class="menu-icon" onclick="toggleMenu()">☰</button>
+    
+    <!-- اسم المتجر على اليمين - نص عادي -->
+    <div class="store-name">🌸 لأجلك سيدتي</div>
+    
+    <!-- القائمة المنسدلة -->
+    <div class="dropdown-menu" id="dropdownMenu">
+        <a href="https://foryoumyland-dot.github.io/my-store-app/profile.html" class="dropdown-item" onclick="closeMenu()">👤 بياناتي</a>
+        <div class="menu-divider"></div>
+        <a href="https://foryoumyland-dot.github.io/my-store-app/orders.html" class="dropdown-item" onclick="closeMenu()">📦 طلباتي</a>
+    </div>
+</nav>
+
+<!-- حجب القائمة عند النقر خارجها -->
+<div class="overlay" id="overlay" onclick="closeMenu()"></div>
+
+<!-- المحتوى -->
+<div class="main-content">
+
+    <!-- أيقونة -->
+    <div class="icon-container">
+        <div class="elegant-frame">
+            <img src="https://i.postimg.cc/9XLkYX9C/inbound656561575053776220.png" alt="أيقونة متجر">
+        </div>
+        <div class="welcome-text">🌸 مرحباً بكِ في متجر "لأجلك سيدتي" 🌸</div>
+    </div>
+
+    <!-- نص ترحيبي -->
+    <div class="welcome-section">
+        <p>
+            هنا تجدين كل ما يليق بذوقكِ الرفيع من أزياء، عطور، ومكياج ✨<br>
+            هدفنا أن نجعل أناقتكِ عنواناً لجمالكِ 💕
+        </p>
+    </div>
+
+    <!-- زر تسوقي الآن -->
+    <div class="shop-now-container">
+        <a href="https://foryoumyland-dot.github.io/my-store-app/products.html" class="shop-now-btn">
+            🛍️ تسوقي الآن
+        </a>
+    </div>
+
+    <!-- السلايدر -->
+    <div id="mainCarousel" class="carousel slide carousel-container" data-bs-ride="carousel" data-bs-interval="3000">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="https://i.postimg.cc/wjJycnsM/aa763ea28825ef29b13e4310639429d5.jpg" alt="صورة 1">
+                <div class="carousel-caption">💄 تألقي بجمال لا مثيل له مع منتجاتنا ✨</div>
+            </div>
+            <div class="carousel-item">
+                <img src="https://i.postimg.cc/8CSFywhH/e914b1a26c20692ebbb5cc5e4a8354a8.jpg" alt="صورة 2">
+                <div class="carousel-caption">🖤 أزياء فاخرة تليق بذوقك الراقي 🌸</div>
+            </div>
+            <div class="carousel-item">
+                <img src="https://i.postimg.cc/gJcxpJtL/1c769427bdbdb0ec5812e71eeb6ddc47.jpg" alt="صورة 3">
+                <div class="carousel-caption">👗 لمسة أنثوية لأجمل لحظاتك 💕</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- أزرار التواصل -->
+    <div class="contact-buttons">
+        <a href="whatsapp://send?phone=218940055056&text=السلام عليكم" target="_blank">📲 تواصل معنا عبر واتساب</a>
+        <a href="https://www.facebook.com/profile.php?id=61580903676358" target="_blank">📘 صفحتنا على فيسبوك</a>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// وظائف القائمة المنسدلة
+function toggleMenu() {
+    const menu = document.getElementById('dropdownMenu');
+    const overlay = document.getElementById('overlay');
+    
+    if (menu.classList.contains('show')) {
+        closeMenu();
+    } else {
+        menu.classList.add('show');
+        overlay.style.display = 'block';
+    }
+}
+
+function closeMenu() {
+    const menu = document.getElementById('dropdownMenu');
+    const overlay = document.getElementById('overlay');
+    
+    menu.classList.remove('show');
+    overlay.style.display = 'none';
+}
+
+// إغلاق القائمة عند النقر خارجها
+document.addEventListener('click', function(event) {
+    const menu = document.getElementById('dropdownMenu');
+    const icon = document.querySelector('.menu-icon');
+    
+    if (!menu.contains(event.target) && !icon.contains(event.target)) {
+        closeMenu();
+    }
+});
+
+// إغلاق القائمة عند النقر على رابط
+document.querySelectorAll('.dropdown-item').forEach(item => {
+    item.addEventListener('click', function() {
+        closeMenu();
+    });
+});
+
+// ⚠️ تم حذف كود التحقق من تسجيل الدخول ⚠️
+</script>
+
+<iframe src="https://foryoumyland-dot.github.io/my-store-app/bottom-nav.html" style="width:100%; height:80px; border:none; position: fixed; bottom: 0; left: 0; z-index: 1000;"></iframe>
+</body>
+</html>

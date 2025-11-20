@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<base href="/my-store-app/">
+    <title>بياناتي</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body, html { 
+            width: 100%; 
+            height: 100%; 
+            font-family: Tahoma, Arial, sans-serif; 
+            background: linear-gradient(135deg, #ffe8f0 0%, #fff5f7 100%); 
+            overflow-x: hidden; 
+            padding-bottom: 80px; 
+            padding-top: 70px;
+            direction: rtl;
+        }
+
+        /* ===== الشريط العلوي ===== */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(255, 105, 180, 0.4);
+            border-bottom: 2px solid #ffb6c1;
+        }
+
+        .store-name {
+            color: white;
+            font-weight: bold;
+            font-size: 1.3rem;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            padding: 8px 20px;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: default;
+            user-select: none;
+        }
+
+        .menu-icon {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .menu-icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ffffff, #fff5f7);
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(255, 105, 180, 0.3);
+            padding: 0;
+            min-width: 200px;
+            display: none;
+            z-index: 1001;
+            border: 2px solid #ffe4ec;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: #d63384;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: center;
+        }
+
+        .dropdown-item:hover {
+            background: linear-gradient(45deg, #fff0f6, #ffe4ec);
+            color: #ff1493;
+        }
+
+        .menu-divider {
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #ffb6c1, transparent);
+            margin: 0 auto;
+        }
+
+        .nav-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 999;
+            display: none;
+        }
+
+        /* ===== محتوى الصفحة ===== */
+        .profile-container {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(255, 105, 180, 0.2);
+            border: 2px solid #ffe4ec;
+        }
+
+        .profile-title {
+            text-align: center;
+            color: #d63384;
+            font-weight: bold;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            color: #d63384;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ffe4ec;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #fff9fb;
+            transition: all 0.3s ease;
+            direction: rtl;
+            text-align: right;
+        }
+
+        .form-input:focus {
+            border-color: #ff69b4;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
+            outline: none;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ffe4ec;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #fff9fb;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            direction: rtl;
+            text-align: right;
+        }
+
+        .form-select:focus {
+            border-color: #ff69b4;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
+            outline: none;
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .save-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.4);
+        }
+
+        .save-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 105, 180, 0.6);
+        }
+
+        .save-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* ===== التنبيه ===== */
+        .alert-custom {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            color: white;
+            padding: 25px 35px;
+            border-radius: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            z-index: 2000;
+            display: none;
+            box-shadow: 0 15px 40px rgba(255, 105, 180, 0.5);
+            text-align: center;
+            border: 3px solid white;
+            animation: alertPop 0.5s ease;
+        }
+
+        @keyframes alertPop {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+            display: none;
+        }
+
+        /* ===== تصميم متجاوب ===== */
+        @media (max-width: 768px) {
+            .profile-container {
+                margin: 15px auto;
+                padding: 0 15px;
+            }
+            
+            .profile-card {
+                padding: 25px;
+            }
+            
+            .profile-title {
+                font-size: 1.6rem;
+            }
+            
+            .form-input, .form-select {
+                padding: 10px 12px;
+                font-size: 0.95rem;
+            }
+            
+            .save-btn {
+                padding: 14px;
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profile-container {
+                margin: 10px auto;
+                padding: 0 10px;
+            }
+            
+            .profile-card {
+                padding: 20px;
+            }
+            
+            .profile-title {
+                font-size: 1.4rem;
+                margin-bottom: 20px;
+            }
+            
+            .form-input, .form-select {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+            
+            .save-btn {
+                padding: 12px;
+                font-size: 1rem;
+            }
+            
+            .alert-custom {
+                padding: 20px 25px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- الشريط العلوي -->
+<nav class="top-navbar">
+    <button class="menu-icon" onclick="toggleMenu()">☰</button>
+    <div class="store-name">🌸 لأجلك سيدتي</div>
+    <div class="dropdown-menu" id="dropdownMenu">
+        <a href="profile.html" class="dropdown-item" onclick="closeMenu()">👤 بياناتي</a>
+        <div class="menu-divider"></div>
+        <a href="orders.html" class="dropdown-item" onclick="closeMenu()">📦 طلباتي</a>
+    </div>
+</nav>
+
+<div class="nav-overlay" id="navOverlay" onclick="closeMenu()"></div>
+
+<!-- المحتوى الرئيسي -->
+<div class="profile-container">
+    <div class="profile-card">
+        <h1 class="profile-title">👤 بياناتي</h1>
+        
+        <form id="profileForm">
+            <div class="form-group">
+                <label class="form-label">الاسم الكامل</label>
+                <input type="text" class="form-input" id="userName" placeholder="أدخل اسمك الكامل" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">رقم الهاتف</label>
+                <input type="tel" class="form-input" id="userPhone" 
+                       placeholder="أدخل رقم هاتفك" 
+                       maxlength="10"
+                       pattern="[0-9]{10}"
+                       oninput="validatePhone(this)"
+                       required>
+                <small style="color: #666; font-size: 0.8rem; margin-top: 5px; display: block;">
+                    📱 يجب أن يكون الرقم 10 أرقام فقط
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">المدينة</label>
+                <select class="form-select" id="userCity" required>
+                    <option value="">اختر مدينتك</option>
+                    <option value="طرابلس">طرابلس</option>
+                    <option value="بنغازي">بنغازي</option>
+                    <option value="مصراتة">مصراتة</option>
+                    <option value="الزاوية">الزاوية</option>
+                    <option value="سبها">سبها</option>
+                    <option value="سرت">سرت</option>
+                    <option value="زوارة">زوارة</option>
+                    <option value="البيضاء">البيضاء</option>
+                    <option value="غريان">غريان</option>
+                    <option value="اجدابيا">اجدابيا</option>
+                    <option value="المرج">المرج</option>
+                    <option value="درنة">درنة</option>
+                    <option value="ترهونة">ترهونة</option>
+                    <option value="زليتن">زليتن</option>
+                    <option value="الكفرة">الكفرة</option>
+                    <option value="يفرن">يفرن</option>
+                    <option value="نالوت">نالوت</option>
+                    <option value="الشاطئ">الشاطئ</option>
+                    <option value="غات">غات</option>
+                    <option value="صبراتة">صبراتة</option>
+                    <option value="القره بوللي">القره بوللي</option>
+                    <option value="مسلاتة">مسلاتة</option>
+                    <option value="بني وليد">بني وليد</option>
+                    <option value="تازربو">تازربو</option>
+                    <option value="أوباري">أوباري</option>
+                    <option value="الرجبان">الرجبان</option>
+                    <option value="العجيلات">العجيلات</option>
+                    <option value="الماية">الماية</option>
+                    <option value="الجميل">الجميل</option>
+                    <option value="الرحيبات">الرحيبات</option>
+                    <option value="قصر خيار">قصر خيار</option>
+                    <option value="هون">هون</option>
+                    <option value="ودان">ودان</option>
+                    <option value="سوكنة">سوكنة</option>
+                    <option value="القبة">القبة</option>
+                    <option value="الأبرق">الأبرق</option>
+                    <option value="شحات">شحات</option>
+                    <option value="بئر الأشهب">بئر الأشهب</option>
+                    <option value="أم الرزم">أم الرزم</option>
+                    <option value="رأس لانوف">رأس لانوف</option>
+                    <option value="البريقة">البريقة</option>
+                    <option value="تاورغاء">تاورغاء</option>
+                    <option value="قصر بن غشير">قصر بن غشير</option>
+                    <option value="سوق الخميس">سوق الخميس</option>
+                    <option value="العزيزية">العزيزية</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">العنوان التفصيلي</label>
+                <textarea class="form-input" id="userAddress" rows="3" placeholder="أدخل عنوانك التفصيلي" required></textarea>
+            </div>
+            
+            <button type="submit" class="save-btn">💾 حفظ البيانات</button>
+        </form>
+    </div>
+</div>
+
+<!-- التنبيه -->
+<div class="alert-custom" id="alertBox">✅ تم حفظ البيانات بنجاح</div>
+<div class="alert-overlay" id="alertOverlay"></div>
+
+<!-- الشريط السفلي -->
+<iframe src="bottom-nav.html" style="width:100%; height:80px; border:none; position: fixed; bottom: 0; left: 0; z-index: 1000;"></iframe>
+
+<script>
+// وظائف القائمة المنسدلة
+function toggleMenu() {
+    const menu = document.getElementById('dropdownMenu');
+    const overlay = document.getElementById('navOverlay');
+    
+    if (menu.classList.contains('show')) {
+        closeMenu();
+    } else {
+        menu.classList.add('show');
+        overlay.style.display = 'block';
+    }
+}
+
+function closeMenu() {
+    const menu = document.getElementById('dropdownMenu');
+    const overlay = document.getElementById('navOverlay');
+    
+    menu.classList.remove('show');
+    overlay.style.display = 'none';
+}
+
+// إغلاق القائمة عند النقر خارجها
+document.addEventListener('click', function(event) {
+    const menu = document.getElementById('dropdownMenu');
+    const icon = document.querySelector('.menu-icon');
+    
+    if (!menu.contains(event.target) && !icon.contains(event.target)) {
+        closeMenu();
+    }
+});
+
+// تحقق من رقم الهاتف
+function validatePhone(input) {
+    input.value = input.value.replace(/[^0-9]/g, '');
+    if (input.value.length > 10) {
+        input.value = input.value.slice(0, 10);
+    }
+}
+
+// تحميل البيانات المحفوظة
+window.addEventListener('load', function() {
+    const savedData = JSON.parse(localStorage.getItem('userProfile'));
+    if (savedData) {
+        document.getElementById('userName').value = savedData.name || '';
+        document.getElementById('userPhone').value = savedData.phone || '';
+        document.getElementById('userCity').value = savedData.city || '';
+        document.getElementById('userAddress').value = savedData.address || '';
+    }
+});
+
+// حفظ البيانات
+document.getElementById('profileForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const userData = {
+        name: document.getElementById('userName').value,
+        phone: document.getElementById('userPhone').value,
+        city: document.getElementById('userCity').value,
+        address: document.getElementById('userAddress').value,
+        savedAt: new Date().toISOString()
+    };
+    
+    // التحقق من صحة البيانات
+    if (userData.phone.length !== 10) {
+        showAlert('⚠️ رقم الهاتف يجب أن يكون 10 أرقام');
+        return;
+    }
+    
+    if (!userData.city) {
+        showAlert('⚠️ يرجى اختيار المدينة');
+        return;
+    }
+    
+    // حفظ في localStorage
+    localStorage.setItem('userProfile', JSON.stringify(userData));
+    showAlert('✅ تم حفظ البيانات بنجاح');
+});
+
+function showAlert(message) {
+    const alertBox = document.getElementById('alertBox');
+    const alertOverlay = document.getElementById('alertOverlay');
+    
+    alertBox.textContent = message;
+    alertBox.style.display = 'block';
+    alertOverlay.style.display = 'block';
+    
+    setTimeout(function() {
+        alertBox.style.display = 'none';
+        alertOverlay.style.display = 'none';
+    }, 3000);
+}
+</script>
+</body>
+</html>
