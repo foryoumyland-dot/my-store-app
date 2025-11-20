@@ -865,6 +865,22 @@ let favorites = JSON.parse(localStorage.getItem("favorites")) || {};
 let currentGalleryImages = [];
 let currentGalleryIndex = 0;
 
+/* 🆕 دالة جديدة: لجلب سعر التوصيل من بيانات المستخدم */
+function getShippingCost() {
+    const userData = JSON.parse(localStorage.getItem('userProfile'));
+    let shippingCost = 0;
+
+    if (userData && userData.cityData) {
+        // cityData تكون بالشكل: "اسم_المدينة_السعر" (مثلاً: "ترهونة_30")
+        const cityDataParts = userData.cityData.split('_');
+        
+        // السعر هو الجزء الأخير في المصفوفة
+        // يتم التأكد من أن القيمة رقمية باستخدام parseFloat
+        shippingCost = parseFloat(cityDataParts[cityDataParts.length - 1]) || 0;
+    }
+    return shippingCost;
+}
+
 
 /* ✅ تحميل الأقسام */
 function loadCategories() {
@@ -1125,7 +1141,7 @@ function toggleFavorite(productId) {
     showAlert(favorites[productId] ? "❤️ تم الإضافة إلى المفضلة" : "🤍 تم الإزالة من المفضلة");
 }
 
-/* 🚀 sendOrder() - دالة إرسال الطلب (مع الخصم الآمن من المخزون) - تم تحسين منطق الفشل */
+/* 🚀 sendOrder() - دالة إرسال الطلب (مُعدلة لإضافة إجمالي السعر مع التوصيل) */
 async function sendOrder() {
     if (cart.length === 0) {
         showAlert("⚠️ السلة فارغة");
@@ -1133,9 +1149,11 @@ async function sendOrder() {
         return;
     }
     
-    // التحقق من بيانات المستخدم (نفس المنطق السابق)
+    // 1. التحقق من بيانات المستخدم
     const userData = JSON.parse(localStorage.getItem('userProfile'));
-    if (!userData || !userData.name || !userData.phone || !userData.city || !userData.address) {
+    
+    // تحقق من وجود جميع الحقول المطلوبة (قد تحتاج لتعديل هذا التحقق بناءً على صفحة بياناتي)
+    if (!userData || !userData.name || !userData.phone || !userData.cityData || !userData.address) {
         showDataAlert();
         closeConfirmSend();
         return;
@@ -1145,31 +1163,32 @@ async function sendOrder() {
     // 🆕 عرض رسالة الانتظار بوضوح
     showAlert("⏳ يتم التحقق من المخزون وإرسال الطلب. يرجى الانتظار...", 5000); 
 
-    let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    // 2. حساب الإجمالي الكلي (المنتجات + التوصيل)
+    let subTotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    const shippingCost = getShippingCost();
+    const grandTotal = subTotal + shippingCost;
+    
+    // 3. تنفيذ معاملة الخصم لكل صنف في السلة (المنطق كما هو)
     let allTransactionsSuccessful = true;
-    let failedItemName = ""; // متغير لتخزين اسم المنتج الذي فشل
+    let failedItemName = ""; 
 
-    // 1. تنفيذ معاملة الخصم لكل صنف في السلة
     for (const item of cart) {
         const productRef = db.ref(`products/${item.id}`);
         
-        // استخدام المعاملة لضمان تحديث المخزون بأمان (Transaction)
         const result = await productRef.transaction(currentProduct => {
             
             if (!currentProduct) {
-                // 🔴 فشل #1: المنتج غير موجود
                 failedItemName = item.name + " (غير موجود في المخزون)";
-                return; // إلغاء المعاملة (Aborting)
+                return; 
             }
             
             let requiredQty = item.qty;
             let newTotalStock = currentProduct.totalStock !== undefined ? currentProduct.totalStock : 0;
             let stockReduced = false;
             
-            // 💡 تحديد القيم الافتراضية
             const finalColor = (currentProduct.colors && currentProduct.colors.length > 0) ? item.color : "";
             const finalSize = (currentProduct.sizes && currentProduct.sizes.length > 0) ? item.size : "";
-            const finalType = (currentProduct.types && currentProduct.types.length > 0) ? item.type : ""; // 💡 تحديد النوع
+            const finalType = (currentProduct.types && currentProduct.types.length > 0) ? item.type : ""; 
 
             // إذا كان هناك مخزون تفصيلي (stockDetails)
             if (currentProduct.stockDetails && currentProduct.stockDetails.length > 0) {
@@ -1177,11 +1196,10 @@ async function sendOrder() {
                 let detailIndex = currentProduct.stockDetails.findIndex(detail => 
                     detail.color === finalColor && 
                     detail.size === finalSize &&
-                    detail.type === finalType // 💡 تضمين النوع في البحث
+                    detail.type === finalType
                 );
 
                 if (detailIndex === -1) {
-                     // 🔴 فشل #2: التركيبة غير موجودة
                      failedItemName = item.name + (item.color || item.size || item.type ? ` (التركيبة غير موجودة: ${item.color} ${item.size} ${item.type})` : "");
                      return; 
                 }
@@ -1201,36 +1219,30 @@ async function sendOrder() {
                 }
             }
             
-            // 2. التحقق من نجاح عملية الخصم
             if (stockReduced) {
-                // ✅ النجاح: تحديث القيم
                 currentProduct.totalStock = newTotalStock;
                 if (currentProduct.stock !== undefined) currentProduct.stock = newTotalStock; 
-                return currentProduct; // تحديث المنتج في DB
+                return currentProduct; 
             } else {
-                // 🔴 فشل #3: المخزون غير كافٍ
                 failedItemName = item.name + (item.color || item.size || item.type ? ` (المخزون غير كافٍ للتركيبة: ${item.color} ${item.size} ${item.type})` : "");
-                return; // الإلغاء: عدم تحديث المنتج في DB
+                return; 
             }
         });
         
-        // التحقق النهائي من التزام المعاملة
         if (!result.committed) {
              allTransactionsSuccessful = false;
-             
-             // قيمة احتياطية في حال فشل الـ commit لأسباب خارج منطق الكود الداخلي
-             if (!failedItemName) {
-                 failedItemName = item.name + " (فشل غير محدد)";
-             }
+             if (!failedItemName) { failedItemName = item.name + " (فشل غير محدد)"; }
              break; 
         }
     }
     
-    // 3. إذا نجحت جميع عمليات الخصم، أرسل الطلب
+    // 4. إذا نجحت جميع عمليات الخصم، أرسل الطلب مع الإجمالي الكلي
     if (allTransactionsSuccessful) {
         let orderData = {
             items: cart,
-            total: total,
+            subTotal: subTotal,        // إجمالي المنتجات فقط
+            shippingCost: shippingCost,  // سعر التوصيل
+            total: grandTotal,         // الإجمالي الكلي (المنتجات + التوصيل)
             timestamp: Date.now(),
             status: "قيد الانتظار",
             customer: userData 
@@ -1249,7 +1261,6 @@ async function sendOrder() {
             }
         });
     } else {
-        // 🚨 عرض رسالة الخطأ المخصصة بوضوح
         const failedMsg = failedItemName ? `المنتج "${failedItemName}"` : "أحد المنتجات";
         showAlert(`❌ فشل إرسال الطلب. الكمية المطلوبة لـ ${failedMsg} غير متوفرة حالياً أو التركيبة غير صحيحة.`, 5000);
         loadProducts(); 
@@ -1345,16 +1356,20 @@ function addToCart(productId){
   updateCart();
 }
 
+/* ✅ دالة تحديث السلة (مُعدلة لإضافة إجمالي سعر التوصيل) */
 function updateCart(){
   document.getElementById("cartCount").innerText = cart.length;
   let container = document.getElementById("cartItems");
   container.innerHTML = "";
-  let total = 0;
+  
+  // 1. حساب إجمالي المنتجات
+  let subTotal = 0;
   cart.forEach((it,index)=>{
+    const itemTotal = it.price * it.qty;
     container.innerHTML += `
       <div class="d-flex justify-content-between align-items-center mb-2">
         <div style="font-size: 14px;">
-          - ${it.name} ${it.size? "| مقاس: "+it.size:""} ${it.color? "| لون: "+it.color:""} ${it.type? "| موديل: "+it.type:""} × ${it.qty} (${it.price * it.qty} د)
+          - ${it.name} ${it.size? "| مقاس: "+it.size:""} ${it.color? "| لون: "+it.color:""} ${it.type? "| موديل: "+it.type:""} × ${it.qty} (${itemTotal.toFixed(2)} د)
         </div>
         <div>
           <button class="btn btn-sm btn-outline-secondary" onclick="editCartQty(${index},-1)">➖</button>
@@ -1363,9 +1378,29 @@ function updateCart(){
         </div>
       </div>
     `;
-    total += it.price * it.qty;
+    subTotal += itemTotal;
   });
-  document.getElementById("cartTotal").innerHTML = `<b>الإجمالي: ${total} د</b><br><small style="color:#d63384;">💵 سعر التوصيل يختلف حسب المدينة</small>`;
+  
+  // 2. الحصول على سعر التوصيل
+  const shippingCost = getShippingCost();
+  const grandTotal = subTotal + shippingCost;
+  
+  // 3. عرض التفاصيل والإجمالي الكلي
+  document.getElementById("cartTotal").innerHTML = `
+    <div class="d-flex justify-content-between mb-1" style="font-size: 16px;">
+        <span>إجمالي المنتجات:</span>
+        <span style="font-weight: bold;">${subTotal.toFixed(2)} د</span>
+    </div>
+    <div class="d-flex justify-content-between mb-1" style="font-size: 16px;">
+        <span>سعر التوصيل:</span>
+        <span style="font-weight: bold; color: #d63384;">+ ${shippingCost.toFixed(2)} د</span>
+    </div>
+    <hr style="margin: 5px 0;">
+    <div class="d-flex justify-content-between" style="font-size: 18px;">
+        <span style="font-weight: bold;">الإجمالي الكلي:</span>
+        <span style="font-weight: bold; color: #ff1493;">${grandTotal.toFixed(2)} د</span>
+    </div>
+  `;
 }
 
 // تم تعديل editCartQty لتعمل على التحقق من المخزون (بما في ذلك النوع)
@@ -1400,6 +1435,14 @@ function confirmSendOrder() {
         showAlert("⚠️ السلة فارغة، أضف منتجات أولاً");
         return;
     }
+    
+    // تحقق سريع من بيانات المستخدم قبل فتح المودال
+    const userData = JSON.parse(localStorage.getItem('userProfile'));
+    if (!userData || !userData.name || !userData.phone || !userData.cityData || !userData.address) {
+        showDataAlert();
+        return;
+    }
+    
     document.getElementById("confirmSendModal").style.display = "flex";
 }
 
@@ -1488,6 +1531,9 @@ window.onload = function(){
         if(panel.classList.contains("open")) panel.classList.remove("open");
         else panel.classList.add("open");
     };
+    
+    // 🆕 تحديث السلة عند تحميل الصفحة لضمان ظهور سعر التوصيل
+    updateCart(); 
 };
 
 // 🆕 تم تعديل دالة showAlert لقبول مدة زمنية
