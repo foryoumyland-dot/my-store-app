@@ -259,6 +259,15 @@ body {
     box-shadow: 0 8px 25px rgba(255, 105, 180, 0.2);
 }
 
+/* 🆕 النمط الجديد للخيار غير المتوفر/المعطل */
+.option-select:disabled,
+.form-select.out-of-stock-option,
+.product-card.out-of-stock {
+    opacity: 0.4; 
+    cursor: not-allowed;
+}
+/* نهاية النمط الجديد */
+
 /* تم استبدال product-image بتصميم معرض الصور الجديد */
 .product-image {
     width: 100%;
@@ -945,7 +954,7 @@ function loadProducts() {
   });
 }
 
-/* ✅ عرض المنتجات - تم إضافة منطق استدعاء updateStockStatus() */
+/* ✅ عرض المنتجات - تم إضافة منطق استدعاء updateStockStatus() وتغيير ترتيب حقول الاختيار */
 function showCategory(cat){
   currentCategory = cat;
   // إزالة التحديد عن جميع الأزرار وتحديد الزر الحالي
@@ -1000,17 +1009,16 @@ function showCategory(cat){
           <h5 class="product-title">${p.name}</h5>
           <div class="product-price">💵 ${p.price} د</div>
           
-          ${p.sizes && p.sizes.length ? 
-            `<select id="size-${p.id}" class="form-select mb-2 size-select" style="font-size: 12px;" onchange="updateStockStatus('${p.id}')"><option value="">المقاس</option>${p.sizes.map(s=>`<option value="${s}">${s}</option>`).join("")}</select>` 
-            : ""}
-          
           ${p.colors && p.colors.length ? 
-            `<select id="color-${p.id}" class="form-select mb-2 color-select" style="font-size: 12px;" onchange="updateStockStatus('${p.id}')"><option value="">اللون</option>${p.colors.map(c=>`<option value="${c}">${c}</option>`).join("")}</select>` 
+            `<select id="color-${p.id}" class="form-select mb-2 color-select option-select" style="font-size: 12px;" onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'color')"><option value="">اللون</option>${p.colors.map(c=>`<option value="${c}">${c}</option>`).join("")}</select>` 
             : ""}
 
+          ${p.sizes && p.sizes.length ? 
+            `<select id="size-${p.id}" class="form-select mb-2 size-select option-select" style="font-size: 12px;" onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'size')"><option value="">المقاس</option>${p.sizes.map(s=>`<option value="${s}">${s}</option>`).join("")}</select>` 
+            : ""}
+          
           ${p.types && p.types.length ? 
-            // 💡 تم إضافة onchange="updateStockStatus" هنا أيضاً للتحقق من الموديل/النوع
-            `<select id="type-${p.id}" class="form-select mb-2 type-select" style="font-size: 12px;" onchange="updateStockStatus('${p.id}')"><option value="">موديل الهاتف</option>${p.types.map(t=>`<option value="${t}">${t}</option>`).join("")}</select>` 
+            `<select id="type-${p.id}" class="form-select mb-2 type-select option-select" style="font-size: 12px;" onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'type')"><option value="">موديل الهاتف</option>${p.types.map(t=>`<option value="${t}">${t}</option>`).join("")}</select>` 
             : ""}
           
           <p id="stock-alert-${p.id}" style="font-size: 12px; color: red; font-weight: bold; margin-bottom: 5px;">${isOutOfStock ? '🔴 المنتج غير متوفر حالياً' : ''}</p>
@@ -1027,25 +1035,138 @@ function showCategory(cat){
     `;
     
     // تشغيل تحديث حالة المخزون بعد تحميل الـ HTML
-    setTimeout(() => updateStockStatus(p.id), 50);
+    setTimeout(() => {
+        // عند التحميل، نتحقق من حالة المخزون الأولية
+        updateDependentOptions(p.id, ''); // لتحديث جميع الخيارات الأخرى بناءً على لا شيء محدد
+        updateStockStatus(p.id);
+    }, 50);
   });
 }
 
+/* 🆕 دالة جديدة: لتحديث حالة الـ Options داخل الـ Selects الأخرى بناءً على الاختيار الحالي */
+function updateDependentOptions(productId, changedOptionType) {
+    const product = getProductById(productId);
+    if (!product || !product.stockDetails || product.stockDetails.length === 0) return;
+
+    const sizeSelect = document.getElementById(`size-${productId}`);
+    const colorSelect = document.getElementById(`color-${productId}`);
+    const typeSelect = document.getElementById(`type-${productId}`);
+
+    const selectedColor = colorSelect ? colorSelect.value : "";
+    const selectedSize = sizeSelect ? sizeSelect.value : "";
+    const selectedType = typeSelect ? typeSelect.value : "";
+    
+    // ----------------------------------------------------
+    // 1. تحديث خيارات المقاسات (Sizes)
+    // ----------------------------------------------------
+    if (sizeSelect) {
+        // نمر على كل خيار مقاس (Option) باستثناء "المقاس"
+        Array.from(sizeSelect.options).slice(1).forEach(option => {
+            const currentSize = option.value;
+            let stock = 0;
+            
+            // نبحث عن أي تركيبة تحتوي على المقاس الحالي واللون/النوع المختارين
+            const combinationExists = product.stockDetails.some(item => {
+                const itemColorMatch = !selectedColor || item.color === selectedColor;
+                const itemTypeMatch = !selectedType || item.type === selectedType;
+                const itemSizeMatch = item.size === currentSize;
+                
+                if (itemColorMatch && itemTypeMatch && itemSizeMatch) {
+                    stock += item.quantity;
+                    return true; 
+                }
+                return false;
+            });
+            
+            // إذا كان المخزون الكلي للمقاس المحدد مع الخيارات المحددة الأخرى صفراً
+            if (stock === 0) {
+                option.classList.add('out-of-stock-option');
+                option.disabled = true;
+            } else {
+                option.classList.remove('out-of-stock-option');
+                option.disabled = false;
+            }
+        });
+    }
+
+    // ----------------------------------------------------
+    // 2. تحديث خيارات الألوان (Colors)
+    // ----------------------------------------------------
+    if (colorSelect) {
+        // نمر على كل خيار لون (Option) باستثناء "اللون"
+        Array.from(colorSelect.options).slice(1).forEach(option => {
+            const currentColor = option.value;
+            let stock = 0;
+
+            const combinationExists = product.stockDetails.some(item => {
+                const itemSizeMatch = !selectedSize || item.size === selectedSize;
+                const itemTypeMatch = !selectedType || item.type === selectedType;
+                const itemColorMatch = item.color === currentColor;
+
+                if (itemSizeMatch && itemTypeMatch && itemColorMatch) {
+                    stock += item.quantity;
+                    return true;
+                }
+                return false;
+            });
+            
+            if (stock === 0) {
+                option.classList.add('out-of-stock-option');
+                option.disabled = true;
+            } else {
+                option.classList.remove('out-of-stock-option');
+                option.disabled = false;
+            }
+        });
+    }
+
+    // ----------------------------------------------------
+    // 3. تحديث خيارات الأنواع (Types)
+    // ----------------------------------------------------
+    if (typeSelect) {
+        Array.from(typeSelect.options).slice(1).forEach(option => {
+            const currentType = option.value;
+            let stock = 0;
+
+            const combinationExists = product.stockDetails.some(item => {
+                const itemSizeMatch = !selectedSize || item.size === selectedSize;
+                const itemColorMatch = !selectedColor || item.color === selectedColor;
+                const itemTypeMatch = item.type === currentType;
+
+                if (itemSizeMatch && itemColorMatch && itemTypeMatch) {
+                    stock += item.quantity;
+                    return true;
+                }
+                return false;
+            });
+            
+            if (stock === 0) {
+                option.classList.add('out-of-stock-option');
+                option.disabled = true;
+            } else {
+                option.classList.remove('out-of-stock-option');
+                option.disabled = false;
+            }
+        });
+    }
+}
+
+
 /* 🆕 دالة مُعدلة: الحصول على المخزون المتوفر لتركيبة معينة */
-function getAvailableStock(productId, color, size, type) { // 💡 تم إضافة حقل النوع
+function getAvailableStock(productId, color, size, type) { 
     const product = getProductById(productId);
     if (!product || !product.stockDetails) return product?.totalStock || 0;
     
     // تحديد القيم الافتراضية
     const finalColor = (product.colors && product.colors.length > 0) ? color : "";
     const finalSize = (product.sizes && product.sizes.length > 0) ? size : "";
-    const finalType = (product.types && product.types.length > 0) ? type : ""; // 💡 القيمة النهائية للنوع
+    const finalType = (product.types && product.types.length > 0) ? type : ""; 
 
     // البحث عن تفاصيل المخزون المطابقة للون والمقاس والنوع
     const stockItem = product.stockDetails.find(item => 
         (item.color === finalColor) && 
         (item.size === finalSize) &&
-        (item.type === finalType) // 💡 تضمين النوع في البحث
+        (item.type === finalType) 
     );
     
     // إرجاع الكمية، أو 0 إذا لم يتم العثور عليها
@@ -1059,7 +1180,7 @@ function updateStockStatus(productId) {
 
     const sizeSelect = document.getElementById(`size-${productId}`);
     const colorSelect = document.getElementById(`color-${productId}`);
-    const typeSelect = document.getElementById(`type-${productId}`); // 💡 تحديد النوع
+    const typeSelect = document.getElementById(`type-${productId}`);
     
     const addBtn = document.getElementById(`add-btn-${productId}`);
     const stockAlert = document.getElementById(`stock-alert-${productId}`);
@@ -1067,25 +1188,25 @@ function updateStockStatus(productId) {
 
     const selectedSize = sizeSelect ? sizeSelect.value : "";
     const selectedColor = colorSelect ? colorSelect.value : "";
-    const selectedType = typeSelect ? typeSelect.value : ""; // 💡 القيمة المختارة للنوع
+    const selectedType = typeSelect ? typeSelect.value : "";
     
     let availableStock = product.totalStock || 0; 
 
     // 1. تحديد الأبعاد المطلوبة للاختيار
     const requiresColor = product.colors && product.colors.length > 0;
     const requiresSize = product.sizes && product.sizes.length > 0;
-    const requiresType = product.types && product.types.length > 0; // 💡 تحديد متطلبات النوع
+    const requiresType = product.types && product.types.length > 0;
     const requiresSelection = requiresColor || requiresSize || requiresType;
     
     // التحقق مما إذا تم اختيار كل الأبعاد المطلوبة
     const isReadyToSelect = 
         (!requiresColor || selectedColor) && 
         (!requiresSize || selectedSize) &&
-        (!requiresType || selectedType); // 💡 التحقق من اختيار النوع
+        (!requiresType || selectedType);
 
     if (requiresSelection) {
         if (isReadyToSelect) {
-             // 💡 استخدام دالة البحث الجديدة مع النوع
+             // استخدام دالة البحث الجديدة مع النوع
              availableStock = getAvailableStock(productId, selectedColor, selectedSize, selectedType); 
         } else {
              availableStock = 0; 
@@ -1105,7 +1226,7 @@ function updateStockStatus(productId) {
         const missingOptions = [];
         if (requiresColor && !selectedColor) missingOptions.push(" اللون");
         if (requiresSize && !selectedSize) missingOptions.push(" المقاس");
-        if (requiresType && !selectedType) missingOptions.push(" موديل الهاتف"); // 💡 رسالة واضحة
+        if (requiresType && !selectedType) missingOptions.push(" موديل الهاتف");
         
         message = "⚠️ يرجى اختيار" + missingOptions.join(" و") + " أولاً";
         isDisabled = true;
@@ -1126,7 +1247,11 @@ function updateStockStatus(productId) {
     if (currentQty > availableStock && availableStock > 0) {
         qtyInput.value = availableStock;
     } else if (availableStock === 0) {
-        qtyInput.value = 0;
+        // **✅ تعديل هنا: إذا كان المخزون 0، نضع القيمة 1 أو 0 حسب الرغبة. للحفاظ على الـ 1 كقيمة افتراضية، ولكن لضمان أن المخزون هو 0 لغير المتوفر**
+        // سنبقيها على 1 كقيمة أولية، ولكن زر الإضافة سيبقى معطلاً
+        // هنا يمكن أن نبقيها 1 لـ UI أو نضعها 0 لـ UX صارم
+        // سأبقيها على القيمة الحالية لتجنب تغييرها هنا، لكن للتأكيد لو كان زر الإضافة معطلاً فالقيمة 1 آمنة.
+        // لو كان التعديل لتجنب الـ 0 فقط، فهذا الجزء لم يعد ذو أهمية قصوى لأنه يبدأ بـ 1.
     }
     
     // تحديث الحد الأقصى للكمية الممكن إضافتها
@@ -1268,16 +1393,17 @@ async function sendOrder() {
 }
 
 
-/* ✅ باقي الدوال (تم تعديل changeQty و addToCart و editCartQty) */
+/* ✅ تغيير الكمية - تم التعديل هنا لضمان القيمة تبدأ وتظل عند 1 كحد أدنى */
 function changeQty(id,delta){
   let input = document.getElementById(`qty-${id}`);
   let value = parseInt(input.value) || 1;
   const maxStock = parseInt(input.getAttribute('data-max-stock')) || 1; // استخدام الحد الأقصى من المخزون
   value += delta;
   
-  if(value < 1) value = 1;
+  if(value < 1) value = 1; // **✅ التعديل لضمان أن الحد الأدنى هو 1**
   if(value > maxStock) value = maxStock; // لا يمكن أن يتجاوز الحد الأقصى
-
+  if(maxStock === 0) value = 1; // إذا كان المخزون 0، نتركه 1 (وزر الإضافة معطل) لتجنب ظهور 0
+    
   input.value = value;
 }
 
@@ -1289,6 +1415,7 @@ function addToCart(productId){
   const product = getProductById(productId);
   if (!product) { showAlert("❌ المنتج غير موجود"); return; }
   
+  // **💡 تم تغيير القيمة الافتراضية هنا أيضاً إلى 1**
   let qty = parseInt(document.getElementById(`qty-${productId}`).value) || 1;
   let size = document.getElementById(`size-${productId}`)?.value || "";
   let color = document.getElementById(`color-${productId}`)?.value || "";
@@ -1305,6 +1432,7 @@ function addToCart(productId){
   }
   
   if (qty === 0) {
+      // بعد التعديل، من غير المفترض أن تكون الكمية صفر، لكن نترك هذا التحقق كـ "خط دفاع"
       showAlert("⚠️ الكمية المطلوبة هي صفر");
       return;
   }
@@ -1416,7 +1544,7 @@ function editCartQty(index,delta){
     }
 
     item.qty += delta; 
-    if(item.qty < 1) item.qty = 1; 
+    if(item.qty < 1) item.qty = 1; // **✅ التعديل لضمان أن الحد الأدنى هو 1**
     if(item.qty > availableStock) item.qty = availableStock; // لا يمكن أن تتجاوز الكمية المتاحة
 
     if(item.qty === 0) { 
@@ -1639,7 +1767,7 @@ function getProductById(productId) {
 }
 
 function getDefaultImage() {
-    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPjx0c3BhbiB4PSI1MCUiIHk9IjUwJSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+UtyDZhNmE2YQg2KfZhNiv2YrYqTwvdHNwY24+PC90ZXh0Pjwvc3ZnPg==';
+    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPjx0c3BhbiB4PSI1MCUiIHk9IjUwJSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+UtyDZhNmE2YQg2KfZhNiv2YrYqTwvdHNwYW4+PC90ZXh0Pjwvc3ZnPg==';
 }
 </script>
 
