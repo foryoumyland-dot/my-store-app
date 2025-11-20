@@ -211,6 +211,8 @@
             background: #fff9fb;
             transition: all 0.3s ease;
             direction: rtl;
+            /* إضافة خاصية للانتقال التلقائي للون */
+            transition: color 0.3s ease;
         }
 
         .search-input:focus {
@@ -281,15 +283,26 @@
         }
 
         /* ألوان المدن حسب المناطق */
-        .south-tripoli { color: #8B0000; } /* أحمر داكن - جنوب طرابلس */
-        .south-east { color: #90EE90; } /* أخضر فاتح - الجنوب الشرقي */
-        .east-region { color: #006400; } /* أخضر داكن - المنطقة الشرقية */
-        .central-region { color: #8A2BE2; } /* بنفسجي - المنطقة الوسطى */
-        .east-tripoli { color: #FFD700; } /* أصفر - شرق طرابلس */
-        .south-region { color: #87CEEB; } /* سماوي - المنطقة الجنوبية */
-        .west-mountain { color: #0000FF; } /* أزرق - الجبل الغربي */
-        .west-tripoli { color: #FFA500; } /* برتقالي - غرب طرابلس */
-        .inside-tripoli { color: #FF6347; } /* أحمر فاتح - داخل طرابلس */
+        .south-tripoli { color: #8B0000; } 
+        .south-east { color: #90EE90; } 
+        .east-region { color: #006400; } 
+        .central-region { color: #8A2BE2; } 
+        .east-tripoli { color: #FFD700; } 
+        .south-region { color: #87CEEB; } 
+        .west-mountain { color: #0000FF; } 
+        .west-tripoli { color: #FFA500; } 
+        .inside-tripoli { color: #FF6347; } 
+        
+        /* لتطبيق اللون على حقل الإدخال */
+        .city-color-8B0000 { color: #8B0000; }
+        .city-color-90EE90 { color: #90EE90; }
+        .city-color-006400 { color: #006400; }
+        .city-color-8A2BE2 { color: #8A2BE2; }
+        .city-color-FFD700 { color: #FFD700; }
+        .city-color-87CEEB { color: #87CEEB; }
+        .city-color-0000FF { color: #0000FF; }
+        .city-color-FFA500 { color: #FFA500; }
+        .city-color-FF6347 { color: #FF6347; }
 
         textarea.form-input {
             resize: vertical;
@@ -460,14 +473,11 @@
             <div class="form-group">
                 <label class="form-label">المدينة</label>
                 <div class="search-container">
-                    <input type="text" class="search-input" id="citySearch" placeholder="🔍 ابحث عن المدينة...">
+                    <input type="text" class="search-input" id="citySearch" placeholder="🔍 ابحث عن المدينة..." required readonly>
                     <div class="search-icon">🔍</div>
                     <div class="cities-list" id="citiesList"></div>
                 </div>
-                <select class="form-select" id="userCity" required style="display: none;">
-                    <!-- سيتم ملء هذا الحقل تلقائياً عند اختيار المدينة -->
-                </select>
-            </div>
+                </div>
             
             <div class="form-group">
                 <label class="form-label">العنوان التفصيلي</label>
@@ -527,103 +537,118 @@ function validatePhone(input) {
 // بيانات المدن مع الألوان حسب المناطق
 const cities = [
     // جنوب طرابلس - أحمر داكن
-    {name: "ترهونة", price: "30", colorClass: "south-tripoli"},
-    {name: "بني وليد", price: "30", colorClass: "south-tripoli"},
+    {name: "ترهونة", price: "30", colorClass: "south-tripoli", colorCode: "8B0000"},
+    {name: "بني وليد", price: "30", colorClass: "south-tripoli", colorCode: "8B0000"},
     
     // الجنوب الشرقي - أخضر فاتح
-    {name: "جالو", price: "50", colorClass: "south-east"},
-    {name: "أوجلة", price: "50", colorClass: "south-east"},
-    {name: "الواحات", price: "50", colorClass: "south-east"},
-    {name: "الكفرة", price: "50", colorClass: "south-east"},
+    {name: "جالو", price: "50", colorClass: "south-east", colorCode: "90EE90"},
+    {name: "أوجلة", price: "50", colorClass: "south-east", colorCode: "90EE90"},
+    {name: "الواحات", price: "50", colorClass: "south-east", colorCode: "90EE90"},
+    {name: "الكفرة", price: "50", colorClass: "south-east", colorCode: "90EE90"},
     
     // المنطقة الشرقية - أخضر داكن
-    {name: "بنغازي", price: "35", colorClass: "east-region"},
-    {name: "توكرة", price: "40", colorClass: "east-region"},
-    {name: "المرج", price: "40", colorClass: "east-region"},
-    {name: "البيضاء", price: "40", colorClass: "east-region"},
-    {name: "قمينس", price: "40", colorClass: "east-region"},
-    {name: "سلوق", price: "40", colorClass: "east-region"},
-    {name: "شحات", price: "45", colorClass: "east-region"},
-    {name: "سوسة", price: "45", colorClass: "east-region"},
-    {name: "درنة", price: "45", colorClass: "east-region"},
-    {name: "القبة", price: "45", colorClass: "east-region"},
-    {name: "طبرق", price: "45", colorClass: "east-region"},
-    {name: "امساعد", price: "40", colorClass: "east-region"},
+    {name: "بنغازي", price: "35", colorClass: "east-region", colorCode: "006400"},
+    {name: "توكرة", price: "40", colorClass: "east-region", colorCode: "006400"},
+    {name: "المرج", price: "40", colorClass: "east-region", colorCode: "006400"},
+    {name: "البيضاء", price: "40", colorClass: "east-region", colorCode: "006400"},
+    {name: "قمينس", price: "40", colorClass: "east-region", colorCode: "006400"},
+    {name: "سلوق", price: "40", colorClass: "east-region", colorCode: "006400"},
+    {name: "شحات", price: "45", colorClass: "east-region", colorCode: "006400"},
+    {name: "سوسة", price: "45", colorClass: "east-region", colorCode: "006400"},
+    {name: "درنة", price: "45", colorClass: "east-region", colorCode: "006400"},
+    {name: "القبة", price: "45", colorClass: "east-region", colorCode: "006400"},
+    {name: "طبرق", price: "45", colorClass: "east-region", colorCode: "006400"},
+    {name: "امساعد", price: "40", colorClass: "east-region", colorCode: "006400"},
     
     // المنطقة الوسطى - بنفسجي
-    {name: "سرت", price: "35", colorClass: "central-region"},
-    {name: "هراوة", price: "35", colorClass: "central-region"},
-    {name: "النوفلية", price: "35", colorClass: "central-region"},
-    {name: "بن جواد", price: "35", colorClass: "central-region"},
-    {name: "راس لانوف", price: "35", colorClass: "central-region"},
-    {name: "اجدابيا", price: "35", colorClass: "central-region"},
-    {name: "هون", price: "45", colorClass: "central-region"},
-    {name: "سوكنة", price: "45", colorClass: "central-region"},
-    {name: "الودان", price: "45", colorClass: "central-region"},
-    {name: "الجفرة", price: "45", colorClass: "central-region"},
-    {name: "زلة", price: "45", colorClass: "central-region"},
+    {name: "سرت", price: "35", colorClass: "central-region", colorCode: "8A2BE2"},
+    {name: "هراوة", price: "35", colorClass: "central-region", colorCode: "8A2BE2"},
+    {name: "النوفلية", price: "35", colorClass: "central-region", colorCode: "8A2BE2"},
+    {name: "بن جواد", price: "35", colorClass: "central-region", colorCode: "8A2BE2"},
+    {name: "راس لانوف", price: "35", colorClass: "central-region", colorCode: "8A2BE2"},
+    {name: "اجدابيا", price: "35", colorClass: "central-region", colorCode: "8A2BE2"},
+    {name: "هون", price: "45", colorClass: "central-region", colorCode: "8A2BE2"},
+    {name: "سوكنة", price: "45", colorClass: "central-region", colorCode: "8A2BE2"},
+    {name: "الودان", price: "45", colorClass: "central-region", colorCode: "8A2BE2"},
+    {name: "الجفرة", price: "45", colorClass: "central-region", colorCode: "8A2BE2"},
+    {name: "زلة", price: "45", colorClass: "central-region", colorCode: "8A2BE2"},
     
     // شرق طرابلس - أصفر
-    {name: "مصراتة", price: "25", colorClass: "east-tripoli"},
-    {name: "القره بولي", price: "25", colorClass: "east-tripoli"},
-    {name: "قماطة", price: "25", colorClass: "east-tripoli"},
-    {name: "قصر خيار", price: "25", colorClass: "east-tripoli"},
-    {name: "الخمس", price: "25", colorClass: "east-tripoli"},
-    {name: "زليتن", price: "25", colorClass: "east-tripoli"},
-    {name: "مسلاتة", price: "30", colorClass: "east-tripoli"},
+    {name: "مصراتة", price: "25", colorClass: "east-tripoli", colorCode: "FFD700"},
+    {name: "القره بولي", price: "25", colorClass: "east-tripoli", colorCode: "FFD700"},
+    {name: "قماطة", price: "25", colorClass: "east-tripoli", colorCode: "FFD700"},
+    {name: "قصر خيار", price: "25", colorClass: "east-tripoli", colorCode: "FFD700"},
+    {name: "الخمس", price: "25", colorClass: "east-tripoli", colorCode: "FFD700"},
+    {name: "زليتن", price: "25", colorClass: "east-tripoli", colorCode: "FFD700"},
+    {name: "مسلاتة", price: "30", colorClass: "east-tripoli", colorCode: "FFD700"},
     
     // المنطقة الجنوبية - سماوي
-    {name: "سبها", price: "40", colorClass: "south-region"},
-    {name: "مزدة", price: "40", colorClass: "south-region"},
-    {name: "الشويرف", price: "45", colorClass: "south-region"},
-    {name: "القريات", price: "45", colorClass: "south-region"},
-    {name: "براك الشاطئ", price: "40", colorClass: "south-region"},
-    {name: "اوباري", price: "50", colorClass: "south-region"},
-    {name: "ام الارانب", price: "50", colorClass: "south-region"},
-    {name: "وادي عتبة", price: "50", colorClass: "south-region"},
-    {name: "مرزق", price: "50", colorClass: "south-region"},
-    {name: "القطرون", price: "50", colorClass: "south-region"},
-    {name: "غات", price: "50", colorClass: "south-region"},
+    {name: "سبها", price: "40", colorClass: "south-region", colorCode: "87CEEB"},
+    {name: "مزدة", price: "40", colorClass: "south-region", colorCode: "87CEEB"},
+    {name: "الشويرف", price: "45", colorClass: "south-region", colorCode: "87CEEB"},
+    {name: "القريات", price: "45", colorClass: "south-region", colorCode: "87CEEB"},
+    {name: "براك الشاطئ", price: "40", colorClass: "south-region", colorCode: "87CEEB"},
+    {name: "اوباري", price: "50", colorClass: "south-region", colorCode: "87CEEB"},
+    {name: "ام الارانب", price: "50", colorClass: "south-region", colorCode: "87CEEB"},
+    {name: "وادي عتبة", price: "50", colorClass: "south-region", colorCode: "87CEEB"},
+    {name: "مرزق", price: "50", colorClass: "south-region", colorCode: "87CEEB"},
+    {name: "القطرون", price: "50", colorClass: "south-region", colorCode: "87CEEB"},
+    {name: "غات", price: "50", colorClass: "south-region", colorCode: "87CEEB"},
     
     // الجبل الغربي - أزرق
-    {name: "غريان", price: "30", colorClass: "west-mountain"},
-    {name: "الاصابعة", price: "35", colorClass: "west-mountain"},
-    {name: "الرابطة", price: "35", colorClass: "west-mountain"},
-    {name: "القواليش", price: "35", colorClass: "west-mountain"},
-    {name: "العوينة", price: "35", colorClass: "west-mountain"},
-    {name: "القلعة", price: "35", colorClass: "west-mountain"},
-    {name: "يفرن", price: "35", colorClass: "west-mountain"},
-    {name: "الرحيبات", price: "40", colorClass: "west-mountain"},
-    {name: "جادو", price: "40", colorClass: "west-mountain"},
-    {name: "كاباو", price: "40", colorClass: "west-mountain"},
-    {name: "الرقيعات", price: "40", colorClass: "west-mountain"},
-    {name: "تيجي", price: "45", colorClass: "west-mountain"},
-    {name: "بدر", price: "45", colorClass: "west-mountain"},
-    {name: "الجوش", price: "45", colorClass: "west-mountain"},
+    {name: "غريان", price: "30", colorClass: "west-mountain", colorCode: "0000FF"},
+    {name: "الاصابعة", price: "35", colorClass: "west-mountain", colorCode: "0000FF"},
+    {name: "الرابطة", price: "35", colorClass: "west-mountain", colorCode: "0000FF"},
+    {name: "القواليش", price: "35", colorClass: "west-mountain", colorCode: "0000FF"},
+    {name: "العوينة", price: "35", colorClass: "west-mountain", colorCode: "0000FF"},
+    {name: "القلعة", price: "35", colorClass: "west-mountain", colorCode: "0000FF"},
+    {name: "يفرن", price: "35", colorClass: "west-mountain", colorCode: "0000FF"},
+    {name: "الرحيبات", price: "40", colorClass: "west-mountain", colorCode: "0000FF"},
+    {name: "جادو", price: "40", colorClass: "west-mountain", colorCode: "0000FF"},
+    {name: "كاباو", price: "40", colorClass: "west-mountain", colorCode: "0000FF"},
+    {name: "الرقيعات", price: "40", colorClass: "west-mountain", colorCode: "0000FF"},
+    {name: "تيجي", price: "45", colorClass: "west-mountain", colorCode: "0000FF"},
+    {name: "بدر", price: "45", colorClass: "west-mountain", colorCode: "0000FF"},
+    {name: "الجوش", price: "45", colorClass: "west-mountain", colorCode: "0000FF"},
     
     // غرب طرابلس - برتقالي
-    {name: "داخل الزاوية", price: "10", colorClass: "west-tripoli"},
-    {name: "بوعيسى", price: "15", colorClass: "west-tripoli"},
-    {name: "الماية", price: "15", colorClass: "west-tripoli"},
-    {name: "المطرد", price: "15", colorClass: "west-tripoli"},
-    {name: "الحرشة", price: "15", colorClass: "west-tripoli"},
-    {name: "صرمان", price: "15", colorClass: "west-tripoli"},
-    {name: "صبراته", price: "15", colorClass: "west-tripoli"},
-    {name: "زوارة", price: "20", colorClass: "west-tripoli"},
-    {name: "العجيلات", price: "20", colorClass: "west-tripoli"},
-    {name: "الجميل", price: "25", colorClass: "west-tripoli"},
-    {name: "رقدالين", price: "25", colorClass: "west-tripoli"},
-    {name: "زلطن", price: "25", colorClass: "west-tripoli"},
-    {name: "رأس اجدير", price: "30", colorClass: "west-tripoli"},
+    {name: "داخل الزاوية", price: "10", colorClass: "west-tripoli", colorCode: "FFA500"},
+    {name: "بوعيسى", price: "15", colorClass: "west-tripoli", colorCode: "FFA500"},
+    {name: "الماية", price: "15", colorClass: "west-tripoli", colorCode: "FFA500"},
+    {name: "المطرد", price: "15", colorClass: "west-tripoli", colorCode: "FFA500"},
+    {name: "الحرشة", price: "15", colorClass: "west-tripoli", colorCode: "FFA500"},
+    {name: "صرمان", price: "15", colorClass: "west-tripoli", colorCode: "FFA500"},
+    {name: "صبراته", price: "15", colorClass: "west-tripoli", colorCode: "FFA500"},
+    {name: "زوارة", price: "20", colorClass: "west-tripoli", colorCode: "FFA500"},
+    {name: "العجيلات", price: "20", colorClass: "west-tripoli", colorCode: "FFA500"},
+    {name: "الجميل", price: "25", colorClass: "west-tripoli", colorCode: "FFA500"},
+    {name: "رقدالين", price: "25", colorClass: "west-tripoli", colorCode: "FFA500"},
+    {name: "زلطن", price: "25", colorClass: "west-tripoli", colorCode: "FFA500"},
+    {name: "رأس اجدير", price: "30", colorClass: "west-tripoli", colorCode: "FFA500"},
     
     // داخل طرابلس - أحمر فاتح
-    {name: "داخل طرابلس", price: "20", colorClass: "inside-tripoli"}
+    {name: "داخل طرابلس", price: "20", colorClass: "inside-tripoli", colorCode: "FF6347"}
 ];
 
 // وظائف البحث في المدن
 const citySearch = document.getElementById('citySearch');
 const citiesList = document.getElementById('citiesList');
-const userCity = document.getElementById('userCity');
+
+// وظيفة لتحديد لون حقل البحث
+function updateCitySearchColor(colorClass) {
+    // إزالة جميع فئات الألوان السابقة
+    const classes = citySearch.className.split(' ').filter(c => !c.startsWith('city-color-'));
+    citySearch.className = classes.join(' ');
+    
+    // إضافة فئة اللون الجديدة إن وجدت
+    if (colorClass) {
+        // تحويل اسم الفئة (مثلاً south-tripoli) إلى كود اللون المناسب في الـ CSS
+        const cityData = cities.find(city => city.colorClass === colorClass);
+        if (cityData) {
+            citySearch.classList.add(`city-color-${cityData.colorCode}`);
+        }
+    }
+}
 
 // عرض جميع المدن عند النقر على حقل البحث
 citySearch.addEventListener('focus', function() {
@@ -638,12 +663,25 @@ document.addEventListener('click', function(event) {
     }
 });
 
+// منع فتح القائمة إذا كان حقل البحث للقراءة فقط (Readonly)
+citySearch.addEventListener('click', function() {
+    if (citySearch.readOnly) {
+        filterCities();
+        citiesList.classList.add('show');
+    }
+});
+
 // البحث في المدن أثناء الكتابة
-citySearch.addEventListener('input', filterCities);
+citySearch.addEventListener('input', function() {
+    // 💡 السماح بالكتابة فقط للبحث، لكن القيمة النهائية يجب أن تكون من القائمة
+    filterCities();
+});
 
 // تصفية المدن بناءً على البحث
 function filterCities() {
+    // نستخدم القيمة المدخلة في حقل البحث للتصفية
     const searchTerm = citySearch.value.toLowerCase();
+    
     const filteredCities = cities.filter(city => 
         city.name.toLowerCase().includes(searchTerm)
     );
@@ -669,7 +707,7 @@ function displayCities(citiesToShow) {
         `;
         
         cityItem.addEventListener('click', function() {
-            selectCity(city.name, city.price, city.colorClass);
+            selectCity(city.name, city.colorClass);
         });
         
         citiesList.appendChild(cityItem);
@@ -677,13 +715,12 @@ function displayCities(citiesToShow) {
 }
 
 // اختيار مدينة
-function selectCity(name, price, colorClass) {
-    citySearch.value = name;
-    userCity.value = `${name}_${price}`;
+function selectCity(name, colorClass) {
+    citySearch.value = name; // تعيين اسم المدينة في حقل البحث المرئي
     citiesList.classList.remove('show');
     
     // تحديث لون النص في حقل البحث
-    citySearch.className = `search-input ${colorClass}`;
+    updateCitySearchColor(colorClass);
 }
 
 // تحميل البيانات المحفوظة
@@ -693,45 +730,54 @@ window.addEventListener('load', function() {
         document.getElementById('userName').value = savedData.name || '';
         document.getElementById('userPhone').value = savedData.phone || '';
         
-        // معالجة بيانات المدينة المحفوظة
-        if (savedData.city) {
-            const [cityName, cityPrice] = savedData.city.split('_');
+        if (savedData.cityData) {
+            const [cityName] = savedData.cityData.split('_');
             citySearch.value = cityName;
-            userCity.value = savedData.city;
             
-            // البحث عن المدينة في القائمة لتحديد لونها
+            // البحث عن المدينة في القائمة لتحديد لونها المحفوظ
             const savedCity = cities.find(city => city.name === cityName);
             if (savedCity) {
-                citySearch.className = `search-input ${savedCity.colorClass}`;
+                updateCitySearchColor(savedCity.colorClass);
             }
         }
         
         document.getElementById('userAddress').value = savedData.address || '';
     }
+    // اجعل حقل البحث للقراءة فقط بعد تحميل البيانات لمنع الكتابة العشوائية
+    citySearch.readOnly = true;
 });
 
-// حفظ البيانات
+
+// 💡 دالة حفظ البيانات المعدلة
 document.getElementById('profileForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    const userData = {
-        name: document.getElementById('userName').value,
-        phone: document.getElementById('userPhone').value,
-        city: document.getElementById('userCity').value,
-        address: document.getElementById('userAddress').value,
-        savedAt: new Date().toISOString()
-    };
+    const selectedCityName = document.getElementById('citySearch').value;
+    
+    // البحث عن تفاصيل المدينة (الاسم والسعر) من مصفوفة 'cities'
+    const cityData = cities.find(city => city.name === selectedCityName);
     
     // التحقق من صحة البيانات
-    if (userData.phone.length !== 10) {
+    if (document.getElementById('userPhone').value.length !== 10) {
         showAlert('⚠️ رقم الهاتف يجب أن يكون 10 أرقام');
         return;
     }
     
-    if (!userData.city) {
-        showAlert('⚠️ يرجى اختيار المدينة');
+    if (!cityData) {
+        showAlert('⚠️ يرجى اختيار المدينة من القائمة المقترحة');
         return;
     }
+
+    // تكوين قيمة المدينة للاحتفاظ بها (الاسم والسعر)
+    const userDataCityValue = `${cityData.name}_${cityData.price}`;
+
+    const userData = {
+        name: document.getElementById('userName').value,
+        phone: document.getElementById('userPhone').value,
+        cityData: userDataCityValue, // حفظ بيانات المدينة والسعر
+        address: document.getElementById('userAddress').value,
+        savedAt: new Date().toISOString()
+    };
     
     // حفظ في localStorage
     localStorage.setItem('userProfile', JSON.stringify(userData));
