@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<base href="/my-store-app/">
+    <base href="/my-store-app/">
     <title>بياناتي</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
@@ -196,25 +196,100 @@
             outline: none;
         }
 
-        .form-select {
+        /* حاوية البحث */
+        .search-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .search-input {
             width: 100%;
-            padding: 12px 15px;
+            padding: 12px 40px 12px 15px;
             border: 2px solid #ffe4ec;
             border-radius: 12px;
             font-size: 1rem;
             background: #fff9fb;
-            cursor: pointer;
             transition: all 0.3s ease;
             direction: rtl;
-            text-align: right;
         }
 
-        .form-select:focus {
+        .search-input:focus {
             border-color: #ff69b4;
             background: white;
             box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
             outline: none;
         }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #d63384;
+            font-size: 1.2rem;
+        }
+
+        /* قائمة المدن */
+        .cities-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #ffe4ec;
+            border-radius: 12px;
+            background: white;
+            display: none;
+            position: absolute;
+            width: 100%;
+            z-index: 10;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .cities-list.show {
+            display: block;
+        }
+
+        .city-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #f8f9fa;
+            text-align: right;
+        }
+
+        .city-item:hover {
+            background: #fff0f6;
+        }
+
+        .city-item:last-child {
+            border-bottom: none;
+        }
+
+        .city-name {
+            font-weight: bold;
+        }
+
+        .city-price {
+            color: #d63384;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+
+        .no-results {
+            padding: 15px;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* ألوان المدن حسب المناطق */
+        .south-tripoli { color: #8B0000; } /* أحمر داكن - جنوب طرابلس */
+        .south-east { color: #90EE90; } /* أخضر فاتح - الجنوب الشرقي */
+        .east-region { color: #006400; } /* أخضر داكن - المنطقة الشرقية */
+        .central-region { color: #8A2BE2; } /* بنفسجي - المنطقة الوسطى */
+        .east-tripoli { color: #FFD700; } /* أصفر - شرق طرابلس */
+        .south-region { color: #87CEEB; } /* سماوي - المنطقة الجنوبية */
+        .west-mountain { color: #0000FF; } /* أزرق - الجبل الغربي */
+        .west-tripoli { color: #FFA500; } /* برتقالي - غرب طرابلس */
+        .inside-tripoli { color: #FF6347; } /* أحمر فاتح - داخل طرابلس */
 
         textarea.form-input {
             resize: vertical;
@@ -302,7 +377,7 @@
                 font-size: 1.6rem;
             }
             
-            .form-input, .form-select {
+            .form-input, .search-input {
                 padding: 10px 12px;
                 font-size: 0.95rem;
             }
@@ -328,7 +403,7 @@
                 margin-bottom: 20px;
             }
             
-            .form-input, .form-select {
+            .form-input, .search-input {
                 padding: 8px 10px;
                 font-size: 0.9rem;
             }
@@ -347,7 +422,6 @@
 </head>
 <body>
 
-<!-- الشريط العلوي -->
 <nav class="top-navbar">
     <button class="menu-icon" onclick="toggleMenu()">☰</button>
     <div class="store-name">🌸 لأجلك سيدتي</div>
@@ -360,7 +434,6 @@
 
 <div class="nav-overlay" id="navOverlay" onclick="closeMenu()"></div>
 
-<!-- المحتوى الرئيسي -->
 <div class="profile-container">
     <div class="profile-card">
         <h1 class="profile-title">👤 بياناتي</h1>
@@ -386,53 +459,13 @@
             
             <div class="form-group">
                 <label class="form-label">المدينة</label>
-                <select class="form-select" id="userCity" required>
-                    <option value="">اختر مدينتك</option>
-                    <option value="طرابلس">طرابلس</option>
-                    <option value="بنغازي">بنغازي</option>
-                    <option value="مصراتة">مصراتة</option>
-                    <option value="الزاوية">الزاوية</option>
-                    <option value="سبها">سبها</option>
-                    <option value="سرت">سرت</option>
-                    <option value="زوارة">زوارة</option>
-                    <option value="البيضاء">البيضاء</option>
-                    <option value="غريان">غريان</option>
-                    <option value="اجدابيا">اجدابيا</option>
-                    <option value="المرج">المرج</option>
-                    <option value="درنة">درنة</option>
-                    <option value="ترهونة">ترهونة</option>
-                    <option value="زليتن">زليتن</option>
-                    <option value="الكفرة">الكفرة</option>
-                    <option value="يفرن">يفرن</option>
-                    <option value="نالوت">نالوت</option>
-                    <option value="الشاطئ">الشاطئ</option>
-                    <option value="غات">غات</option>
-                    <option value="صبراتة">صبراتة</option>
-                    <option value="القره بوللي">القره بوللي</option>
-                    <option value="مسلاتة">مسلاتة</option>
-                    <option value="بني وليد">بني وليد</option>
-                    <option value="تازربو">تازربو</option>
-                    <option value="أوباري">أوباري</option>
-                    <option value="الرجبان">الرجبان</option>
-                    <option value="العجيلات">العجيلات</option>
-                    <option value="الماية">الماية</option>
-                    <option value="الجميل">الجميل</option>
-                    <option value="الرحيبات">الرحيبات</option>
-                    <option value="قصر خيار">قصر خيار</option>
-                    <option value="هون">هون</option>
-                    <option value="ودان">ودان</option>
-                    <option value="سوكنة">سوكنة</option>
-                    <option value="القبة">القبة</option>
-                    <option value="الأبرق">الأبرق</option>
-                    <option value="شحات">شحات</option>
-                    <option value="بئر الأشهب">بئر الأشهب</option>
-                    <option value="أم الرزم">أم الرزم</option>
-                    <option value="رأس لانوف">رأس لانوف</option>
-                    <option value="البريقة">البريقة</option>
-                    <option value="تاورغاء">تاورغاء</option>
-                    <option value="قصر بن غشير">قصر بن غشير</option>
-                    <option value="سوق الخميس">سوق الخميس</option>
-                    <option value="العزيزية">العزيزية</option>
+                <div class="search-container">
+                    <input type="text" class="search-input" id="citySearch" placeholder="🔍 ابحث عن المدينة...">
+                    <div class="search-icon">🔍</div>
+                    <div class="cities-list" id="citiesList"></div>
+                </div>
+                <select class="form-select" id="userCity" required style="display: none;">
+                    <!-- سيتم ملء هذا الحقل تلقائياً عند اختيار المدينة -->
                 </select>
             </div>
             
@@ -446,11 +479,9 @@
     </div>
 </div>
 
-<!-- التنبيه -->
 <div class="alert-custom" id="alertBox">✅ تم حفظ البيانات بنجاح</div>
 <div class="alert-overlay" id="alertOverlay"></div>
 
-<!-- الشريط السفلي -->
 <iframe src="bottom-nav.html" style="width:100%; height:80px; border:none; position: fixed; bottom: 0; left: 0; z-index: 1000;"></iframe>
 
 <script>
@@ -493,13 +524,188 @@ function validatePhone(input) {
     }
 }
 
+// بيانات المدن مع الألوان حسب المناطق
+const cities = [
+    // جنوب طرابلس - أحمر داكن
+    {name: "ترهونة", price: "30", colorClass: "south-tripoli"},
+    {name: "بني وليد", price: "30", colorClass: "south-tripoli"},
+    
+    // الجنوب الشرقي - أخضر فاتح
+    {name: "جالو", price: "50", colorClass: "south-east"},
+    {name: "أوجلة", price: "50", colorClass: "south-east"},
+    {name: "الواحات", price: "50", colorClass: "south-east"},
+    {name: "الكفرة", price: "50", colorClass: "south-east"},
+    
+    // المنطقة الشرقية - أخضر داكن
+    {name: "بنغازي", price: "35", colorClass: "east-region"},
+    {name: "توكرة", price: "40", colorClass: "east-region"},
+    {name: "المرج", price: "40", colorClass: "east-region"},
+    {name: "البيضاء", price: "40", colorClass: "east-region"},
+    {name: "قمينس", price: "40", colorClass: "east-region"},
+    {name: "سلوق", price: "40", colorClass: "east-region"},
+    {name: "شحات", price: "45", colorClass: "east-region"},
+    {name: "سوسة", price: "45", colorClass: "east-region"},
+    {name: "درنة", price: "45", colorClass: "east-region"},
+    {name: "القبة", price: "45", colorClass: "east-region"},
+    {name: "طبرق", price: "45", colorClass: "east-region"},
+    {name: "امساعد", price: "40", colorClass: "east-region"},
+    
+    // المنطقة الوسطى - بنفسجي
+    {name: "سرت", price: "35", colorClass: "central-region"},
+    {name: "هراوة", price: "35", colorClass: "central-region"},
+    {name: "النوفلية", price: "35", colorClass: "central-region"},
+    {name: "بن جواد", price: "35", colorClass: "central-region"},
+    {name: "راس لانوف", price: "35", colorClass: "central-region"},
+    {name: "اجدابيا", price: "35", colorClass: "central-region"},
+    {name: "هون", price: "45", colorClass: "central-region"},
+    {name: "سوكنة", price: "45", colorClass: "central-region"},
+    {name: "الودان", price: "45", colorClass: "central-region"},
+    {name: "الجفرة", price: "45", colorClass: "central-region"},
+    {name: "زلة", price: "45", colorClass: "central-region"},
+    
+    // شرق طرابلس - أصفر
+    {name: "مصراتة", price: "25", colorClass: "east-tripoli"},
+    {name: "القره بولي", price: "25", colorClass: "east-tripoli"},
+    {name: "قماطة", price: "25", colorClass: "east-tripoli"},
+    {name: "قصر خيار", price: "25", colorClass: "east-tripoli"},
+    {name: "الخمس", price: "25", colorClass: "east-tripoli"},
+    {name: "زليتن", price: "25", colorClass: "east-tripoli"},
+    {name: "مسلاتة", price: "30", colorClass: "east-tripoli"},
+    
+    // المنطقة الجنوبية - سماوي
+    {name: "سبها", price: "40", colorClass: "south-region"},
+    {name: "مزدة", price: "40", colorClass: "south-region"},
+    {name: "الشويرف", price: "45", colorClass: "south-region"},
+    {name: "القريات", price: "45", colorClass: "south-region"},
+    {name: "براك الشاطئ", price: "40", colorClass: "south-region"},
+    {name: "اوباري", price: "50", colorClass: "south-region"},
+    {name: "ام الارانب", price: "50", colorClass: "south-region"},
+    {name: "وادي عتبة", price: "50", colorClass: "south-region"},
+    {name: "مرزق", price: "50", colorClass: "south-region"},
+    {name: "القطرون", price: "50", colorClass: "south-region"},
+    {name: "غات", price: "50", colorClass: "south-region"},
+    
+    // الجبل الغربي - أزرق
+    {name: "غريان", price: "30", colorClass: "west-mountain"},
+    {name: "الاصابعة", price: "35", colorClass: "west-mountain"},
+    {name: "الرابطة", price: "35", colorClass: "west-mountain"},
+    {name: "القواليش", price: "35", colorClass: "west-mountain"},
+    {name: "العوينة", price: "35", colorClass: "west-mountain"},
+    {name: "القلعة", price: "35", colorClass: "west-mountain"},
+    {name: "يفرن", price: "35", colorClass: "west-mountain"},
+    {name: "الرحيبات", price: "40", colorClass: "west-mountain"},
+    {name: "جادو", price: "40", colorClass: "west-mountain"},
+    {name: "كاباو", price: "40", colorClass: "west-mountain"},
+    {name: "الرقيعات", price: "40", colorClass: "west-mountain"},
+    {name: "تيجي", price: "45", colorClass: "west-mountain"},
+    {name: "بدر", price: "45", colorClass: "west-mountain"},
+    {name: "الجوش", price: "45", colorClass: "west-mountain"},
+    
+    // غرب طرابلس - برتقالي
+    {name: "داخل الزاوية", price: "10", colorClass: "west-tripoli"},
+    {name: "بوعيسى", price: "15", colorClass: "west-tripoli"},
+    {name: "الماية", price: "15", colorClass: "west-tripoli"},
+    {name: "المطرد", price: "15", colorClass: "west-tripoli"},
+    {name: "الحرشة", price: "15", colorClass: "west-tripoli"},
+    {name: "صرمان", price: "15", colorClass: "west-tripoli"},
+    {name: "صبراته", price: "15", colorClass: "west-tripoli"},
+    {name: "زوارة", price: "20", colorClass: "west-tripoli"},
+    {name: "العجيلات", price: "20", colorClass: "west-tripoli"},
+    {name: "الجميل", price: "25", colorClass: "west-tripoli"},
+    {name: "رقدالين", price: "25", colorClass: "west-tripoli"},
+    {name: "زلطن", price: "25", colorClass: "west-tripoli"},
+    {name: "رأس اجدير", price: "30", colorClass: "west-tripoli"},
+    
+    // داخل طرابلس - أحمر فاتح
+    {name: "داخل طرابلس", price: "20", colorClass: "inside-tripoli"}
+];
+
+// وظائف البحث في المدن
+const citySearch = document.getElementById('citySearch');
+const citiesList = document.getElementById('citiesList');
+const userCity = document.getElementById('userCity');
+
+// عرض جميع المدن عند النقر على حقل البحث
+citySearch.addEventListener('focus', function() {
+    filterCities();
+    citiesList.classList.add('show');
+});
+
+// إخفاء قائمة المدن عند النقر خارجها
+document.addEventListener('click', function(event) {
+    if (!citySearch.contains(event.target) && !citiesList.contains(event.target)) {
+        citiesList.classList.remove('show');
+    }
+});
+
+// البحث في المدن أثناء الكتابة
+citySearch.addEventListener('input', filterCities);
+
+// تصفية المدن بناءً على البحث
+function filterCities() {
+    const searchTerm = citySearch.value.toLowerCase();
+    const filteredCities = cities.filter(city => 
+        city.name.toLowerCase().includes(searchTerm)
+    );
+    
+    displayCities(filteredCities);
+}
+
+// عرض المدن في القائمة
+function displayCities(citiesToShow) {
+    if (citiesToShow.length === 0) {
+        citiesList.innerHTML = '<div class="no-results">❌ لا توجد نتائج</div>';
+        return;
+    }
+    
+    citiesList.innerHTML = '';
+    
+    citiesToShow.forEach(city => {
+        const cityItem = document.createElement('div');
+        cityItem.className = 'city-item';
+        cityItem.innerHTML = `
+            <span class="city-name ${city.colorClass}">${city.name}</span>
+            <span class="city-price">(${city.price} د.ل)</span>
+        `;
+        
+        cityItem.addEventListener('click', function() {
+            selectCity(city.name, city.price, city.colorClass);
+        });
+        
+        citiesList.appendChild(cityItem);
+    });
+}
+
+// اختيار مدينة
+function selectCity(name, price, colorClass) {
+    citySearch.value = name;
+    userCity.value = `${name}_${price}`;
+    citiesList.classList.remove('show');
+    
+    // تحديث لون النص في حقل البحث
+    citySearch.className = `search-input ${colorClass}`;
+}
+
 // تحميل البيانات المحفوظة
 window.addEventListener('load', function() {
     const savedData = JSON.parse(localStorage.getItem('userProfile'));
     if (savedData) {
         document.getElementById('userName').value = savedData.name || '';
         document.getElementById('userPhone').value = savedData.phone || '';
-        document.getElementById('userCity').value = savedData.city || '';
+        
+        // معالجة بيانات المدينة المحفوظة
+        if (savedData.city) {
+            const [cityName, cityPrice] = savedData.city.split('_');
+            citySearch.value = cityName;
+            userCity.value = savedData.city;
+            
+            // البحث عن المدينة في القائمة لتحديد لونها
+            const savedCity = cities.find(city => city.name === cityName);
+            if (savedCity) {
+                citySearch.className = `search-input ${savedCity.colorClass}`;
+            }
+        }
+        
         document.getElementById('userAddress').value = savedData.address || '';
     }
 });
@@ -543,7 +749,7 @@ function showAlert(message) {
     setTimeout(function() {
         alertBox.style.display = 'none';
         alertOverlay.style.display = 'none';
-    }, 3000);
+    }, 2000);
 }
 </script>
 </body>
