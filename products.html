@@ -7,7 +7,7 @@
 <title>🛍️ متجري</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 <style>
-/* ... (نفس التنسيقات السابقة مع إضافة تنسيق الصورة في السلة) ... */
+/* ... (نفس التنسيقات السابقة) ... */
 body { 
     background:#fff0f6; 
     font-family: Tahoma; 
@@ -607,12 +607,14 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+// 🔔 إعدادات تيليجرام (تمت الإضافة)
+const TELEGRAM_TOKEN = "8493711191:AAFeTCns1pWV9whkdFaYpaw2r4voO2Zpd48";
+const TELEGRAM_CHAT_ID = "8386976225";
+
 let products = {};
 let currentCategory = "";
 let categoriesMap = {};
 let favorites = JSON.parse(localStorage.getItem("favorites")) || {};
-
-/* متغيرات معرض الصور الموسع */
 let currentGalleryImages = [];
 let currentGalleryIndex = 0;
 
@@ -906,6 +908,40 @@ function toggleFavorite(productId) {
     showAlert(favorites[productId] ? "❤️ تم الإضافة إلى المفضلة" : "🤍 تم الإزالة من المفضلة");
 }
 
+// 🔥 دالة إرسال إشعار تيليجرام (جديد) 🔥
+function sendTelegramNotification(orderData) {
+    if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) return;
+
+    let itemsList = orderData.items.map(item => 
+        `▫️ ${item.name} ${item.size ? `(م:${item.size})` : ''} ${item.color ? `(ل:${item.color})` : ''} × ${item.qty}`
+    ).join('%0A');
+
+    // استخراج اسم المدينة
+    let cityName = "غير محدد";
+    if (orderData.customer && orderData.customer.cityData) {
+        cityName = orderData.customer.cityData.split('_')[0];
+    }
+
+    let message = `
+🚨 *طلب جديد!* 🚨
+--------------------
+👤 *العميل:* ${orderData.customer.name}
+📞 *الهاتف:* ${orderData.customer.phone}
+🏙 *المدينة:* ${cityName}
+📍 *العنوان:* ${orderData.customer.address}
+--------------------
+🛒 *المنتجات:*
+${itemsList}
+--------------------
+🚚 *التوصيل:* ${orderData.shippingCost} د.ل
+💰 *الإجمالي الكلي:* ${orderData.total} د.ل
+    `;
+
+    const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
+
+    fetch(url).catch(err => console.error("فشل إرسال تيليجرام", err));
+}
+
 async function sendOrder() {
     if (cart.length === 0) {
         showAlert("⚠️ السلة فارغة");
@@ -970,6 +1006,10 @@ async function sendOrder() {
             status: "قيد الانتظار",
             customer: userData 
         };
+
+        // 🔥 إرسال إشعار تيليجرام 🔥
+        sendTelegramNotification(orderData);
+
         db.ref("orders").push(orderData, (error) => {
             if (error) { showAlert("❌ خطأ في إرسال الطلب: " + error.message); } 
             else {
@@ -1001,7 +1041,6 @@ function changeQty(id,delta){
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 updateCart();
 
-// ✅ إضافة للسلة (تم التعديل لإضافة الصورة)
 function addToCart(productId){ 
   const product = getProductById(productId);
   if (!product) { showAlert("❌ المنتج غير موجود"); return; }
@@ -1032,14 +1071,12 @@ function addToCart(productId){
       item.id === productId && item.color === color && item.size === size && item.type === type 
   );
   
-  // 🔥 الحصول على رابط الصورة الرئيسية لحفظه مع الطلب 🔥
   const mainImage = (product.images && product.images.length > 0) ? product.images[0] : getDefaultImage();
 
   if (existingItemIndex !== -1) {
       const newQty = cart[existingItemIndex].qty + qty;
       if (newQty > availableStock) { showAlert(`⚠️ الحد الأقصى المتاح (${availableStock}).`); return; }
       cart[existingItemIndex].qty = newQty;
-      // تحديث الصورة في حال تغيرت في النظام (اختياري)
       cart[existingItemIndex].image = mainImage; 
       showAlert("🔄 تم تحديث كمية المنتج في السلة");
   } else {
@@ -1047,7 +1084,7 @@ function addToCart(productId){
         id: productId,
         name: product.name,
         price: product.price,
-        image: mainImage, // ✅ تم إضافة الصورة هنا
+        image: mainImage, 
         qty, 
         size, 
         color, 
@@ -1060,7 +1097,6 @@ function addToCart(productId){
   updateCart();
 }
 
-// ✅ دالة تحديث السلة (تم التعديل لعرض الصورة)
 function updateCart(){
   document.getElementById("cartCount").innerText = cart.length;
   let container = document.getElementById("cartItems");
@@ -1069,7 +1105,6 @@ function updateCart(){
   let subTotal = 0;
   cart.forEach((it,index)=>{
     const itemTotal = it.price * it.qty;
-    // عرض الصورة إن وجدت
     const imgHtml = it.image ? `<img src="${it.image}" class="cart-item-img">` : '';
 
     container.innerHTML += `
