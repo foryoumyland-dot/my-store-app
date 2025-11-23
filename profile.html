@@ -437,7 +437,7 @@
 
 <nav class="top-navbar">
     <button class="menu-icon" onclick="toggleMenu()">☰</button>
-    <div class="store-name">🌸 لأجلك سيدتي</div>
+    <div class="store-name">ريـــفـــREVANAــــانــــا</div>
     <div class="dropdown-menu" id="dropdownMenu">
         <a href="profile.html" class="dropdown-item" onclick="closeMenu()">👤 بياناتي</a>
         <div class="menu-divider"></div>
@@ -473,7 +473,7 @@
             <div class="form-group">
                 <label class="form-label">المدينة</label>
                 <div class="search-container">
-                    <input type="text" class="search-input" id="citySearch" placeholder="🔍 ابحث عن المدينة..." required readonly>
+                    <input type="text" class="search-input" id="citySearch" placeholder="🔍 ابحث عن المدينة..." required>
                     <div class="search-icon">🔍</div>
                     <div class="cities-list" id="citiesList"></div>
                 </div>
@@ -663,17 +663,17 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// منع فتح القائمة إذا كان حقل البحث للقراءة فقط (Readonly)
+// **تم تعديل هذا الجزء:** لم يعد هناك حاجة لمنع فتح القائمة إذا كان حقل البحث للقراءة فقط، لأنه لم يعد للقراءة فقط.
+// عند النقر يتم عرض القائمة
 citySearch.addEventListener('click', function() {
-    if (citySearch.readOnly) {
-        filterCities();
-        citiesList.classList.add('show');
-    }
+    filterCities();
+    citiesList.classList.add('show');
 });
+
 
 // البحث في المدن أثناء الكتابة
 citySearch.addEventListener('input', function() {
-    // 💡 السماح بالكتابة فقط للبحث، لكن القيمة النهائية يجب أن تكون من القائمة
+    // 💡 السماح بالكتابة للبحث
     filterCities();
 });
 
@@ -743,8 +743,8 @@ window.addEventListener('load', function() {
         
         document.getElementById('userAddress').value = savedData.address || '';
     }
-    // اجعل حقل البحث للقراءة فقط بعد تحميل البيانات لمنع الكتابة العشوائية
-    citySearch.readOnly = true;
+    // **تم حذف السمة readonly من هنا في JavaScript أيضاً، إن وجدت سابقاً.**
+    // citySearch.readOnly = true; // تم إلغاء هذه السمة
 });
 
 
@@ -764,6 +764,7 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
     }
     
     if (!cityData) {
+        // التحقق من أن المدينة التي تم كتابتها موجودة في القائمة
         showAlert('⚠️ يرجى اختيار المدينة من القائمة المقترحة');
         return;
     }
