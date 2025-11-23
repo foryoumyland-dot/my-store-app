@@ -625,8 +625,8 @@ let favorites = JSON.parse(localStorage.getItem("favorites")) || {};
 let currentGalleryImages = [];
 let currentGalleryIndex = 0;
 
-// 🔥 متغير لتخزين وعود (Promises) التحميل المسبق
-let categoryPreloadPromises = {}; 
+// 🆕 لإدارة مستمع Firebase النشط (لحل مشكلة التحديث الفوري)
+let currentProductListener = null;
 
 function getShippingCost() {
     const userData = JSON.parse(localStorage.getItem('userProfile'));
@@ -638,66 +638,24 @@ function getShippingCost() {
     return shippingCost;
 }
 
-// 🔥 دالة التحميل المسبق الجديدة
-function preloadCategoryProducts(categoryId) {
-    if (categoryPreloadPromises[categoryId]) {
-        return categoryPreloadPromises[categoryId]; 
-    }
-    
-    const productsRef = db.ref("products");
-    const query = productsRef.orderByChild("category").equalTo(categoryId).once("value");
-    
-    // تخزين الوعد لمنع عمليات جلب متكررة
-    categoryPreloadPromises[categoryId] = query.then(snap => {
-        const data = snap.val() || {};
-        const categoryName = categoriesMap[categoryId] || "Unknown";
-        products[categoryName] = []; 
-        
-        Object.keys(data).forEach(id => {
-            let p = data[id];
-            if(p.status === "معروض"){
-                products[categoryName].push({
-                    id: id,
-                    name: p.name,
-                    price: p.price,
-                    category: categoryName,
-                    status: p.status,
-                    stockDetails: p.stockDetails || [], 
-                    totalStock: p.totalStock !== undefined ? p.totalStock : 0, 
-                    images: p.images || [],
-                    sizes: p.sizes || [],
-                    colors: p.colors || [],
-                    types: p.types || [] 
-                });
-            }
-        });
-        return products[categoryName];
-    }).catch(error => {
-        console.error("Error preloading products for category", categoryId, error);
-        return []; // إرجاع مصفوفة فارغة في حالة الفشل
-    });
-
-    return categoryPreloadPromises[categoryId];
-}
+// 🆕 تم حذف دالة preloadCategoryProducts والاكتفاء بتحميلها عند الحاجة.
+// 🆕 وإذا كنت ترغب بالتحميل المسبق، يجب عليك إعادة إضافتها مع الانتباه لعدم تكرار المستمعين.
 
 
 function loadCategories() {
-  db.ref("categories").once("value").then(snap => { // ✅ استخدام once بدلاً من on لضمان تشغيل لمرة واحدة
+  db.ref("categories").once("value").then(snap => { 
     let cats = snap.val() || {};
     let bar = document.getElementById("categoriesBar");
     bar.innerHTML = "";
     categoriesMap = {};
-    let firstCategoryId = null;
+    let firstCategoryName = null;
 
     Object.keys(cats).forEach((id, index)=>{
       categoriesMap[id] = cats[id].name;
       
       if (index === 0) {
-          firstCategoryId = id; // حفظ أول معرف
-      } else if (index < 3) {
-          // 🔥 تحميل مسبق لأول 3 أقسام في الخلفية
-          preloadCategoryProducts(id); 
-      }
+          firstCategoryName = cats[id].name; // حفظ أول اسم قسم
+      } 
       
       let btn = document.createElement("button");
       btn.className = "btn btn-outline-primary";
@@ -706,9 +664,9 @@ function loadCategories() {
       bar.appendChild(btn);
     });
     
-    // 🔥 البدء بعرض أول قسم فورا باستخدام الـ ID المحفوظ
-    if(firstCategoryId) {
-        showCategory(categoriesMap[firstCategoryId]);
+    // 🔥 البدء بعرض أول قسم فورا
+    if(firstCategoryName) {
+        showCategory(firstCategoryName);
     } else {
         document.getElementById("productsContainer").innerHTML = `<div class="col-12 text-center" style="grid-column: 1 / -1; padding: 40px;"><p style="color: #666; font-size: 18px;">لا توجد أقسام متاحة</p></div>`;
     }
@@ -717,7 +675,7 @@ function loadCategories() {
   });
 }
 
-// ✅ دالة جديدة لعرض المنتجات بسرعة فائقة باستخدام async/await
+// 🆕 دالة عرض المنتجات مع الاستماع للتحديثات الفورية (.on)
 async function showCategory(cat){
   currentCategory = cat;
   
@@ -729,145 +687,148 @@ async function showCategory(cat){
 
   let container = document.getElementById("productsContainer");
   
-  // 2. ⚡️ عرض رسالة تحميل مؤقتة فوراً (لإعطاء إحساس بالاستجابة السريعة)
+  // 2. ⚡️ عرض رسالة تحميل مؤقتة فوراً
   container.innerHTML = `<div class="col-12 text-center loading-spinner" style="grid-column: 1 / -1; padding: 40px;"><div class="spinner-border text-primary" role="status"></div><p style="color: #666; font-size: 16px; margin-top: 10px;">جاري تحميل منتجات قسم ${cat}...</p></div>`;
 
-
-  // 3. 🔥 جلب المنتجات (سواء من الكاش Preload أو من Firebase)
   let categoryId = Object.keys(categoriesMap).find(key => categoriesMap[key] === cat);
-  let categoryProducts = products[cat]; // التحقق من الكاش أولا
+  
+  // 🆕 3. إيقاف المستمع القديم
+  if (currentProductListener) {
+      db.ref("products").off("value", currentProductListener);
+      currentProductListener = null;
+  }
+  
+  const productsRef = db.ref("products");
 
-  if (!categoryProducts) {
-      // إذا لم تكن المنتجات موجودة في الكاش (لأنه لم يتم تحميلها مسبقاً)، قم بجلبها الآن
-      try {
-          const productsRef = db.ref("products");
-          let query = productsRef.orderByChild("category").equalTo(categoryId).once("value");
-          
-          const snap = await query; // 🛑 انتظار وصول البيانات
-          const data = snap.val() || {};
-          
-          categoryProducts = [];
-          Object.keys(data).forEach(id => {
-              let p = data[id];
-              if(p.status === "معروض"){
-                  categoryProducts.push({
-                      id: id,
-                      name: p.name,
-                      price: p.price,
-                      category: cat,
-                      status: p.status,
-                      stockDetails: p.stockDetails || [], 
-                      totalStock: p.totalStock !== undefined ? p.totalStock : 0, 
-                      images: p.images || [],
-                      sizes: p.sizes || [],
-                      colors: p.colors || [],
-                      types: p.types || [] 
-                  });
-              }
-          });
-          products[cat] = categoryProducts; // تخزينها في الكاش للاستخدام المستقبلي
-      } catch (error) {
-          console.error("Error loading products:", error);
-          container.innerHTML = `<div class="col-12 text-center" style="grid-column: 1 / -1; padding: 40px;"><p style="color: red; font-size: 18px;">حدث خطأ أثناء تحميل المنتجات.</p></div>`;
+  // 🆕 4. دالة رد الاتصال التي ستقوم بتصيير المنتجات
+  const updateProductsUI = (snap) => {
+      const data = snap.val() || {};
+      let categoryProducts = [];
+      
+      // 🆕 فلترة المنتجات محلياً (بعد جلبها)
+      Object.keys(data).forEach(id => {
+          let p = data[id];
+          // التحقق من حالة المنتج والقسم
+          if(p.status === "معروض" && p.category === categoryId){ 
+              categoryProducts.push({
+                  id: id,
+                  name: p.name,
+                  price: p.price,
+                  category: cat,
+                  status: p.status,
+                  stockDetails: p.stockDetails || [], 
+                  totalStock: p.totalStock !== undefined ? p.totalStock : 0, 
+                  images: p.images || [],
+                  sizes: p.sizes || [],
+                  colors: p.colors || [],
+                  types: p.types || [] 
+              });
+          }
+      });
+      
+      products[cat] = categoryProducts; // تخزينها في الكاش للاستخدام المستقبلي/السلة
+
+      // 5. بناء وتصيير HTML
+      if(!categoryProducts || categoryProducts.length === 0) {
+          container.innerHTML = `<div class="col-12 text-center" style="grid-column: 1 / -1; padding: 40px;"><p style="color: #666; font-size: 18px;">لا توجد منتجات معروضة في هذا القسم</p></div>`;
           return;
       }
-  }
-
-  // 4. 🔥 التحسين الجوهري: بناء وتصيير HTML في دفعة واحدة بعد وصول البيانات
-  if(!categoryProducts || categoryProducts.length === 0) {
-      container.innerHTML = `<div class="col-12 text-center" style="grid-column: 1 / -1; padding: 40px;"><p style="color: #666; font-size: 18px;">لا توجد منتجات معروضة في هذا القسم</p></div>`;
-      return;
-  }
-  
-  let allProductsHTML = "";
-
-  categoryProducts.forEach((p,i)=>{
-      const isFavorite = favorites[p.id];
-      const hasMultipleImages = p.images && p.images.length > 1;
-      const currentTotalStock = p.totalStock || 0;
-      const isOutOfStock = currentTotalStock === 0;
-
-      // تجهيز خيارات الألوان
-      let colorsHTML = p.colors && p.colors.length ? 
-          `<select id="color-${p.id}" class="form-select mb-2 color-select option-select" style="font-size: 12px;" onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'color')"><option value="">اللون</option>${p.colors.map(c=>`<option value="${c}">${c}</option>`).join("")}</select>` 
-          : "";
-
-      // تجهيز خيارات المقاسات
-      let sizesHTML = p.sizes && p.sizes.length ? 
-          `<select id="size-${p.id}" class="form-select mb-2 size-select option-select" style="font-size: 12px;" onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'size')"><option value="">المقاس</option>${p.sizes.map(s=>`<option value="${s}">${s}</option>`).join("")}</select>` 
-          : "";
       
-      // تجهيز خيارات الأنواع
-      let typesHTML = p.types && p.types.length ? 
-          `<select id="type-${p.id}" class="form-select mb-2 type-select option-select" style="font-size: 12px;" onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'type')"><option value="">موديل الهاتف</option>${p.types.map(t=>`<option value="${t}">${t}</option>`).join("")}</select>` 
-          : "";
-      
-      // تجهيز الصور المصغرة
-      let thumbnailsHTML = "";
-      if(hasMultipleImages) {
-          thumbnailsHTML = `
-              <button class="image-nav-btn prev" onclick="changeProductImage('${p.id}', -1)">❮</button>
-              <button class="image-nav-btn next" onclick="changeProductImage('${p.id}', 1)">❯</button>
-              <div class="thumbnail-container" id="thumbnails-${p.id}">
-              ${p.images.map((img, index) => `
-                  <img src="${img}" class="thumbnail ${index === 0 ? 'active' : ''}" 
-                      onclick="setProductImage('${p.id}', ${index})"
+      let allProductsHTML = "";
+      categoryProducts.forEach((p,i)=>{
+          const isFavorite = favorites[p.id];
+          const hasMultipleImages = p.images && p.images.length > 1;
+          const currentTotalStock = p.totalStock || 0;
+          const isOutOfStock = currentTotalStock === 0;
+
+          // تجهيز خيارات الألوان
+          let colorsHTML = p.colors && p.colors.length ? 
+              `<select id="color-${p.id}" class="form-select mb-2 color-select option-select" style="font-size: 12px;" onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'color')"><option value="">اللون</option>${p.colors.map(c=>`<option value="${c}">${c}</option>`).join("")}</select>` 
+              : "";
+
+          // تجهيز خيارات المقاسات
+          let sizesHTML = p.sizes && p.sizes.length ? 
+              `<select id="size-${p.id}" class="form-select mb-2 size-select option-select" style="font-size: 12px;" onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'size')"><option value="">المقاس</option>${p.sizes.map(s=>`<option value="${s}">${s}</option>`).join("")}</select>` 
+              : "";
+          
+          // تجهيز خيارات الأنواع
+          let typesHTML = p.types && p.types.length ? 
+              `<select id="type-${p.id}" class="form-select mb-2 type-select option-select" style="font-size: 12px;" onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'type')"><option value="">موديل الهاتف</option>${p.types.map(t=>`<option value="${t}">${t}</option>`).join("")}</select>` 
+              : "";
+          
+          // تجهيز الصور المصغرة
+          let thumbnailsHTML = "";
+          if(hasMultipleImages) {
+              thumbnailsHTML = `
+                  <button class="image-nav-btn prev" onclick="changeProductImage('${p.id}', -1)">❮</button>
+                  <button class="image-nav-btn next" onclick="changeProductImage('${p.id}', 1)">❯</button>
+                  <div class="thumbnail-container" id="thumbnails-${p.id}">
+                  ${p.images.map((img, index) => `
+                      <img src="${img}" class="thumbnail ${index === 0 ? 'active' : ''}" 
+                          onclick="setProductImage('${p.id}', ${index})"
+                          loading="lazy" 
+                          onerror="this.src='${getDefaultImage()}'">
+                  `).join('')}
+                  </div>`;
+          }
+
+
+          allProductsHTML += `
+              <div class="product-card ${isOutOfStock ? 'out-of-stock' : ''}" id="product-card-${p.id}">
+                  <button class="heart-btn ${isFavorite ? 'active' : ''}" onclick="toggleFavorite('${p.id}')">
+                      ${isFavorite ? '❤️' : '🤍'}
+                  </button>
+                  <div class="product-gallery" id="gallery-${p.id}">
+                  ${hasMultipleImages ? `<div class="image-counter">1/${p.images.length}</div>` : ''}
+                  
+                  <img src="${p.images[0] || getDefaultImage()}" class="main-product-image" 
+                      onclick="openImageGallery('${p.id}')" 
                       loading="lazy" 
-                      onerror="this.src='${getDefaultImage()}'">
-              `).join('')}
-              </div>`;
-      }
-
-
-      allProductsHTML += `
-          <div class="product-card ${isOutOfStock ? 'out-of-stock' : ''}" id="product-card-${p.id}">
-              <button class="heart-btn ${isFavorite ? 'active' : ''}" onclick="toggleFavorite('${p.id}')">
-                  ${isFavorite ? '❤️' : '🤍'}
-              </button>
-              <div class="product-gallery" id="gallery-${p.id}">
-              ${hasMultipleImages ? `<div class="image-counter">1/${p.images.length}</div>` : ''}
-              
-              <img src="${p.images[0] || getDefaultImage()}" class="main-product-image" 
-                  onclick="openImageGallery('${p.id}')" 
-                  loading="lazy" 
-                  onerror="this.src='${getDefaultImage()}'"
-                  data-current-index="0">
-              
-              ${thumbnailsHTML}
+                      onerror="this.src='${getDefaultImage()}'"
+                      data-current-index="0">
+                  
+                  ${thumbnailsHTML}
+                  </div>
+                  <div class="product-body">
+                  <h5 class="product-title">${p.name}</h5>
+                  <div class="product-price">💵 ${p.price} د</div>
+                  
+                  ${colorsHTML}
+                  ${sizesHTML}
+                  ${typesHTML}
+                  
+                  <p id="stock-alert-${p.id}" style="font-size: 12px; color: red; font-weight: bold; margin-bottom: 5px;">${isOutOfStock ? '🔴 المنتج غير متوفر حالياً' : ''}</p>
+                  
+                  <div class="input-group mb-2">
+                      <button class="btn btn-outline-danger" style="font-size: 12px; padding: 4px 8px;" onclick="changeQty('${p.id}',-1)">➖</button>
+                      <input type="text" id="qty-${p.id}" class="form-control text-center" value="1" readonly style="font-size: 12px;">
+                      <button class="btn btn-outline-success" style="font-size: 12px; padding: 4px 8px;" onclick="changeQty('${p.id}',1)">➕</button>
+                  </div>
+                  
+                  <button class="btn btn-primary w-100" style="background: linear-gradient(45deg, #ff69b4, #ff1493); border: none; font-size: 14px; padding: 8px;" onclick="addToCart('${p.id}')" id="add-btn-${p.id}" ${isOutOfStock ? 'disabled' : ''}>🛒 أضف للسلة</button>
+                  </div>
               </div>
-              <div class="product-body">
-              <h5 class="product-title">${p.name}</h5>
-              <div class="product-price">💵 ${p.price} د</div>
-              
-              ${colorsHTML}
-              ${sizesHTML}
-              ${typesHTML}
-              
-              <p id="stock-alert-${p.id}" style="font-size: 12px; color: red; font-weight: bold; margin-bottom: 5px;">${isOutOfStock ? '🔴 المنتج غير متوفر حالياً' : ''}</p>
-              
-              <div class="input-group mb-2">
-                  <button class="btn btn-outline-danger" style="font-size: 12px; padding: 4px 8px;" onclick="changeQty('${p.id}',-1)">➖</button>
-                  <input type="text" id="qty-${p.id}" class="form-control text-center" value="1" readonly style="font-size: 12px;">
-                  <button class="btn btn-outline-success" style="font-size: 12px; padding: 4px 8px;" onclick="changeQty('${p.id}',1)">➕</button>
-              </div>
-              
-              <button class="btn btn-primary w-100" style="background: linear-gradient(45deg, #ff69b4, #ff1493); border: none; font-size: 14px; padding: 8px;" onclick="addToCart('${p.id}')" id="add-btn-${p.id}" ${isOutOfStock ? 'disabled' : ''}>🛒 أضف للسلة</button>
-              </div>
-          </div>
-      `;
-  });
-  
-  // 5. وضع جميع المنتجات في الواجهة دفعة واحدة (وهي أسرع بكثير)
-  container.innerHTML = allProductsHTML;
-
-  // 6. تحديث حالة المخزون بشكل غير متزامن بعد العرض (لعدم إبطاء التصيير)
-  setTimeout(() => {
-      categoryProducts.forEach(p => {
-          updateDependentOptions(p.id, '');
-          updateStockStatus(p.id);
+          `;
       });
-  }, 0);
+      
+      container.innerHTML = allProductsHTML;
+
+      // تحديث حالة المخزون بشكل غير متزامن بعد العرض 
+      setTimeout(() => {
+          categoryProducts.forEach(p => {
+              updateDependentOptions(p.id, '');
+              updateStockStatus(p.id);
+          });
+      }, 0);
+  }
+  
+  // 🆕 6. بدء الاستماع (لحل مشكلة عدم التحديث الفوري)
+  currentProductListener = productsRef.on("value", updateProductsUI, (error) => {
+    console.error("Firebase Listener Error:", error);
+    container.innerHTML = `<div class="col-12 text-center" style="grid-column: 1 / -1; padding: 40px;"><p style="color: red; font-size: 18px;">حدث خطأ أثناء تحميل المنتجات: ${error.message}</p></div>`;
+  });
 }
+
 
 function updateDependentOptions(productId, changedOptionType) {
     const product = getProductById(productId);
@@ -935,17 +896,24 @@ function updateDependentOptions(productId, changedOptionType) {
 
 function getAvailableStock(productId, color, size, type) { 
     const product = getProductById(productId);
-    if (!product || !product.stockDetails) return product?.totalStock || 0;
+    if (!product || !product.stockDetails || product.stockDetails.length === 0) return product?.totalStock || 0;
     
     const finalColor = (product.colors && product.colors.length > 0) ? color : "";
     const finalSize = (product.sizes && product.sizes.length > 0) ? size : "";
     const finalType = (product.types && product.types.length > 0) ? type : ""; 
 
+    // 🆕 التحقق من وجود Stock Detail يطابق التركيبة المختارة
     const stockItem = product.stockDetails.find(item => 
         (item.color === finalColor) && 
         (item.size === finalSize) &&
         (item.type === finalType) 
     );
+    
+    // 🆕 إذا لم يكن المنتج يستخدم خيارات، أو تم العثور على التفاصيل
+    if (!product.colors.length && !product.sizes.length && !product.types.length) {
+        return product.totalStock || 0;
+    }
+    
     return stockItem ? stockItem.quantity : 0;
 }
 
@@ -1045,6 +1013,7 @@ ${itemsList}
     fetch(url).catch(err => console.error("فشل إرسال تيليجرام", err));
 }
 
+// 🆕 دالة إرسال الطلب (مع تحسين معالجة فشل المعاملة)
 async function sendOrder() {
     if (cart.length === 0) {
         showAlert("⚠️ السلة فارغة");
@@ -1069,34 +1038,67 @@ async function sendOrder() {
 
     for (const item of cart) {
         const productRef = db.ref(`products/${item.id}`);
+        // 🆕 يتم جلب أحدث البيانات هنا تلقائياً قبل بدء المعاملة
         const result = await productRef.transaction(currentProduct => {
-            if (!currentProduct) { failedItemName = item.name + " (غير موجود)"; return; }
+            if (!currentProduct) { 
+                failedItemName = item.name + " (غير موجود)"; 
+                return; // إيقاف المعاملة
+            }
+            
             let requiredQty = item.qty;
             let newTotalStock = currentProduct.totalStock !== undefined ? currentProduct.totalStock : 0;
             let stockReduced = false;
+            
             const finalColor = (currentProduct.colors && currentProduct.colors.length > 0) ? item.color : "";
             const finalSize = (currentProduct.sizes && currentProduct.sizes.length > 0) ? item.size : "";
             const finalType = (currentProduct.types && currentProduct.types.length > 0) ? item.type : ""; 
 
             if (currentProduct.stockDetails && currentProduct.stockDetails.length > 0) {
+                // البحث عن التركيبة المطلوبة
                 let detailIndex = currentProduct.stockDetails.findIndex(detail => 
                     detail.color === finalColor && detail.size === finalSize && detail.type === finalType
                 );
-                if (detailIndex === -1) { failedItemName = item.name; return; }
+                
+                if (detailIndex === -1) { 
+                    // لم يتم العثور على تركيبة المخزون، يجب أن يفشل
+                    failedItemName = item.name + " (تركيبة غير صحيحة)"; 
+                    return; 
+                }
+                
                 let detail = currentProduct.stockDetails[detailIndex];
+                
                 if (detail.quantity >= requiredQty) {
-                    detail.quantity -= requiredQty; newTotalStock -= requiredQty; stockReduced = true;
+                    detail.quantity -= requiredQty; 
+                    newTotalStock -= requiredQty; 
+                    stockReduced = true;
                 }
             } else {
-                if (newTotalStock >= requiredQty) { newTotalStock -= requiredQty; stockReduced = true; }
+                // لا يوجد تفاصيل مخزون (اعتماد على totalStock فقط)
+                if (newTotalStock >= requiredQty) { 
+                    newTotalStock -= requiredQty; 
+                    stockReduced = true; 
+                }
             }
+            
             if (stockReduced) {
                 currentProduct.totalStock = newTotalStock;
+                // قد يكون لديك حقل 'stock' قديم، يتم تحديثه أيضا للمزامنة
                 if (currentProduct.stock !== undefined) currentProduct.stock = newTotalStock; 
-                return currentProduct; 
-            } else { failedItemName = item.name; return; }
+                return currentProduct; // الالتزام بالتغيير
+            } else { 
+                // فشل الخصم لأن الكمية غير كافية
+                failedItemName = item.name; 
+                return; // إيقاف المعاملة (الكمية غير متوفرة)
+            }
         });
-        if (!result.committed) { allTransactionsSuccessful = false; if (!failedItemName) failedItemName = item.name; break; }
+        
+        // 🆕 التحقق من نتيجة المعاملة
+        if (!result.committed) { 
+            allTransactionsSuccessful = false; 
+            // failedItemName يتم تحديثه داخل الـ transaction
+            if (!failedItemName) failedItemName = item.name; 
+            break; 
+        }
     }
     
     if (allTransactionsSuccessful) {
@@ -1126,7 +1128,8 @@ async function sendOrder() {
             }
         });
     } else {
-        showAlert(`❌ فشل إرسال الطلب. الكمية المطلوبة لـ ${failedItemName} غير متوفرة.`, 5000);
+        // 🆕 رسالة خطأ أكثر وضوحاً
+        showAlert(`❌ فشل إرسال الطلب. الكمية المطلوبة لـ ${failedItemName} غير متوفرة أو التركيبة غير صحيحة.`, 5000);
         showCategory(currentCategory); // إعادة تحميل القسم لتحديث المخزون
     }
 }
@@ -1382,7 +1385,7 @@ function getProductById(productId) {
 }
 
 function getDefaultImage() {
-    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMuMjMyMi9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNmOGY5ZmEiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+PHRzcGFuIHg9IjUwJSIgeT0iNTAlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn5S3INmE2YTZhCDYp9mE2K/ZitlKPC90c3Bhbj48L3RleHQ+PC9zdmc+';
+    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMuMjMyMi9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNmOGY5ZmEiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+PHRzcGFuIHg9IjUwJSIgeT0iNTAlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn5S3INmE2YTZhCDYp9mE2K/ZitlKPC90ZXh0Pjwvc3ZnPg==';
 }
 </script>
 
