@@ -78,8 +78,10 @@
 .dropdown-menu {
     position: absolute;
     top: 65px;
-    left: 50%;
-    transform: translateX(-50%);
+    right: 10px; /* تم تعديل هذه القيمة */
+    left: auto;
+    transform: translateX(0);
+    
     background: linear-gradient(135deg, #ffffff, #fff5f7);
     border-radius: 15px;
     box-shadow: 0 8px 30px rgba(255, 105, 180, 0.3);
@@ -100,11 +102,11 @@
 @keyframes slideDown {
     from {
         opacity: 0;
-        transform: translateX(-50%) translateY(-10px);
+        transform: translateY(-10px);
     }
     to {
         opacity: 1;
-        transform: translateX(-50%) translateY(0);
+        transform: translateY(0);
     }
 }
 
@@ -172,6 +174,7 @@ body {
     .dropdown-menu {
         min-width: 180px;
         top: 60px;
+        right: 15px; 
     }
     
     .dropdown-item {
@@ -203,6 +206,7 @@ body {
     .dropdown-menu {
         min-width: 160px;
         top: 55px;
+        right: 5px; /* تم تعديل هذه القيمة */
     }
     
     .dropdown-item {
@@ -234,6 +238,7 @@ body {
     .dropdown-menu {
         min-width: 220px;
         top: 70px;
+        right: 25px; 
     }
     
     .dropdown-item {
@@ -250,13 +255,10 @@ body {
 <body>
 
 <nav class="top-navbar">
-    <!-- أيقونة القائمة على اليسار -->
+    <div class="store-name">🌸 ريـــفـــ<span dir="ltr">REVANA</span>ــــانـــــا</div>
+    
     <button class="menu-icon" onclick="toggleMenu()">☰</button>
     
-    <!-- اسم المتجر على اليمين - نص عادي -->
-    <div class="store-name">🌸 لأجلك سيدتي</div>
-    
-    <!-- القائمة المنسدلة -->
     <div class="dropdown-menu" id="dropdownMenu">
         <a href="profile.html" class="dropdown-item" onclick="closeMenu()">👤 بياناتي</a>
         <div class="menu-divider"></div>
@@ -264,7 +266,6 @@ body {
     </div>
 </nav>
 
-<!-- حجب القائمة عند النقر خارجها -->
 <div class="overlay" id="overlay" onclick="closeMenu()"></div>
 
 <script>
