@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <base href="/my-store-app/">
-<title>🛍️ متجري</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<title>🛍️ متجري | ريـــفـــREVANAــــانـــــا</title> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 <style>
 /* ... (نفس التنسيقات السابقة) ... */
 body { 
@@ -517,7 +516,7 @@ body {
 <nav class="top-navbar">
     <button class="menu-icon" onclick="toggleMenu()">☰</button>
     
-    <div class="store-name">🌸 لأجلك سيدتي</div>
+    <div class="store-name">🌸 ريـــفـــ<span dir="ltr">REVANA</span>ــــانـــــا</div>
     
     <div class="dropdown-menu" id="dropdownMenu">
         <a href="profile.html" class="dropdown-item" onclick="closeMenu()">👤 بياناتي</a>
@@ -913,7 +912,7 @@ function sendTelegramNotification(orderData) {
     if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) return;
 
     let itemsList = orderData.items.map(item => 
-        `▫️ ${item.name} ${item.size ? `(م:${item.size})` : ''} ${item.color ? `(ل:${item.color})` : ''} × ${item.qty}`
+        `▫️ ${item.name} ${item.size ? `(م:${item.size})` : ''} ${item.color ? `(ل:${item.color})` : ''} ${item.type ? `(ن:${item.type})` : ''} × ${item.qty}`
     ).join('%0A');
 
     // استخراج اسم المدينة
@@ -1275,7 +1274,7 @@ function getProductById(productId) {
     return null;
 }
 function getDefaultImage() {
-    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPjx0c3BhbiB4PSI1MCUiIHk9IjUwJSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+UtyDZhNmE2YQg2KfZhNiv2YrYqTwvdHNwYW4+PC90ZXh0Pjwvc3ZnPg==';
+    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPjx0c3BhbiB4PSI1MCUiIHk9IjUwJSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+UtyDZhNmE6YQg2KfZhNiv2YrYqTwvdHNwYW4+PC90ZXh0Pjwvc3ZnPg==';
 }
 </script>
 
