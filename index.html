@@ -29,6 +29,8 @@ body {
   max-width: 500px;
   padding: 20px;
   text-align: center;
+  /* الانتقال السلس لحركة الخروج */
+  transition: opacity 1s ease-in, transform 1s ease-in;
 }
 
 /* الدائرة والصورة الأولى (اللوجو) */
@@ -83,6 +85,7 @@ body {
   object-fit: cover; 
   position: relative;
   z-index: 1;
+  /* تعديل الحركة لتكون خفيفة وعمودية فقط */
   animation: floatSpin 4s ease-in-out infinite;
   filter: drop-shadow(0 0 20px rgba(255, 107, 157, 0.5));
 }
@@ -94,19 +97,10 @@ body {
     transform: scale(0) rotate(-360deg);
     filter: hue-rotate(0deg) blur(30px);
   }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.2) rotate(180deg);
-    filter: hue-rotate(180deg) blur(10px);
-  }
-  80% {
-    transform: scale(0.9) rotate(-20deg);
-    filter: hue-rotate(300deg) blur(5px);
-  }
   100% {
     opacity: 1;
     transform: scale(1) rotate(0deg);
-    filter: hue-rotate(360deg) blur(0px);
+    filter: blur(0px) hue-rotate(360deg);
   }
 }
 
@@ -118,19 +112,12 @@ body {
       0 0 100px #ff99cc,
       0 0 120px #ff66b2;
   }
-  33% {
-    filter: blur(20px) hue-rotate(120deg);
+  50% {
+    filter: blur(20px) hue-rotate(180deg);
     box-shadow: 
       0 0 80px #ff99cc,
       0 0 100px #ff66b2,
       0 0 120px #ff6b9d;
-  }
-  66% {
-    filter: blur(20px) hue-rotate(240deg);
-    box-shadow: 
-      0 0 80px #ff66b2,
-      0 0 100px #ff6b9d,
-      0 0 120px #ff99cc;
   }
 }
 
@@ -143,18 +130,13 @@ body {
   }
 }
 
+/* حركة طفو خفيفة وعمودية فقط */
 @keyframes floatSpin {
   0%, 100% {
-    transform: translateY(0px) rotate(0deg) scale(1);
-  }
-  25% {
-    transform: translateY(-15px) rotate(5deg) scale(1.05);
+    transform: translateY(0px) scale(1);
   }
   50% {
-    transform: translateY(0px) rotate(0deg) scale(1);
-  }
-  75% {
-    transform: translateY(10px) rotate(-5deg) scale(0.95);
+    transform: translateY(-8px) scale(1.03); /* رفع خفيف مع تكبير بسيط */
   }
 }
 
@@ -169,11 +151,11 @@ body {
 }
 
 .welcome-text h1 {
-  font-size: 26px; /* حجم الخط للنص الجديد */
-  color: #ff6b9d; /* لون النص الأساسي */
+  font-size: 26px;
+  color: #ff6b9d;
   text-shadow: 
     0 0 5px #ff99cc,
-    0 0 15px #ff66b2; /* توهج بسيط */
+    0 0 15px #ff66b2;
   padding: 10px;
   animation: textGlow 3s ease-in-out infinite 3s;
 }
@@ -185,58 +167,25 @@ body {
   left: -20px;
   right: -20px;
   bottom: -20px;
-  background: linear-gradient(45deg, transparent 30%, #ff6b9d, #ff99cc, #ff66b2, transparent 70%);
+  /* تم إزالة الحركة الأفقية القوية 'textShine' */
+  background: radial-gradient(circle, rgba(255, 107, 157, 0.3) 0%, transparent 70%);
   z-index: -1;
   filter: blur(25px);
   opacity: 0;
-  animation: textShine 4s ease-in-out infinite 3s;
+  animation: pulseGlow 2s ease-in-out infinite 3s; /* استخدام نفس حركة الوهج النابض */
 }
 
-.welcome-text::after {
-  content: '';
-  position: absolute;
-  top: -10px;
-  left: -10px;
-  right: -10px;
-  bottom: -10px;
-  background: radial-gradient(circle, rgba(255, 107, 157, 0.3) 0%, transparent 70%);
-  z-index: -1;
-  filter: blur(15px);
-  opacity: 0;
-  animation: pulseGlow 2s ease-in-out infinite 3s;
-}
-
-/* حركات الصورة الثانية (تم تطبيقها على النص الجديد) */
+/* حركات ظهور النص */
 @keyframes textMagic {
   0% {
     opacity: 0;
     transform: translateY(60px) scale(0.7) rotateX(90deg);
-    filter: blur(20px) hue-rotate(0deg);
-  }
-  20% {
-    opacity: 0.3;
-    transform: translateY(45px) scale(0.8) rotateX(60deg);
-    filter: blur(15px) hue-rotate(90deg);
-  }
-  40% {
-    opacity: 0.6;
-    transform: translateY(25px) scale(0.9) rotateX(30deg);
-    filter: blur(10px) hue-rotate(180deg);
-  }
-  60% {
-    opacity: 0.8;
-    transform: translateY(-8px) scale(1.1) rotateX(-15deg);
-    filter: blur(5px) hue-rotate(270deg);
-  }
-  80% {
-    opacity: 0.9;
-    transform: translateY(4px) scale(1.05) rotateX(8deg);
-    filter: blur(2px) hue-rotate(320deg);
+    filter: blur(20px);
   }
   100% {
     opacity: 1;
     transform: translateY(0) scale(1) rotateX(0deg);
-    filter: blur(0px) hue-rotate(360deg);
+    filter: blur(0px);
   }
 }
 
@@ -255,17 +204,6 @@ body {
   }
 }
 
-@keyframes textShine {
-  0%, 100% {
-    opacity: 0;
-    transform: translateX(-100px) skewX(-15deg);
-  }
-  50% {
-    opacity: 0.8;
-    transform: translateX(100px) skewX(-15deg);
-  }
-}
-
 @keyframes pulseGlow {
   0%, 100% {
     opacity: 0.3;
@@ -277,7 +215,24 @@ body {
   }
 }
 
-/* تأثيرات إضافية للخلفية */
+/* --- الحركة النهائية الجديدة (الخروج) --- */
+@keyframes fadeZoomOut {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8) translateY(-30px); /* يتلاشى ويصغر قليلاً ويرتفع */
+  }
+}
+
+/* الفئة التي تطبق حركة الخروج */
+.exit-animation {
+  animation: fadeZoomOut 1s ease-in forwards !important;
+}
+
+/* تأثيرات إضافية للخلفية والجسيمات (كما هي) */
 body::before {
   content: '';
   position: fixed;
@@ -305,7 +260,6 @@ body::before {
   }
 }
 
-/* جسيمات متحركة */
 .particles {
   position: fixed;
   top: 0;
@@ -410,11 +364,20 @@ function createParticles() {
   }
 }
 
+const container = document.querySelector('.container');
+
 // التوقيتات:
 // 1. ثانية 0: الصورة الأولى تطلع فوراً
 // 2. ثانية 2: النص الجديد يبدأ في الظهور  
-// 3. ثانية 6: يتحول لـ home.html (بعد 4 ثواني من ظهور النص)
+// 3. ثانية 5 (5000ms): تبدأ حركة الخروج (fadeZoomOut)
+// 4. ثانية 6 (6000ms): يتحول لـ home.html
 
+// 1. تشغيل حركة الخروج الموحدة بعد 5 ثواني
+setTimeout(() => {
+  container.classList.add('exit-animation');
+}, 5000); 
+
+// 2. التحويل إلى الصفحة الرئيسية بعد 6 ثواني
 setTimeout(() => {
   window.location.href = 'https://foryoumyland-dot.github.io/my-store-app/home.html';
 }, 6000);
