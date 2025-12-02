@@ -6,6 +6,8 @@
     <base href="/my-store-app/">
     <title>بياناتي</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- استخدام خط خاص بالبنات (مثلاً خط يوحي بالجمالية) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet"> 
     <style>
         * { 
             margin: 0; 
@@ -16,7 +18,7 @@
         body, html { 
             width: 100%; 
             height: 100%; 
-            font-family: Tahoma, Arial, sans-serif; 
+            font-family: 'Cairo', Tahoma, Arial, sans-serif; /* تم تحديث الخط */
             background: linear-gradient(135deg, #ffe8f0 0%, #fff5f7 100%); 
             overflow-x: hidden; 
             padding-bottom: 80px; 
@@ -196,6 +198,15 @@
             outline: none;
         }
 
+        /* ملاحظة رقم الهاتف */
+        .phone-note {
+            color: #ff69b4; /* لون الملاحظة الجديدة */
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: block;
+            font-weight: 500;
+        }
+
         /* حاوية البحث */
         .search-container {
             position: relative;
@@ -211,7 +222,6 @@
             background: #fff9fb;
             transition: all 0.3s ease;
             direction: rtl;
-            /* إضافة خاصية للانتقال التلقائي للون */
             transition: color 0.3s ease;
         }
 
@@ -282,7 +292,7 @@
             font-style: italic;
         }
 
-        /* ألوان المدن حسب المناطق */
+        /* ألوان المدن */
         .south-tripoli { color: #8B0000; } 
         .south-east { color: #90EE90; } 
         .east-region { color: #006400; } 
@@ -332,6 +342,68 @@
         .save-btn:active {
             transform: translateY(-1px);
         }
+
+        /* ===== قسم الملاحظة الهامة الجديدة ===== */
+        .important-notes {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fff0f6; /* خلفية وردية فاتحة جداً */
+            border-radius: 20px;
+            border: 2px dashed #ff99cc; /* حدود متقطعة وردية */
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.1);
+        }
+
+        .notes-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #d63384; /* لون النص الأساسي */
+            text-align: center;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .notes-title::after {
+            content: '💖';
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        .notes-title::before {
+            content: '⭐️';
+            margin-left: 10px;
+            font-size: 1.2em;
+        }
+
+        .notes-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: right;
+            line-height: 1.8;
+        }
+
+        .notes-list li {
+            position: relative;
+            padding-right: 30px;
+            margin-bottom: 10px;
+            color: #4a4a4a; /* لون نص الملاحظة */
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .notes-list li:before {
+            content: '✨'; /* أيقونة جذابة (نجمة أو قلب) */
+            position: absolute;
+            right: 0;
+            color: #ff69b4;
+            font-size: 1rem;
+        }
+        
+        .notes-highlight {
+            color: #ff1493; /* تمييز الأجزاء المهمة بلون قوي */
+            font-weight: bold;
+        }
+
 
         /* ===== التنبيه ===== */
         .alert-custom {
@@ -465,8 +537,9 @@
                        pattern="[0-9]{10}"
                        oninput="validatePhone(this)"
                        required>
-                <small style="color: #666; font-size: 0.8rem; margin-top: 5px; display: block;">
-                    📱 يجب أن يكون الرقم 10 أرقام فقط
+                <!-- التعديل الأول: ملاحظة رقم الهاتف الجديدة -->
+                <small class="phone-note">
+                    📱 يجب أن يبدأ رقم الهاتف بـ <span class="notes-highlight">09</span>
                 </small>
             </div>
             
@@ -486,6 +559,28 @@
             
             <button type="submit" class="save-btn">💾 حفظ البيانات</button>
         </form>
+
+        <!-- التعديل الثاني: قسم الملاحظات الهامة -->
+        <div class="important-notes">
+            <h2 class="notes-title">ملاحظات هامة للطلبات</h2>
+            <ul class="notes-list">
+                <li>
+                    يجب كتابة البيانات بشكل <span class="notes-highlight">صحيح ودقيق</span> لأنه سيتم التواصل معكم بناءاً على هذه البيانات.
+                </li>
+                <li>
+                    سيكون الطلب بداخل أكياس <span class="notes-highlight">مغلقة</span> ولا يسمح بإرجاع الطلب بعد فتحه.
+                </li>
+                <li>
+                    التوصيل في المناطق <span class="notes-highlight">الغربية</span> يستغرق من (1 إلى 2 يوم) كحد أقصى ويمكن أن يكون بنفس الوقت و ذلك حسب مندوبين التوصيل.
+                    أما المناطق <span class="notes-highlight">الشرقية والجنوبية</span> يستغرق التوصيل من (4 إلى 5 أيام) كحد أقصى و ذلك حسب المسافة.
+                </li>
+                <li>
+                    في حالة تم تأكيد الطلب و تحتاجين لحذفه، يجب عليكِ التواصل معنا عبر <span class="notes-highlight">(الواتساب)</span> الموجود بالصفحة الرئيسية مع رسالة مكتوب فيها: 
+                    <br>
+                    1. رقم الهاتف. 2. الاسم بالكامل. 3. المدينة. مع كتابة نص <span class="notes-highlight">"أريد حذف الطلب"</span>.
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
 
@@ -526,7 +621,7 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// تحقق من رقم الهاتف
+// تحقق من رقم الهاتف (للتأكد من أنه 10 أرقام فقط)
 function validatePhone(input) {
     input.value = input.value.replace(/[^0-9]/g, '');
     if (input.value.length > 10) {
@@ -642,7 +737,7 @@ function updateCitySearchColor(colorClass) {
     
     // إضافة فئة اللون الجديدة إن وجدت
     if (colorClass) {
-        // تحويل اسم الفئة (مثلاً south-tripoli) إلى كود اللون المناسب في الـ CSS
+        // تحويل اسم الفئة إلى كود اللون المناسب
         const cityData = cities.find(city => city.colorClass === colorClass);
         if (cityData) {
             citySearch.classList.add(`city-color-${cityData.colorCode}`);
@@ -663,8 +758,6 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// **تم تعديل هذا الجزء:** لم يعد هناك حاجة لمنع فتح القائمة إذا كان حقل البحث للقراءة فقط، لأنه لم يعد للقراءة فقط.
-// عند النقر يتم عرض القائمة
 citySearch.addEventListener('click', function() {
     filterCities();
     citiesList.classList.add('show');
@@ -673,13 +766,11 @@ citySearch.addEventListener('click', function() {
 
 // البحث في المدن أثناء الكتابة
 citySearch.addEventListener('input', function() {
-    // 💡 السماح بالكتابة للبحث
     filterCities();
 });
 
 // تصفية المدن بناءً على البحث
 function filterCities() {
-    // نستخدم القيمة المدخلة في حقل البحث للتصفية
     const searchTerm = citySearch.value.toLowerCase();
     
     const filteredCities = cities.filter(city => 
@@ -743,26 +834,31 @@ window.addEventListener('load', function() {
         
         document.getElementById('userAddress').value = savedData.address || '';
     }
-    // **تم حذف السمة readonly من هنا في JavaScript أيضاً، إن وجدت سابقاً.**
-    // citySearch.readOnly = true; // تم إلغاء هذه السمة
 });
 
 
-// 💡 دالة حفظ البيانات المعدلة
+// دالة حفظ البيانات
 document.getElementById('profileForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
     const selectedCityName = document.getElementById('citySearch').value;
+    const userPhone = document.getElementById('userPhone').value;
     
     // البحث عن تفاصيل المدينة (الاسم والسعر) من مصفوفة 'cities'
     const cityData = cities.find(city => city.name === selectedCityName);
     
     // التحقق من صحة البيانات
-    if (document.getElementById('userPhone').value.length !== 10) {
+    if (userPhone.length !== 10) {
         showAlert('⚠️ رقم الهاتف يجب أن يكون 10 أرقام');
         return;
     }
     
+    // التحقق من أن رقم الهاتف يبدأ بـ 09
+    if (!userPhone.startsWith('09')) {
+        showAlert('⚠️ يجب أن يبدأ رقم الهاتف بـ 09');
+        return;
+    }
+
     if (!cityData) {
         // التحقق من أن المدينة التي تم كتابتها موجودة في القائمة
         showAlert('⚠️ يرجى اختيار المدينة من القائمة المقترحة');
@@ -774,7 +870,7 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
 
     const userData = {
         name: document.getElementById('userName').value,
-        phone: document.getElementById('userPhone').value,
+        phone: userPhone,
         cityData: userDataCityValue, // حفظ بيانات المدينة والسعر
         address: document.getElementById('userAddress').value,
         savedAt: new Date().toISOString()
@@ -801,3 +897,4 @@ function showAlert(message) {
 </script>
 </body>
 </html>
+
