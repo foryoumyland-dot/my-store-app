@@ -260,8 +260,6 @@ body {
     box-shadow: 0 8px 25px rgba(255, 105, 180, 0.2);
 }
 
-.option-select:disabled,
-.form-select.out-of-stock-option,
 .product-card.out-of-stock {
     opacity: 0.4; 
     cursor: not-allowed;
@@ -299,6 +297,64 @@ body {
     color: #666;
     margin-bottom: 10px;
 }
+
+/* 🆕 تصميم خيارات المنتج كأزرار (Chips) */
+.chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.option-label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #d63384;
+    min-width: 40px; /* لضمان محاذاة جيدة */
+}
+
+.option-radio {
+    display: none; /* إخفاء مدخل الراديو الأصلي */
+}
+
+.option-chip {
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 2px solid #ffb6c1;
+    color: #d63384;
+    background-color: #fff5f7;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+/* حالة الاختيار (محدد) */
+.option-radio:checked + .option-chip {
+    background-color: #ff69b4;
+    color: white;
+    border-color: #ff1493;
+    box-shadow: 0 2px 5px rgba(255, 105, 180, 0.4);
+    transform: scale(1.05);
+}
+
+/* حالة التعطيل */
+.chip-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f7f7f7 !important;
+    color: #aaa !important;
+    border-color: #eee !important;
+    text-decoration: line-through;
+}
+
+.chip-disabled:hover {
+    transform: none !important;
+}
+/* نهاية تصميم الخيارات */
+
 
 /* ✅ قلب المفضلة */
 .heart-btn {
@@ -456,6 +512,15 @@ body {
         height: 160px;
     }
     
+    .chip-group {
+        gap: 6px; /* تقليل الفجوة في الشاشات الصغيرة */
+    }
+
+    .option-chip {
+        padding: 3px 8px;
+        font-size: 11px;
+    }
+    
     #categoriesBar .btn {
         font-size: 12px;
         padding: 6px 12px;
@@ -601,6 +666,7 @@ body {
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
+// تحديد متغيرات Firebase
 const firebaseConfig = { 
     apiKey: "AIzaSyA-LdNQbQneJyxJQ8iMUUd5gsJypTFi6sg",
     authDomain: "mystore-orders-a74f8.firebaseapp.com",
@@ -613,11 +679,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// 🔔 إعدادات تيليجرام (تمت الإضافة)
+// 🔔 إعدادات تيليجرام
 const TELEGRAM_TOKEN = "8493711191:AAFeTCns1pWV9whkdFaYpaw2r4voO2Zpd48";
 const TELEGRAM_CHAT_ID = "8386976225";
 
-// 🔥 لتخزين المنتجات التي تم تحميلها مسبقاً/مؤخراً
+// 🔥 لتخزين المنتجات التي تم تحميلها
 let products = {}; 
 let currentCategory = "";
 let categoriesMap = {};
@@ -625,7 +691,7 @@ let favorites = JSON.parse(localStorage.getItem("favorites")) || {};
 let currentGalleryImages = [];
 let currentGalleryIndex = 0;
 
-// 🆕 لإدارة مستمع Firebase النشط (لحل مشكلة التحديث الفوري)
+// 🆕 لإدارة مستمع Firebase النشط
 let currentProductListener = null;
 
 function getShippingCost() {
@@ -637,10 +703,6 @@ function getShippingCost() {
     }
     return shippingCost;
 }
-
-// 🆕 تم حذف دالة preloadCategoryProducts والاكتفاء بتحميلها عند الحاجة.
-// 🆕 وإذا كنت ترغب بالتحميل المسبق، يجب عليك إعادة إضافتها مع الانتباه لعدم تكرار المستمعين.
-
 
 function loadCategories() {
   db.ref("categories").once("value").then(snap => { 
@@ -673,6 +735,11 @@ function loadCategories() {
   }).catch(error => {
       console.error("Error loading categories:", error);
   });
+}
+
+// 🆕 دالة مساعدة لقراءة قيمة الخيار المختار
+function getSelectedOptionValue(productId, type) {
+    return document.querySelector(`input[name="${type}-${productId}"]:checked`)?.value || "";
 }
 
 // 🆕 دالة عرض المنتجات مع الاستماع للتحديثات الفورية (.on)
@@ -741,19 +808,40 @@ async function showCategory(cat){
           const currentTotalStock = p.totalStock || 0;
           const isOutOfStock = currentTotalStock === 0;
 
-          // تجهيز خيارات الألوان
+          // 🆕 تجهيز خيارات الألوان كـ Chips
           let colorsHTML = p.colors && p.colors.length ? 
-              `<select id="color-${p.id}" class="form-select mb-2 color-select option-select" style="font-size: 12px;" onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'color')"><option value="">اللون</option>${p.colors.map(c=>`<option value="${c}">${c}</option>`).join("")}</select>` 
+              `<div class="chip-group" id="colors-group-${p.id}">
+                  <label class="option-label">اللون:</label>
+                  ${p.colors.map(c => `
+                      <input type="radio" name="color-${p.id}" id="color-${p.id}-${c.replace(/\s/g, '-')}" value="${c}" class="option-radio" data-option-type="color"
+                            onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'color')">
+                      <label for="color-${p.id}-${c.replace(/\s/g, '-')}" class="option-chip" data-value="${c}">${c}</label>
+                  `).join("")}
+              </div>` 
               : "";
 
-          // تجهيز خيارات المقاسات
+          // 🆕 تجهيز خيارات المقاسات كـ Chips
           let sizesHTML = p.sizes && p.sizes.length ? 
-              `<select id="size-${p.id}" class="form-select mb-2 size-select option-select" style="font-size: 12px;" onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'size')"><option value="">المقاس</option>${p.sizes.map(s=>`<option value="${s}">${s}</option>`).join("")}</select>` 
+              `<div class="chip-group" id="sizes-group-${p.id}">
+                  <label class="option-label">المقاس:</label>
+                  ${p.sizes.map(s => `
+                      <input type="radio" name="size-${p.id}" id="size-${p.id}-${s.replace(/\s/g, '-')}" value="${s}" class="option-radio" data-option-type="size"
+                            onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'size')">
+                      <label for="size-${p.id}-${s.replace(/\s/g, '-')}" class="option-chip" data-value="${s}">${s}</label>
+                  `).join("")}
+              </div>` 
               : "";
           
-          // تجهيز خيارات الأنواع
+          // 🆕 تجهيز خيارات الأنواع كـ Chips
           let typesHTML = p.types && p.types.length ? 
-              `<select id="type-${p.id}" class="form-select mb-2 type-select option-select" style="font-size: 12px;" onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'type')"><option value="">موديل الهاتف</option>${p.types.map(t=>`<option value="${t}">${t}</option>`).join("")}</select>` 
+              `<div class="chip-group" id="types-group-${p.id}">
+                  <label class="option-label">موديل:</label>
+                  ${p.types.map(t => `
+                      <input type="radio" name="type-${p.id}" id="type-${p.id}-${t.replace(/\s/g, '-')}" value="${t}" class="option-radio" data-option-type="type"
+                            onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'type')">
+                      <label for="type-${p.id}-${t.replace(/\s/g, '-')}" class="option-chip" data-value="${t}">${t}</label>
+                  `).join("")}
+              </div>` 
               : "";
           
           // تجهيز الصور المصغرة
@@ -834,103 +922,137 @@ function updateDependentOptions(productId, changedOptionType) {
     const product = getProductById(productId);
     if (!product || !product.stockDetails || product.stockDetails.length === 0) return;
 
-    const sizeSelect = document.getElementById(`size-${productId}`);
-    const colorSelect = document.getElementById(`color-${productId}`);
-    const typeSelect = document.getElementById(`type-${productId}`);
+    // 🆕 الحصول على القيم المختارة
+    const selectedColor = getSelectedOptionValue(productId, 'color');
+    const selectedSize = getSelectedOptionValue(productId, 'size');
+    const selectedType = getSelectedOptionValue(productId, 'type');
 
-    const selectedColor = colorSelect ? colorSelect.value : "";
-    const selectedSize = sizeSelect ? sizeSelect.value : "";
-    const selectedType = typeSelect ? typeSelect.value : "";
+    // 🆕 قائمة بأنواع الخيارات الموجودة
+    const optionTypes = [];
+    if (product.colors && product.colors.length) optionTypes.push('color');
+    if (product.sizes && product.sizes.length) optionTypes.push('size');
+    if (product.types && product.types.length) optionTypes.push('type');
     
-    if (sizeSelect) {
-        Array.from(sizeSelect.options).slice(1).forEach(option => {
-            const currentSize = option.value;
-            let stock = 0;
-            product.stockDetails.forEach(item => {
-                const itemColorMatch = !selectedColor || item.color === selectedColor;
-                const itemTypeMatch = !selectedType || item.type === selectedType;
-                const itemSizeMatch = item.size === currentSize;
-                if (itemColorMatch && itemTypeMatch && itemSizeMatch) {
-                    stock += item.quantity;
-                }
-            });
-            if (stock === 0) { option.classList.add('out-of-stock-option'); option.disabled = true; } 
-            else { option.classList.remove('out-of-stock-option'); option.disabled = false; }
-        });
-    }
+    // القيم المختارة في كائن لسهولة الوصول
+    const selections = {
+        color: selectedColor,
+        size: selectedSize,
+        type: selectedType
+    };
 
-    if (colorSelect) {
-        Array.from(colorSelect.options).slice(1).forEach(option => {
-            const currentColor = option.value;
-            let stock = 0;
-            product.stockDetails.forEach(item => {
-                const itemSizeMatch = !selectedSize || item.size === selectedSize;
-                const itemTypeMatch = !selectedType || item.type === selectedType;
-                const itemColorMatch = item.color === currentColor;
-                if (itemSizeMatch && itemTypeMatch && itemColorMatch) {
-                    stock += item.quantity;
-                }
-            });
-            if (stock === 0) { option.classList.add('out-of-stock-option'); option.disabled = true; } 
-            else { option.classList.remove('out-of-stock-option'); option.disabled = false; }
-        });
-    }
+    const updateOptionGroup = (optionType, optionsList, currentSelection) => {
+        const group = document.getElementById(`${optionType}s-group-${productId}`);
+        if (!group) return;
 
-    if (typeSelect) {
-        Array.from(typeSelect.options).slice(1).forEach(option => {
-            const currentType = option.value;
+        // نختار جميع أزرار الـ Chips (الليبل) في هذه المجموعة
+        const optionChips = group.querySelectorAll('.option-chip');
+        
+        optionChips.forEach(chipLabel => {
+            const currentOptionValue = chipLabel.dataset.value;
+            const relatedRadio = document.getElementById(`${optionType}-${productId}-${currentOptionValue.replace(/\s/g, '-')}`);
+
             let stock = 0;
+            const isSizeOption = optionType === 'size'; // المقاس هو الخيار الأكثر اعتماداً
+
+            // ⛔ هذا هو الجزء الذي تم تعديله ليسمح بتغيير اللون بحرية وتحديث المقاسات بناءً عليه ⛔
             product.stockDetails.forEach(item => {
-                const itemSizeMatch = !selectedSize || item.size === selectedSize;
-                const itemColorMatch = !selectedColor || item.color === selectedColor;
-                const itemTypeMatch = item.type === currentType;
-                if (itemSizeMatch && itemColorMatch && itemTypeMatch) {
+                // 1. تحقق مما إذا كان عنصر المخزون يطابق قيمة الشريحة الحالية
+                const matchesCurrentChip = (
+                    (optionType === 'color' && item.color === currentOptionValue) ||
+                    (optionType === 'size' && item.size === currentOptionValue) ||
+                    (optionType === 'type' && item.type === currentOptionValue)
+                );
+
+                // 2. تحقق مما إذا كان عنصر المخزون يطابق الخيارات الأخرى المختارة
+                let matchesOtherSelections = true;
+                
+                // إذا كنا نتحقق من المقاسات (الخيار التابع): يجب أن نفلتر بناءً على اللون والنوع المختارين
+                if (isSizeOption) {
+                    // يجب أن يتطابق عنصر المخزون مع اللون المختار (إذا كان هناك لون مختار)
+                    if (selectedColor && item.color !== selectedColor) matchesOtherSelections = false;
+                    // يجب أن يتطابق عنصر المخزون مع النوع المختار (إذا كان هناك نوع مختار)
+                    if (selectedType && item.type !== selectedType) matchesOtherSelections = false;
+                } 
+                // إذا كنا نتحقق من الألوان أو الأنواع (الخيارات الأساسية):
+                // لا نفلتر بواسطة المقاس المختار، بل نفلتر فقط بناءً على الخيار الأساسي الآخر.
+                // هذا هو المفتاح: يسمح هذا للمستخدم بتغيير اللون حتى لو كان المقاس المختار سابقاً غير متوفر بهذا اللون.
+                else { 
+                    if (optionType === 'color' && selectedType && item.type !== selectedType) matchesOtherSelections = false;
+                    if (optionType === 'type' && selectedColor && item.color !== selectedColor) matchesOtherSelections = false;
+                }
+
+                
+                if (matchesCurrentChip && matchesOtherSelections && item.quantity > 0) {
                     stock += item.quantity;
                 }
             });
-            if (stock === 0) { option.classList.add('out-of-stock-option'); option.disabled = true; } 
-            else { option.classList.remove('out-of-stock-option'); option.disabled = false; }
+
+            if (stock === 0) { 
+                chipLabel.classList.add('chip-disabled'); 
+                if (relatedRadio) relatedRadio.disabled = true; 
+                // إلغاء تحديد الخيار إذا أصبح غير متوفر
+                if (currentOptionValue === currentSelection && relatedRadio) relatedRadio.checked = false;
+            } else { 
+                chipLabel.classList.remove('chip-disabled'); 
+                if (relatedRadio) relatedRadio.disabled = false; 
+            }
         });
-    }
+    };
+    
+    // **القاعدة الجديدة:** نطبق التحديث على جميع مجموعات الخيارات
+    
+    // 1. تحديث المقاسات (تعتمد على اللون والنوع المختارين)
+    if (product.sizes && product.sizes.length) updateOptionGroup('size', product.sizes, selectedSize);
+
+    // 2. تحديث الألوان (تعتمد على المقاس والنوع المختارين) - *تم الآن تجاهل المقاس المختار*
+    if (product.colors && product.colors.length) updateOptionGroup('color', product.colors, selectedColor);
+
+    // 3. تحديث الأنواع (تعتمد على اللون والمقاس المختارين) - *تم الآن تجاهل المقاس المختار*
+    if (product.types && product.types.length) updateOptionGroup('type', product.types, selectedType);
 }
 
 function getAvailableStock(productId, color, size, type) { 
     const product = getProductById(productId);
     if (!product || !product.stockDetails || product.stockDetails.length === 0) return product?.totalStock || 0;
     
+    // تحديد القيم النهائية للبحث في StockDetails
     const finalColor = (product.colors && product.colors.length > 0) ? color : "";
     const finalSize = (product.sizes && product.sizes.length > 0) ? size : "";
     const finalType = (product.types && product.types.length > 0) ? type : ""; 
 
-    // 🆕 التحقق من وجود Stock Detail يطابق التركيبة المختارة
-    const stockItem = product.stockDetails.find(item => 
-        (item.color === finalColor) && 
-        (item.size === finalSize) &&
-        (item.type === finalType) 
-    );
-    
-    // 🆕 إذا لم يكن المنتج يستخدم خيارات، أو تم العثور على التفاصيل
+    let stock = 0;
+
+    // 🆕 تجميع المخزون للتركيبة المختارة
+    product.stockDetails.forEach(item => {
+        const itemColor = (product.colors && product.colors.length > 0) ? (item.color || "") : "";
+        const itemSize = (product.sizes && product.sizes.length > 0) ? (item.size || "") : "";
+        const itemType = (product.types && product.types.length > 0) ? (item.type || "") : "";
+        
+        if ((itemColor === finalColor) && (itemSize === finalSize) && (itemType === finalType)) {
+            stock += item.quantity;
+        }
+    });
+
+    // إذا لم يكن المنتج يستخدم خيارات، أو تم العثور على التفاصيل
     if (!product.colors.length && !product.sizes.length && !product.types.length) {
         return product.totalStock || 0;
     }
     
-    return stockItem ? stockItem.quantity : 0;
+    return stock;
 }
 
 function updateStockStatus(productId) {
     const product = getProductById(productId);
     if (!product) return;
 
-    const sizeSelect = document.getElementById(`size-${productId}`);
-    const colorSelect = document.getElementById(`color-${productId}`);
-    const typeSelect = document.getElementById(`type-${productId}`);
     const addBtn = document.getElementById(`add-btn-${productId}`);
     const stockAlert = document.getElementById(`stock-alert-${productId}`);
     const qtyInput = document.getElementById(`qty-${productId}`);
 
-    const selectedSize = sizeSelect ? sizeSelect.value : "";
-    const selectedColor = colorSelect ? colorSelect.value : "";
-    const selectedType = typeSelect ? typeSelect.value : "";
+    // 🆕 قراءة القيم المختارة من الـ Chips
+    const selectedSize = getSelectedOptionValue(productId, 'size');
+    const selectedColor = getSelectedOptionValue(productId, 'color');
+    const selectedType = getSelectedOptionValue(productId, 'type');
     
     let availableStock = product.totalStock || 0; 
     const requiresColor = product.colors && product.colors.length > 0;
@@ -979,7 +1101,7 @@ function toggleFavorite(productId) {
     showAlert(favorites[productId] ? "❤️ تم الإضافة إلى المفضلة" : "🤍 تم الإزالة من المفضلة");
 }
 
-// 🔥 دالة إرسال إشعار تيليجرام (جديد) 🔥
+// 🔥 دالة إرسال إشعار تيليجرام
 function sendTelegramNotification(orderData) {
     if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) return;
 
@@ -1038,7 +1160,7 @@ async function sendOrder() {
 
     for (const item of cart) {
         const productRef = db.ref(`products/${item.id}`);
-        // 🆕 يتم جلب أحدث البيانات هنا تلقائياً قبل بدء المعاملة
+        // يتم جلب أحدث البيانات هنا تلقائياً قبل بدء المعاملة
         const result = await productRef.transaction(currentProduct => {
             if (!currentProduct) { 
                 failedItemName = item.name + " (غير موجود)"; 
@@ -1092,7 +1214,7 @@ async function sendOrder() {
             }
         });
         
-        // 🆕 التحقق من نتيجة المعاملة
+        // التحقق من نتيجة المعاملة
         if (!result.committed) { 
             allTransactionsSuccessful = false; 
             // failedItemName يتم تحديثه داخل الـ transaction
@@ -1128,7 +1250,7 @@ async function sendOrder() {
             }
         });
     } else {
-        // 🆕 رسالة خطأ أكثر وضوحاً
+        // رسالة خطأ أكثر وضوحاً
         showAlert(`❌ فشل إرسال الطلب. الكمية المطلوبة لـ ${failedItemName} غير متوفرة أو التركيبة غير صحيحة.`, 5000);
         showCategory(currentCategory); // إعادة تحميل القسم لتحديث المخزون
     }
@@ -1153,9 +1275,10 @@ function addToCart(productId){
   if (!product) { showAlert("❌ المنتج غير موجود"); return; }
   
   let qty = parseInt(document.getElementById(`qty-${productId}`).value) || 1;
-  let size = document.getElementById(`size-${productId}`)?.value || "";
-  let color = document.getElementById(`color-${productId}`)?.value || "";
-  let type = document.getElementById(`type-${productId}`)?.value || "";
+  // 🆕 قراءة القيم المختارة من الـ Chips
+  let size = getSelectedOptionValue(productId, 'size');
+  let color = getSelectedOptionValue(productId, 'color');
+  let type = getSelectedOptionValue(productId, 'type');
 
   const requiresColor = product.colors && product.colors.length > 0;
   const requiresSize = product.sizes && product.sizes.length > 0;
@@ -1385,7 +1508,7 @@ function getProductById(productId) {
 }
 
 function getDefaultImage() {
-    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMuMjMyMi9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNmOGY5ZmEiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+PHRzcGFuIHg9IjUwJSIgeT0iNTAlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn5S3INmE2YTZhCDYp9mE2K/ZitlKPC90ZXh0Pjwvc3ZnPg==';
+    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMuMjMyMi9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNmOGY5ZmEiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+PGRlZnM+PHN0eWxlPi5hYyB7b3BhY2l0eToxO30uYmQgeyBmaWxsOiMzN2EzZDk7fSA8L3N0eWxlPjwvZGVmcz48dGV4dCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMDAuMDAwMDA5IDY4LjYwMDAwMSkiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM2NjYiIGZvbnQtZmFtaWx5PSJUYWlkaW5nIE1hdHRlIFRleHQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPjx0c3BhbiB4PSIwIiB5PSIwIj7wn5S3INmE2YTZhCDYp9mE2K/ZitlKPC90c3Bhbj48L3RleHQ+PC9zdmc+';
 }
 </script>
 
