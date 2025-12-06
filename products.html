@@ -447,10 +447,10 @@ body {
 /* ✅ السلة */
 #cartPanel { 
     position: fixed; 
-    top: 0; 
+    top: 60px; /* تم تعديل: لتبدأ بعد شريط التنقل العلوي (60 بكسل) */
     right: -400px; 
     width: 360px; 
-    height: 100%; 
+    height: calc(100vh - 60px - 80px); /* تم تعديل: لتتوقف قبل الشريط السفلي (80 بكسل) */
     background: #fff; 
     box-shadow: -2px 0 10px rgba(0,0,0,0.3); 
     transition: right 0.4s ease; 
@@ -684,15 +684,241 @@ const TELEGRAM_TOKEN = "8493711191:AAFeTCns1pWV9whkdFaYpaw2r4voO2Zpd48";
 const TELEGRAM_CHAT_ID = "8386976225";
 
 // 🔥 لتخزين المنتجات التي تم تحميلها
-let products = {}; 
+let allProductsData = {}; // 🆕 تخزين جميع المنتجات هنا
+let productsCache = {}; // 🆕 سيحتوي على المنتجات المفهرسة جاهزة للاستخدام
 let currentCategory = "";
 let categoriesMap = {};
 let favorites = JSON.parse(localStorage.getItem("favorites")) || {};
 let currentGalleryImages = [];
 let currentGalleryIndex = 0;
 
-// 🆕 لإدارة مستمع Firebase النشط
-let currentProductListener = null;
+// 🆕 دالة لمعالجة جميع المنتجات وتحديث الكاش
+function handleAllProducts(snap) {
+    const data = snap.val() || {};
+    allProductsData = data;
+    productsCache = {}; // إعادة تعيين الكاش
+
+    Object.keys(data).forEach(id => {
+        let p = data[id];
+        if (p.status === "معروض") {
+            const categoryName = Object.keys(categoriesMap).find(key => categoriesMap[key] === p.category);
+            
+            // 🔥 نستخدم اسم القسم بدلاً من الـ ID لتخزينها في الكاش لسهولة الاستخدام
+            if (categoryName) {
+                if (!productsCache[categoryName]) {
+                    productsCache[categoryName] = [];
+                }
+                productsCache[categoryName].push({
+                    id: id,
+                    name: p.name,
+                    price: p.price,
+                    category: categoryName, // استخدام الاسم
+                    status: p.status,
+                    stockDetails: p.stockDetails || [],
+                    totalStock: p.totalStock !== undefined ? p.totalStock : 0,
+                    images: p.images || [],
+                    sizes: p.sizes || [],
+                    colors: p.colors || [],
+                    types: p.types || []
+                });
+            }
+        }
+    });
+
+    // 🆕 بعد تحديث الكاش، نعيد تصيير القسم الحالي لضمان تحديث المخزون
+    if (currentCategory) {
+        renderProducts(currentCategory);
+    }
+}
+
+// 🆕 دالة تحميل الأقسام وبدء الاستماع لجميع المنتجات
+function loadCategories() {
+  db.ref("categories").once("value").then(snap => { 
+    let cats = snap.val() || {};
+    let bar = document.getElementById("categoriesBar");
+    bar.innerHTML = "";
+    categoriesMap = {};
+    let firstCategoryName = null;
+
+    Object.keys(cats).forEach((id, index)=>{
+      // 🔥 تغيير: تخزين اسم القسم باستخدام الـ ID كـ Value للبحث السريع لاحقاً
+      categoriesMap[cats[id].name] = id; 
+      
+      if (index === 0) {
+          firstCategoryName = cats[id].name; 
+      } 
+      
+      let btn = document.createElement("button");
+      btn.className = "btn btn-outline-primary";
+      btn.innerText = cats[id].name;
+      // 🔥 تغيير: استدعاء دالة العرض الرئيسية
+      btn.onclick = ()=> showCategory(cats[id].name); 
+      bar.appendChild(btn);
+    });
+    
+    // 🆕 بدء مستمع واحد لجميع المنتجات على مستوى التطبيق
+    db.ref("products").on("value", handleAllProducts, (error) => {
+        console.error("Firebase Listener Error:", error);
+        document.getElementById("productsContainer").innerHTML = `<div class="col-12 text-center" style="grid-column: 1 / -1; padding: 40px;"><p style="color: red; font-size: 18px;">حدث خطأ أثناء تحميل المنتجات: ${error.message}</p></div>`;
+    });
+
+    // 🔥 البدء بعرض أول قسم فورا
+    if(firstCategoryName) {
+        // نستخدم renderProducts هنا، لأن البيانات لم تكن قد حملت بعد
+        // و handleAllProducts سيقوم باستدعاء renderProducts بمجرد اكتمال التحميل الأول
+        showCategory(firstCategoryName);
+    } else {
+        document.getElementById("productsContainer").innerHTML = `<div class="col-12 text-center" style="grid-column: 1 / -1; padding: 40px;"><p style="color: #666; font-size: 18px;">لا توجد أقسام متاحة</p></div>`;
+    }
+  }).catch(error => {
+      console.error("Error loading categories:", error);
+  });
+}
+
+// 🆕 دالة العرض الرئيسية (تستخدم الكاش)
+function renderProducts(cat) {
+    let container = document.getElementById("productsContainer");
+    
+    // 1. جلب المنتجات من الكاش
+    const categoryProducts = productsCache[cat] || []; 
+
+    // 2. بناء وتصيير HTML
+    if(categoryProducts.length === 0) {
+        container.innerHTML = `<div class="col-12 text-center" style="grid-column: 1 / -1; padding: 40px;"><p style="color: #666; font-size: 18px;">لا توجد منتجات معروضة في هذا القسم</p></div>`;
+        return;
+    }
+    
+    let allProductsHTML = "";
+    categoryProducts.forEach((p,i)=>{
+        const isFavorite = favorites[p.id];
+        const hasMultipleImages = p.images && p.images.length > 1;
+        const currentTotalStock = p.totalStock || 0;
+        const isOutOfStock = currentTotalStock === 0;
+
+        // 🆕 تجهيز خيارات الألوان كـ Chips
+        let colorsHTML = p.colors && p.colors.length ? 
+            `<div class="chip-group" id="colors-group-${p.id}">
+                <label class="option-label">اللون:</label>
+                ${p.colors.map(c => `
+                    <input type="radio" name="color-${p.id}" id="color-${p.id}-${c.replace(/\s/g, '-')}" value="${c}" class="option-radio" data-option-type="color"
+                          onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'color')">
+                    <label for="color-${p.id}-${c.replace(/\s/g, '-')}" class="option-chip" data-value="${c}">${c}</label>
+                `).join("")}
+            </div>` 
+            : "";
+
+        // 🆕 تجهيز خيارات المقاسات كـ Chips
+        let sizesHTML = p.sizes && p.sizes.length ? 
+            `<div class="chip-group" id="sizes-group-${p.id}">
+                <label class="option-label">المقاس:</label>
+                ${p.sizes.map(s => `
+                    <input type="radio" name="size-${p.id}" id="size-${p.id}-${s.replace(/\s/g, '-')}" value="${s}" class="option-radio" data-option-type="size"
+                          onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'size')">
+                    <label for="size-${p.id}-${s.replace(/\s/g, '-')}" class="option-chip" data-value="${s}">${s}</label>
+                `).join("")}
+            </div>` 
+            : "";
+        
+        // 🆕 تجهيز خيارات الأنواع كـ Chips
+        let typesHTML = p.types && p.types.length ? 
+            `<div class="chip-group" id="types-group-${p.id}">
+                <label class="option-label">موديل:</label>
+                ${p.types.map(t => `
+                    <input type="radio" name="type-${p.id}" id="type-${p.id}-${t.replace(/\s/g, '-')}" value="${t}" class="option-radio" data-option-type="type"
+                          onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'type')">
+                    <label for="type-${p.id}-${t.replace(/\s/g, '-')}" class="option-chip" data-value="${t}">${t}</label>
+                `).join("")}
+            </div>` 
+            : "";
+        
+        // تجهيز الصور المصغرة
+        let thumbnailsHTML = "";
+        if(hasMultipleImages) {
+            thumbnailsHTML = `
+                <button class="image-nav-btn prev" onclick="changeProductImage('${p.id}', -1)">❮</button>
+                <button class="image-nav-btn next" onclick="changeProductImage('${p.id}', 1)">❯</button>
+                <div class="thumbnail-container" id="thumbnails-${p.id}">
+                ${p.images.map((img, index) => `
+                    <img src="${img}" class="thumbnail ${index === 0 ? 'active' : ''}" 
+                        onclick="setProductImage('${p.id}', ${index})"
+                        loading="lazy" 
+                        onerror="this.src='${getDefaultImage()}'">
+                `).join('')}
+                </div>`;
+        }
+
+
+        allProductsHTML += `
+            <div class="product-card ${isOutOfStock ? 'out-of-stock' : ''}" id="product-card-${p.id}">
+                <button class="heart-btn ${isFavorite ? 'active' : ''}" onclick="toggleFavorite('${p.id}')">
+                    ${isFavorite ? '❤️' : '🤍'}
+                </button>
+                <div class="product-gallery" id="gallery-${p.id}">
+                ${hasMultipleImages ? `<div class="image-counter">1/${p.images.length}</div>` : ''}
+                
+                <img src="${p.images[0] || getDefaultImage()}" class="main-product-image" 
+                    onclick="openImageGallery('${p.id}')" 
+                    loading="lazy" 
+                    onerror="this.src='${getDefaultImage()}'"
+                    data-current-index="0">
+                
+                ${thumbnailsHTML}
+                </div>
+                <div class="product-body">
+                <h5 class="product-title">${p.name}</h5>
+                <div class="product-price">💵 ${p.price} د</div>
+                
+                ${colorsHTML}
+                ${sizesHTML}
+                ${typesHTML}
+                
+                <p id="stock-alert-${p.id}" style="font-size: 12px; color: red; font-weight: bold; margin-bottom: 5px;">${isOutOfStock ? '🔴 المنتج غير متوفر حالياً' : ''}</p>
+                
+                <div class="input-group mb-2">
+                    <button class="btn btn-outline-danger" style="font-size: 12px; padding: 4px 8px;" onclick="changeQty('${p.id}',-1)">➖</button>
+                    <input type="text" id="qty-${p.id}" class="form-control text-center" value="1" readonly style="font-size: 12px;">
+                    <button class="btn btn-outline-success" style="font-size: 12px; padding: 4px 8px;" onclick="changeQty('${p.id}',1)">➕</button>
+                </div>
+                
+                <button class="btn btn-primary w-100" style="background: linear-gradient(45deg, #ff69b4, #ff1493); border: none; font-size: 14px; padding: 8px;" onclick="addToCart('${p.id}')" id="add-btn-${p.id}" ${isOutOfStock ? 'disabled' : ''}>🛒 أضف للسلة</button>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = allProductsHTML;
+
+    // تحديث حالة المخزون بشكل غير متزامن بعد العرض 
+    setTimeout(() => {
+        categoryProducts.forEach(p => {
+            updateDependentOptions(p.id, '');
+            updateStockStatus(p.id);
+        });
+    }, 0);
+}
+
+// 🆕 دالة عرض القسم (مسؤولة عن التحديد والتحميل الفوري)
+function showCategory(cat){
+  currentCategory = cat;
+  
+  // 1. تحديث أزرار الأقسام
+  document.querySelectorAll('#categoriesBar .btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('#categoriesBar .btn').forEach(btn => {
+    if(btn.innerText.trim() === cat.trim()) btn.classList.add('active');
+  });
+
+  let container = document.getElementById("productsContainer");
+
+  // 2. ⚡️ التحقق من أن المنتجات قد تم تحميلها بالفعل في الكاش
+  if (Object.keys(productsCache).length > 0) {
+      // 3. ⚡️ عرض المنتجات فوراً من الذاكرة
+      renderProducts(cat);
+  } else {
+      // 3. عرض رسالة تحميل إذا لم يكن الكاش جاهزًا بعد (في أول تحميل للصفحة)
+      container.innerHTML = `<div class="col-12 text-center loading-spinner" style="grid-column: 1 / -1; padding: 40px;"><div class="spinner-border text-primary" role="status"></div><p style="color: #666; font-size: 16px; margin-top: 10px;">جاري تحميل منتجات قسم ${cat} (يرجى الانتظار للحظة)...</p></div>`;
+  }
+}
+
 
 function getShippingCost() {
     const userData = JSON.parse(localStorage.getItem('userProfile'));
@@ -704,219 +930,10 @@ function getShippingCost() {
     return shippingCost;
 }
 
-function loadCategories() {
-  db.ref("categories").once("value").then(snap => { 
-    let cats = snap.val() || {};
-    let bar = document.getElementById("categoriesBar");
-    bar.innerHTML = "";
-    categoriesMap = {};
-    let firstCategoryName = null;
-
-    Object.keys(cats).forEach((id, index)=>{
-      categoriesMap[id] = cats[id].name;
-      
-      if (index === 0) {
-          firstCategoryName = cats[id].name; // حفظ أول اسم قسم
-      } 
-      
-      let btn = document.createElement("button");
-      btn.className = "btn btn-outline-primary";
-      btn.innerText = cats[id].name;
-      btn.onclick = ()=> showCategory(cats[id].name);
-      bar.appendChild(btn);
-    });
-    
-    // 🔥 البدء بعرض أول قسم فورا
-    if(firstCategoryName) {
-        showCategory(firstCategoryName);
-    } else {
-        document.getElementById("productsContainer").innerHTML = `<div class="col-12 text-center" style="grid-column: 1 / -1; padding: 40px;"><p style="color: #666; font-size: 18px;">لا توجد أقسام متاحة</p></div>`;
-    }
-  }).catch(error => {
-      console.error("Error loading categories:", error);
-  });
-}
-
 // 🆕 دالة مساعدة لقراءة قيمة الخيار المختار
 function getSelectedOptionValue(productId, type) {
     return document.querySelector(`input[name="${type}-${productId}"]:checked`)?.value || "";
 }
-
-// 🆕 دالة عرض المنتجات مع الاستماع للتحديثات الفورية (.on)
-async function showCategory(cat){
-  currentCategory = cat;
-  
-  // 1. تحديث أزرار الأقسام
-  document.querySelectorAll('#categoriesBar .btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('#categoriesBar .btn').forEach(btn => {
-    if(btn.innerText.trim() === cat.trim()) btn.classList.add('active');
-  });
-
-  let container = document.getElementById("productsContainer");
-  
-  // 2. ⚡️ عرض رسالة تحميل مؤقتة فوراً
-  container.innerHTML = `<div class="col-12 text-center loading-spinner" style="grid-column: 1 / -1; padding: 40px;"><div class="spinner-border text-primary" role="status"></div><p style="color: #666; font-size: 16px; margin-top: 10px;">جاري تحميل منتجات قسم ${cat}...</p></div>`;
-
-  let categoryId = Object.keys(categoriesMap).find(key => categoriesMap[key] === cat);
-  
-  // 🆕 3. إيقاف المستمع القديم
-  if (currentProductListener) {
-      db.ref("products").off("value", currentProductListener);
-      currentProductListener = null;
-  }
-  
-  const productsRef = db.ref("products");
-
-  // 🆕 4. دالة رد الاتصال التي ستقوم بتصيير المنتجات
-  const updateProductsUI = (snap) => {
-      const data = snap.val() || {};
-      let categoryProducts = [];
-      
-      // 🆕 فلترة المنتجات محلياً (بعد جلبها)
-      Object.keys(data).forEach(id => {
-          let p = data[id];
-          // التحقق من حالة المنتج والقسم
-          if(p.status === "معروض" && p.category === categoryId){ 
-              categoryProducts.push({
-                  id: id,
-                  name: p.name,
-                  price: p.price,
-                  category: cat,
-                  status: p.status,
-                  stockDetails: p.stockDetails || [], 
-                  totalStock: p.totalStock !== undefined ? p.totalStock : 0, 
-                  images: p.images || [],
-                  sizes: p.sizes || [],
-                  colors: p.colors || [],
-                  types: p.types || [] 
-              });
-          }
-      });
-      
-      products[cat] = categoryProducts; // تخزينها في الكاش للاستخدام المستقبلي/السلة
-
-      // 5. بناء وتصيير HTML
-      if(!categoryProducts || categoryProducts.length === 0) {
-          container.innerHTML = `<div class="col-12 text-center" style="grid-column: 1 / -1; padding: 40px;"><p style="color: #666; font-size: 18px;">لا توجد منتجات معروضة في هذا القسم</p></div>`;
-          return;
-      }
-      
-      let allProductsHTML = "";
-      categoryProducts.forEach((p,i)=>{
-          const isFavorite = favorites[p.id];
-          const hasMultipleImages = p.images && p.images.length > 1;
-          const currentTotalStock = p.totalStock || 0;
-          const isOutOfStock = currentTotalStock === 0;
-
-          // 🆕 تجهيز خيارات الألوان كـ Chips
-          let colorsHTML = p.colors && p.colors.length ? 
-              `<div class="chip-group" id="colors-group-${p.id}">
-                  <label class="option-label">اللون:</label>
-                  ${p.colors.map(c => `
-                      <input type="radio" name="color-${p.id}" id="color-${p.id}-${c.replace(/\s/g, '-')}" value="${c}" class="option-radio" data-option-type="color"
-                            onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'color')">
-                      <label for="color-${p.id}-${c.replace(/\s/g, '-')}" class="option-chip" data-value="${c}">${c}</label>
-                  `).join("")}
-              </div>` 
-              : "";
-
-          // 🆕 تجهيز خيارات المقاسات كـ Chips
-          let sizesHTML = p.sizes && p.sizes.length ? 
-              `<div class="chip-group" id="sizes-group-${p.id}">
-                  <label class="option-label">المقاس:</label>
-                  ${p.sizes.map(s => `
-                      <input type="radio" name="size-${p.id}" id="size-${p.id}-${s.replace(/\s/g, '-')}" value="${s}" class="option-radio" data-option-type="size"
-                            onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'size')">
-                      <label for="size-${p.id}-${s.replace(/\s/g, '-')}" class="option-chip" data-value="${s}">${s}</label>
-                  `).join("")}
-              </div>` 
-              : "";
-          
-          // 🆕 تجهيز خيارات الأنواع كـ Chips
-          let typesHTML = p.types && p.types.length ? 
-              `<div class="chip-group" id="types-group-${p.id}">
-                  <label class="option-label">موديل:</label>
-                  ${p.types.map(t => `
-                      <input type="radio" name="type-${p.id}" id="type-${p.id}-${t.replace(/\s/g, '-')}" value="${t}" class="option-radio" data-option-type="type"
-                            onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'type')">
-                      <label for="type-${p.id}-${t.replace(/\s/g, '-')}" class="option-chip" data-value="${t}">${t}</label>
-                  `).join("")}
-              </div>` 
-              : "";
-          
-          // تجهيز الصور المصغرة
-          let thumbnailsHTML = "";
-          if(hasMultipleImages) {
-              thumbnailsHTML = `
-                  <button class="image-nav-btn prev" onclick="changeProductImage('${p.id}', -1)">❮</button>
-                  <button class="image-nav-btn next" onclick="changeProductImage('${p.id}', 1)">❯</button>
-                  <div class="thumbnail-container" id="thumbnails-${p.id}">
-                  ${p.images.map((img, index) => `
-                      <img src="${img}" class="thumbnail ${index === 0 ? 'active' : ''}" 
-                          onclick="setProductImage('${p.id}', ${index})"
-                          loading="lazy" 
-                          onerror="this.src='${getDefaultImage()}'">
-                  `).join('')}
-                  </div>`;
-          }
-
-
-          allProductsHTML += `
-              <div class="product-card ${isOutOfStock ? 'out-of-stock' : ''}" id="product-card-${p.id}">
-                  <button class="heart-btn ${isFavorite ? 'active' : ''}" onclick="toggleFavorite('${p.id}')">
-                      ${isFavorite ? '❤️' : '🤍'}
-                  </button>
-                  <div class="product-gallery" id="gallery-${p.id}">
-                  ${hasMultipleImages ? `<div class="image-counter">1/${p.images.length}</div>` : ''}
-                  
-                  <img src="${p.images[0] || getDefaultImage()}" class="main-product-image" 
-                      onclick="openImageGallery('${p.id}')" 
-                      loading="lazy" 
-                      onerror="this.src='${getDefaultImage()}'"
-                      data-current-index="0">
-                  
-                  ${thumbnailsHTML}
-                  </div>
-                  <div class="product-body">
-                  <h5 class="product-title">${p.name}</h5>
-                  <div class="product-price">💵 ${p.price} د</div>
-                  
-                  ${colorsHTML}
-                  ${sizesHTML}
-                  ${typesHTML}
-                  
-                  <p id="stock-alert-${p.id}" style="font-size: 12px; color: red; font-weight: bold; margin-bottom: 5px;">${isOutOfStock ? '🔴 المنتج غير متوفر حالياً' : ''}</p>
-                  
-                  <div class="input-group mb-2">
-                      <button class="btn btn-outline-danger" style="font-size: 12px; padding: 4px 8px;" onclick="changeQty('${p.id}',-1)">➖</button>
-                      <input type="text" id="qty-${p.id}" class="form-control text-center" value="1" readonly style="font-size: 12px;">
-                      <button class="btn btn-outline-success" style="font-size: 12px; padding: 4px 8px;" onclick="changeQty('${p.id}',1)">➕</button>
-                  </div>
-                  
-                  <button class="btn btn-primary w-100" style="background: linear-gradient(45deg, #ff69b4, #ff1493); border: none; font-size: 14px; padding: 8px;" onclick="addToCart('${p.id}')" id="add-btn-${p.id}" ${isOutOfStock ? 'disabled' : ''}>🛒 أضف للسلة</button>
-                  </div>
-              </div>
-          `;
-      });
-      
-      container.innerHTML = allProductsHTML;
-
-      // تحديث حالة المخزون بشكل غير متزامن بعد العرض 
-      setTimeout(() => {
-          categoryProducts.forEach(p => {
-              updateDependentOptions(p.id, '');
-              updateStockStatus(p.id);
-          });
-      }, 0);
-  }
-  
-  // 🆕 6. بدء الاستماع (لحل مشكلة عدم التحديث الفوري)
-  currentProductListener = productsRef.on("value", updateProductsUI, (error) => {
-    console.error("Firebase Listener Error:", error);
-    container.innerHTML = `<div class="col-12 text-center" style="grid-column: 1 / -1; padding: 40px;"><p style="color: red; font-size: 18px;">حدث خطأ أثناء تحميل المنتجات: ${error.message}</p></div>`;
-  });
-}
-
 
 function updateDependentOptions(productId, changedOptionType) {
     const product = getProductById(productId);
@@ -927,12 +944,6 @@ function updateDependentOptions(productId, changedOptionType) {
     const selectedSize = getSelectedOptionValue(productId, 'size');
     const selectedType = getSelectedOptionValue(productId, 'type');
 
-    // 🆕 قائمة بأنواع الخيارات الموجودة
-    const optionTypes = [];
-    if (product.colors && product.colors.length) optionTypes.push('color');
-    if (product.sizes && product.sizes.length) optionTypes.push('size');
-    if (product.types && product.types.length) optionTypes.push('type');
-    
     // القيم المختارة في كائن لسهولة الوصول
     const selections = {
         color: selectedColor,
@@ -1245,14 +1256,13 @@ async function sendOrder() {
                 localStorage.setItem("cart", JSON.stringify(cart));
                 updateCart();
                 closeCart();
-                // إعادة تحميل القسم الحالي لتحديث حالة المخزون المعروضة
-                showCategory(currentCategory); 
+                // إعادة تصيير القسم الحالي لتحديث حالة المخزون المعروضة (سيتم تشغيلها بواسطة handleAllProducts)
             }
         });
     } else {
         // رسالة خطأ أكثر وضوحاً
         showAlert(`❌ فشل إرسال الطلب. الكمية المطلوبة لـ ${failedItemName} غير متوفرة أو التركيبة غير صحيحة.`, 5000);
-        showCategory(currentCategory); // إعادة تحميل القسم لتحديث المخزون
+        // إعادة تصيير القسم الحالي لتحديث المخزون (سيتم تشغيلها بواسطة handleAllProducts)
     }
 }
 
@@ -1499,10 +1509,23 @@ function prevGalleryImage() { currentGalleryIndex = (currentGalleryIndex - 1 + c
 function closeImageGallery() { document.getElementById('imageGalleryModal').style.display = 'none'; }
 
 function getProductById(productId) {
-    // 🔥 بحث سريع داخل المنتجات المحملة حالياً
-    for (const category in products) {
-        const product = products[category].find(p => p.id === productId);
-        if (product) return product;
+    // 🔥 البحث الآن يتم في جميع المنتجات المحملة (allProductsData)
+    const productData = allProductsData[productId];
+    if (productData) {
+        // نُنشئ كائناً مؤقتاً بالصيغة المطلوبة لاستخدامه في الدوال الأخرى
+        return {
+            id: productId,
+            name: productData.name,
+            price: productData.price,
+            category: productData.category,
+            status: productData.status,
+            stockDetails: productData.stockDetails || [],
+            totalStock: productData.totalStock !== undefined ? productData.totalStock : 0,
+            images: productData.images || [],
+            sizes: productData.sizes || [],
+            colors: productData.colors || [],
+            types: productData.types || []
+        };
     }
     return null;
 }
@@ -1515,3 +1538,4 @@ function getDefaultImage() {
 <iframe src="bottom-nav.html" style="width:100%; height:80px; border:none; position: fixed; bottom: 0; left: 0; z-index: 1000;"></iframe>
 </body>
 </html>
+
