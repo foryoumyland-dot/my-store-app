@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <base href="/my-store-app/">
-<title>طلباتي | ريـــفـــREVANAــــانـــــا</title> <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<title>طلباتي | ريـــفـــREVANAــــانـــــا</title>
 <style>
   /* ===== الشريط العلوي الثابت والمتجاوب ===== */
   .top-navbar {
@@ -404,34 +403,326 @@
 <div id="orders" class="loading">🔄 جاري تحميل الطلبات...</div>
 
 <script>
-// ✅ إعدادات Firebase - نفس إعدادات المتجر
-const firebaseConfig = {
-    apiKey: "AIzaSyA-LdNQbQneJyxJQ8iMUUd5gsJypTFi6sg",
-    authDomain: "mystore-orders-a74f8.firebaseapp.com",
-    databaseURL: "https://mystore-orders-a74f8-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "mystore-orders-a74f8",
-    storageBucket: "mystore-orders-a74f8.appspot.com",
-    messagingSenderId: "431733924264",
-    appId: "1:431733924264:web:986b8dc983ef8c0097bd9d"
-};
+// ============= إعدادات API =============
+const API_BASE_URL = 'https://foryoumyland.ly/api';
 
-// تهيئة Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// ✅ بيانات المستخدم من localStorage
-let userProfile = JSON.parse(localStorage.getItem('userProfile'));
-
-let currentOrderId = null;
-
-// 🆕 دالة تنظيف رقم الهاتف (مضافة لضمان مطابقة التنسيق)
-function cleanPhoneNumber(phone) {
-    if (!phone) return "";
-    // إزالة جميع المسافات والشرطات وأقواس التجميع
-    return phone.toString().replace(/[\s\-\(\)\.]/g, '').trim(); 
+// 🔥 دالة للتواصل مع API
+async function apiRequest(endpoint, method = 'GET', data = null) {
+    try {
+        const options = {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+        
+        if (data && (method === 'POST' || method === 'PUT')) {
+            options.body = JSON.stringify(data);
+        }
+        
+        const response = await fetch(`${API_BASE_URL}/${endpoint}`, options);
+        const result = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(result.message || 'خطأ في الاتصال بالخادم');
+        }
+        
+        return result;
+    } catch (error) {
+        console.error('❌ خطأ في API:', error);
+        showAlert('❌ خطأ في الاتصال بالخادم', 'error');
+        throw error;
+    }
 }
 
-// وظائف القائمة المنسدلة
+// ============= دوال الصفحة =============
+let userProfile = JSON.parse(localStorage.getItem('userProfile')) || {};
+let currentOrderId = null;
+
+// 🆕 دالة تنظيف رقم الهاتف
+function cleanPhoneNumber(phone) {
+    if (!phone) return "";
+    return phone.toString().replace(/[\s\-\(\)\.]/g, '').trim();
+}
+
+// ✅ عرض التنبيه
+function showAlert(msg, type = 'success') {
+    let box = document.getElementById("alertBox");
+    box.innerHTML = msg;
+    
+    if (type === 'success') {
+        box.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
+    } else if (type === 'error') {
+        box.style.background = 'linear-gradient(45deg, #dc3545, #c82333)';
+    } else {
+        box.style.background = 'linear-gradient(45deg, #ff416c, #ff4b2b)';
+    }
+    
+    box.style.display = "block";
+    setTimeout(() => box.style.display = "none", 3000);
+}
+
+// ✅ نافذة التأكيد
+function showConfirm(title, message, actionText, actionCallback) {
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+    document.getElementById('confirmAction').textContent = actionText;
+    
+    if (actionText.includes('إلغاء')) {
+        document.getElementById('confirmAction').className = 'btn-action btn-cancel';
+        document.getElementById('confirmIcon').textContent = '⚠️';
+    } else {
+        document.getElementById('confirmAction').className = 'btn-action btn-restore';
+        document.getElementById('confirmIcon').textContent = '🔄';
+    }
+    
+    document.getElementById('confirmAction').onclick = actionCallback;
+    document.getElementById('confirmModal').style.display = 'flex';
+}
+
+function closeConfirm() {
+    document.getElementById('confirmModal').style.display = 'none';
+    currentOrderId = null;
+}
+
+// ✅ عند تحميل الصفحة
+window.onload = async function() {
+    if (userProfile && userProfile.name && userProfile.phone) {
+        const cleanedPhone = cleanPhoneNumber(userProfile.phone);
+
+        // عرض معلومات المستخدم
+        document.getElementById('userInfo').style.display = 'block';
+        document.getElementById('customerName').textContent = userProfile.name;
+        document.getElementById('customerPhone').textContent = cleanedPhone;
+        
+        // تحميل الطلبات
+        await loadUserOrders(cleanedPhone);
+    } else {
+        document.getElementById('orders').innerHTML = `
+            <div class="no-orders">
+                <div style="font-size: 3rem; margin-bottom: 15px;">📝</div>
+                <h3 style="color: #d63384;">بياناتك الشخصية مطلوبة</h3>
+                <p>يجب تسجيل بياناتك الشخصية أولاً لعرض الطلبات</p>
+                <button onclick="goToProfile()" class="btn-action btn-restore" style="margin-top: 15px;">
+                    👤 تسجيل البيانات
+                </button>
+            </div>
+        `;
+    }
+};
+
+// ✅ تحميل طلبات المستخدم من MySQL
+async function loadUserOrders(cleanedUserPhone) {
+    try {
+        const result = await apiRequest(`my-orders.php?phone=${encodeURIComponent(cleanedUserPhone)}`);
+        
+        if (result.status === 'success') {
+            displayOrders(result.data);
+        } else {
+            document.getElementById('orders').innerHTML = `
+                <div class="no-orders">
+                    <div style="font-size: 3rem; margin-bottom: 15px;">📭</div>
+                    <h3 style="color: #d63384;">لا توجد طلبات</h3>
+                    <p>لم تقم بإرسال أي طلبات بعد</p>
+                    <button onclick="goToStore()" class="btn-action btn-restore" style="margin-top: 15px;">
+                        🛍️ تسوق الآن
+                    </button>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error("❌ خطأ في جلب البيانات:", error);
+        document.getElementById('orders').innerHTML = `
+            <div class="no-orders">
+                <div style="font-size: 3rem; margin-bottom: 15px;">❌</div>
+                <h3 style="color: #d63384;">خطأ في الاتصال</h3>
+                <p>تعذر تحميل الطلبات. تأكد من اتصال الإنترنت.</p>
+                <button onclick="location.reload()" class="btn-action" style="background:#6c757d; margin-top:15px;">
+                    🔄 إعادة المحاولة
+                </button>
+            </div>
+        `;
+    }
+}
+
+// ✅ عرض الطلبات
+function displayOrders(orders) {
+    const container = document.getElementById("orders");
+    
+    if (!orders || orders.length === 0) {
+        container.innerHTML = `
+            <div class="no-orders">
+                <div style="font-size: 3rem; margin-bottom: 15px;">📭</div>
+                <h3 style="color: #d63384;">لا توجد طلبات</h3>
+                <p>لم تقم بإرسال أي طلبات بعد</p>
+                <button onclick="goToStore()" class="btn-action btn-restore" style="margin-top: 15px;">
+                    🛍️ تسوق الآن
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    // ترتيب الطلبات من الأحدث إلى الأقدم
+    orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    
+    orders.forEach(order => {
+        let itemsHtml = "<ul style='padding-right: 15px; margin: 10px 0;'>";
+        
+        if (order.items && order.items.length > 0) {
+            order.items.forEach(item => {
+                const itemTotal = (item.quantity || 1) * (item.price || 0);
+                itemsHtml += `
+                    <li style="margin-bottom: 8px; padding: 5px 0; border-bottom: 1px dashed #eee;">
+                        <strong>${item.product_name}</strong>
+                        ${item.size ? ` - مقاس: ${item.size}` : ''}
+                        ${item.color ? ` - لون: ${item.color}` : ''}
+                        ${item.type ? ` - نوع: ${item.type}` : ''}
+                        <br>
+                        <small>الكمية: ${item.quantity || 1} × السعر: ${item.price || 0} د.ل</small>
+                        <br>
+                        <strong>المجموع: ${itemTotal.toFixed(2)} د.ل</strong>
+                    </li>
+                `;
+            });
+        } else {
+            itemsHtml += "<li>لا توجد تفاصيل للمنتجات</li>";
+        }
+        itemsHtml += "</ul>";
+
+        let statusClass = getStatusClass(order.status || "قيد الانتظار");
+        let statusText = getStatusText(order.status || "قيد الانتظار");
+        
+        let actionBtn = "";
+        
+        // زر إلغاء الطلب (يظهر فقط إذا كانت الحالة "قيد الانتظار")
+        if (order.status === "قيد الانتظار") {
+            actionBtn = `<button class="btn-action btn-cancel" onclick="cancelOrder(${order.id})">🗑 إلغاء الطلب</button>`;
+        }
+        
+        // زر إعادة الإرسال (إذا ألغي من الزبون)
+        if (order.status === "تم الإلغاء من الزبون") {
+            actionBtn = `<button class="btn-action btn-restore" onclick="restoreOrder(${order.id})">🔄 إعادة إرسال الطلب</button>`;
+        }
+
+        const orderDate = order.created_at ? new Date(order.created_at).toLocaleString('ar-EG') : 'غير محدد';
+        const cityName = order.city_name || 'غير محدد';
+        const shortOrderId = order.id.toString().substring(0, 8);
+        const totalPrice = parseFloat(order.total_price || 0) + parseFloat(order.shipping_price || 0);
+
+        const orderDiv = document.createElement("div");
+        orderDiv.className = "order";
+        orderDiv.innerHTML = `
+            <h3>🛍️ طلبية #${shortOrderId}</h3>
+            <div style="margin: 10px 0;">
+                ${itemsHtml}
+            </div>
+            <p><strong>💰 الإجمالي الكلي: ${totalPrice.toFixed(2)} د.ل</strong></p>
+            <p>📍 العنوان: ${cityName}, ${order.customer_address || 'غير محدد'}</p>
+            <p>📅 التاريخ: ${orderDate}</p>
+            <p>📌 الحالة: <span class="status ${statusClass}">${statusText}</span></p>
+            <div style="margin-top: 15px;">
+                ${actionBtn}
+            </div>
+        `;
+        container.appendChild(orderDiv);
+    });
+}
+
+// ✅ دوال مساعدة للحالة
+function getStatusText(status) {
+    const statusMap = {
+        'قيد الانتظار': '⏳ قيد الانتظار',
+        'تم التأكيد': '✅ تم التأكيد', 
+        'قيد التوصيل': '🚚 قيد التوصيل',
+        'تم التسليم': '🎉 تم التسليم',
+        'ملغى': '❌ ملغى من الإدارة',
+        'تم الإلغاء من الزبون': '🗑 تم الإلغاء من الزبون'
+    };
+    return statusMap[status] || status;
+}
+
+function getStatusClass(status) {
+    const classMap = {
+        'قيد الانتظار': 'status-pending',
+        'تم التأكيد': 'status-confirmed',
+        'قيد التوصيل': 'status-shipping', 
+        'تم التسليم': 'status-delivered',
+        'ملغى': 'status-cancelled',
+        'تم الإلغاء من الزبون': 'status-cancelled-by-customer'
+    };
+    return classMap[status] || 'status-pending';
+}
+
+// ✅ دوال الإجراءات
+async function cancelOrder(orderId) {
+    currentOrderId = orderId;
+    showConfirm(
+        '⚠️ تأكيد إلغاء الطلب',
+        'هل أنت متأكد من أنك تريد إلغاء هذا الطلب؟ يمكنك إعادة إرساله لاحقاً إذا رغبت.',
+        '🗑 نعم، إلغاء الطلب',
+        async function() {
+            try {
+                const result = await apiRequest('update-order-status.php', 'PUT', {
+                    order_id: orderId,
+                    status: 'تم الإلغاء من الزبون'
+                });
+                
+                if (result.status === 'success') {
+                    showAlert('✅ تم إلغاء الطلب بنجاح', 'success');
+                    closeConfirm();
+                    // إعادة تحميل الطلبات
+                    const userProfile = JSON.parse(localStorage.getItem('userProfile')) || {};
+                    const cleanedPhone = cleanPhoneNumber(userProfile.phone);
+                    await loadUserOrders(cleanedPhone);
+                } else {
+                    showAlert('❌ ' + result.message, 'error');
+                }
+            } catch (error) {
+                showAlert('❌ حدث خطأ في إلغاء الطلب', 'error');
+            }
+            closeConfirm();
+        }
+    );
+}
+
+async function restoreOrder(orderId) {
+    currentOrderId = orderId;
+    showConfirm(
+        '🔄 تأكيد إعادة الإرسال',
+        'هل تريد إعادة إرسال هذا الطلب؟ سيتم إرساله للإدارة مرة أخرى.',
+        '🔄 نعم، إعادة الإرسال',
+        async function() {
+            try {
+                const result = await apiRequest('update-order-status.php', 'PUT', {
+                    order_id: orderId,
+                    status: 'قيد الانتظار'
+                });
+                
+                if (result.status === 'success') {
+                    showAlert('✅ تم إعادة إرسال الطلب بنجاح', 'success');
+                    closeConfirm();
+                    // إعادة تحميل الطلبات
+                    const userProfile = JSON.parse(localStorage.getItem('userProfile')) || {};
+                    const cleanedPhone = cleanPhoneNumber(userProfile.phone);
+                    await loadUserOrders(cleanedPhone);
+                } else {
+                    showAlert('❌ ' + result.message, 'error');
+                }
+            } catch (error) {
+                showAlert('❌ حدث خطأ في إعادة الإرسال', 'error');
+            }
+            closeConfirm();
+        }
+    );
+}
+
+// ✅ إغلاق نافذة التأكيد
+document.getElementById('confirmCancel').onclick = closeConfirm;
+
+// ✅ وظائف القائمة المنسدلة
 function toggleMenu() {
     const menu = document.getElementById('dropdownMenu');
     const overlay = document.getElementById('overlay');
@@ -468,259 +759,6 @@ document.querySelectorAll('.dropdown-item').forEach(item => {
         closeMenu();
     });
 });
-
-// ✅ عرض التنبيه
-function showAlert(msg, type = 'success'){
-  let box = document.getElementById("alertBox");
-  box.innerHTML = msg;
-  
-  if (type === 'success') {
-    box.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
-  } else if (type === 'error') {
-    box.style.background = 'linear-gradient(45deg, #dc3545, #c82333)';
-  } else {
-    box.style.background = 'linear-gradient(45deg, #ff416c, #ff4b2b)';
-  }
-  
-  box.style.display = "block";
-  setTimeout(()=> box.style.display="none", 3000);
-}
-
-// ✅ نافذة التأكيد
-function showConfirm(title, message, actionText, actionCallback) {
-    document.getElementById('confirmTitle').textContent = title;
-    document.getElementById('confirmMessage').textContent = message;
-    document.getElementById('confirmAction').textContent = actionText;
-    
-    if (actionText.includes('إلغاء')) {
-        document.getElementById('confirmAction').className = 'btn-action btn-cancel';
-        document.getElementById('confirmIcon').textContent = '⚠️';
-    } else {
-        document.getElementById('confirmAction').className = 'btn-action btn-restore';
-        document.getElementById('confirmIcon').textContent = '🔄';
-    }
-    
-    document.getElementById('confirmAction').onclick = actionCallback;
-    document.getElementById('confirmModal').style.display = 'flex';
-}
-
-function closeConfirm() {
-    document.getElementById('confirmModal').style.display = 'none';
-    currentOrderId = null;
-}
-
-// ✅ عند تحميل الصفحة (تعديل: استخدام الدالة النظيفة)
-window.onload = function() {
-    if (userProfile && userProfile.name && userProfile.phone) {
-        // 🆕 تنظيف رقم الهاتف قبل العرض والتحميل
-        const cleanedPhone = cleanPhoneNumber(userProfile.phone);
-
-        // عرض معلومات المستخدم
-        document.getElementById('userInfo').style.display = 'block';
-        document.getElementById('customerName').textContent = userProfile.name;
-        document.getElementById('customerPhone').textContent = cleanedPhone;
-        
-        // تحميل الطلبات باستخدام الرقم النظيف
-        loadUserOrders(cleanedPhone);
-    } else {
-        // إذا لا توجد بيانات مستخدم
-        document.getElementById('orders').innerHTML = `
-            <div class="no-orders">
-                <div style="font-size: 3rem; margin-bottom: 15px;">📝</div>
-                <h3 style="color: #d63384;">بياناتك الشخصية مطلوبة</h3>
-                <p>يجب تسجيل بياناتك الشخصية أولاً لعرض الطلبات</p>
-                <button onclick="goToProfile()" class="btn-action btn-restore" style="margin-top: 15px;">
-                    👤 تسجيل البيانات
-                </button>
-            </div>
-        `;
-    }
-};
-
-// ✅ تحميل طلبات المستخدم (تعديل: استخدام الدالة النظيفة في المقارنة)
-function loadUserOrders(cleanedUserPhone) { // استقبلنا الرقم النظيف هنا
-    db.ref("orders").on("value", function(snapshot) {
-        let data = snapshot.val();
-        let container = document.getElementById("orders");
-        
-        if (!data) {
-            container.innerHTML = '<div class="no-orders">🚫 لا توجد طلبات في قاعدة البيانات</div>';
-            return;
-        }
-
-        let userOrders = [];
-        
-        // البحث في جميع الطلبات
-        Object.entries(data).forEach(([orderId, order]) => {
-            
-            // 🆕 تنظيف رقم الهاتف في الطلب قبل المقارنة
-            const orderCustomerPhone = order.customer && order.customer.phone ? cleanPhoneNumber(order.customer.phone) : null;
-
-            // التحقق إذا كان الرقم مطابق (المقارنة الآن تتم بين الأرقام النظيفة)
-            if (orderCustomerPhone === cleanedUserPhone) {
-                userOrders.push({
-                    id: orderId,
-                    ...order
-                });
-            }
-        });
-
-        if (userOrders.length === 0) {
-            container.innerHTML = `
-                <div class="no-orders">
-                    <div style="font-size: 3rem; margin-bottom: 15px;">📭</div>
-                    <h3 style="color: #d63384;">لا توجد طلبات</h3>
-                    <p>لم تقم بإرسال أي طلبات بعد</p>
-                    <button onclick="goToStore()" class="btn-action btn-restore" style="margin-top: 15px;">
-                        🛍️ تسوق الآن
-                    </button>
-                </div>
-            `;
-            return;
-        }
-
-        // عرض الطلبات من الأحدث إلى الأقدم
-        container.innerHTML = '';
-        userOrders.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-        
-        userOrders.forEach(order => {
-            let itemsHtml = "<ul style='padding-right: 15px; margin: 10px 0;'>";
-            
-            if (order.items && Array.isArray(order.items)) {
-                order.items.forEach(item => {
-                    itemsHtml += `
-                        <li style="margin-bottom: 8px; padding: 5px 0; border-bottom: 1px dashed #eee;">
-                            <strong>${item.name}</strong>
-                            ${item.size ? ` - مقاس: ${item.size}` : ''}
-                            ${item.color ? ` - لون: ${item.color}` : ''}
-                            ${item.type ? ` - نوع: ${item.type}` : ''}
-                            <br>
-                            <small>الكمية: ${item.qty || 1} × السعر: ${item.price || 0} د.ل</small>
-                            <br>
-                            <strong>المجموع: ${(item.price || 0) * (item.qty || 1)} د.ل</strong>
-                        </li>
-                    `;
-                });
-            } else {
-                itemsHtml += "<li>لا توجد تفاصيل للمنتجات</li>";
-            }
-            itemsHtml += "</ul>";
-
-            let statusClass = getStatusClass(order.status || "قيد الانتظار");
-            let statusText = getStatusText(order.status || "قيد الانتظار");
-            
-            let actionBtn = "";
-            
-            // 1. زر إعادة الإرسال (يظهر إذا ألغي من الزبون)
-            if (order.status === "تم الإلغاء من الزبون") {
-                actionBtn = `<button class="btn-action btn-restore" onclick="restoreOrder('${order.id}')">🔄 إعادة إرسال الطلب</button>`;
-            } 
-            
-            // 2. زر إلغاء الطلب (يظهر فقط إذا كانت الحالة "قيد الانتظار")
-            else if (order.status === "قيد الانتظار") {
-                actionBtn = `<button class="btn-action btn-cancel" onclick="cancelOrder('${order.id}')">🗑 إلغاء الطلب</button>`;
-            }
-
-            let orderDiv = document.createElement("div");
-            orderDiv.className = "order";
-            orderDiv.innerHTML = `
-                <h3>🛍️ طلبية #${order.id.substring(0, 8)}</h3>
-                <div style="margin: 10px 0;">
-                    ${itemsHtml}
-                </div>
-                <p><strong>💰 الإجمالي الكلي: ${order.total || 0} د.ل</strong></p>
-                <p>📍 العنوان: ${order.customer?.city || 'غير محدد'}, ${order.customer?.address || 'غير محدد'}</p>
-                <p>📅 التاريخ: ${order.timestamp ? new Date(order.timestamp).toLocaleString('ar-EG') : 'غير محدد'}</p>
-                <p>📌 الحالة: <span class="status ${statusClass}">${statusText}</span></p>
-                <div style="margin-top: 15px;">
-                    ${actionBtn}
-                </div>
-            `;
-            container.appendChild(orderDiv);
-        });
-    }, function(error) {
-        console.error("❌ خطأ في جلب البيانات:", error);
-        document.getElementById('orders').innerHTML = `
-            <div class="no-orders">
-                <div style="font-size: 3rem; margin-bottom: 15px;">❌</div>
-                <h3 style="color: #d63384;">خطأ في الاتصال</h3>
-                <p>تعذر تحميل الطلبات. تأكد من اتصال الإنترنت.</p>
-                <button onclick="location.reload()" class="btn-action" style="background:#6c757d; margin-top:15px;">
-                    🔄 إعادة المحاولة
-                </button>
-            </div>
-        `;
-    });
-}
-
-// ✅ دوال مساعدة للحالة
-function getStatusText(status) {
-    const statusMap = {
-        'قيد الانتظار': '⏳ قيد الانتظار',
-        'تم التأكيد': '✅ تم التأكيد', 
-        'قيد التوصيل': '🚚 قيد التوصيل',
-        'تم التسليم': '🎉 تم التسليم',
-        'ملغى': '❌ ملغى من الإدارة',
-        'تم الإلغاء من الزبون': '🗑 تم الإلغاء من الزبون'
-    };
-    return statusMap[status] || status;
-}
-
-function getStatusClass(status) {
-    const classMap = {
-        'قيد الانتظار': 'status-pending',
-        'تم التأكيد': 'status-confirmed',
-        'قيد التوصيل': 'status-shipping', 
-        'تم التسليم': 'status-delivered',
-        'ملغى': 'status-cancelled',
-        'تم الإلغاء من الزبون': 'status-cancelled-by-customer'
-    };
-    return classMap[status] || 'status-pending';
-}
-
-// ✅ دوال الإجراءات
-function cancelOrder(orderId) {
-    currentOrderId = orderId;
-    showConfirm(
-        '⚠️ تأكيد إلغاء الطلب',
-        'هل أنت متأكد من أنك تريد إلغاء هذا الطلب؟ يمكنك إعادة إرساله لاحقاً إذا رغبت.',
-        '🗑 نعم، إلغاء الطلب',
-        function() {
-            db.ref("orders/" + orderId).update({ status: "تم الإلغاء من الزبون" })
-            .then(() => {
-                showAlert('✅ تم إلغاء الطلب بنجاح', 'success');
-                closeConfirm();
-            })
-            .catch(error => {
-                showAlert('❌ حدث خطأ في إلغاء الطلب', 'error');
-                closeConfirm();
-            });
-        }
-    );
-}
-
-function restoreOrder(orderId) {
-    currentOrderId = orderId;
-    showConfirm(
-        '🔄 تأكيد إعادة الإرسال',
-        'هل تريد إعادة إرسال هذا الطلب؟ سيتم إرساله للإدارة مرة أخرى.',
-        '🔄 نعم، إعادة الإرسال',
-        function() {
-            db.ref("orders/" + orderId).update({ status: "قيد الانتظار" })
-            .then(() => {
-                showAlert('✅ تم إعادة إرسال الطلب بنجاح', 'success');
-                closeConfirm();
-            })
-            .catch(error => {
-                showAlert('❌ حدث خطأ في إعادة الإرسال', 'error');
-                closeConfirm();
-            });
-        }
-    );
-}
-
-// ✅ إغلاق نافذة التأكيد
-document.getElementById('confirmCancel').onclick = closeConfirm;
 
 // ✅ دوال التنقل
 function goToProfile() {
