@@ -1120,7 +1120,7 @@ function removeFromCart(index) {
     showAlert("🗑️ تم حذف المنتج من السلة");
 }
 
-// ============= دوال الطلبات (مؤقتة - تحتاج تعديل لربطها بـ MySQL) =============
+// ============= دوال الطلبات =============
 
 function confirmSendOrder() {
     if (cart.length === 0) {
@@ -1135,11 +1135,71 @@ function confirmSendOrder() {
     document.getElementById("confirmSendModal").style.display = "flex";
 }
 
-// 🔥 TODO: دالة sendOrder() تحتاج إعادة كتابة لربطها بـ MySQL
-function sendOrder() {
-    showAlert("⏳ هذه الميزة قيد التطوير - سيتم ربطها بـ MySQL قريباً");
+// 🔥 دالة إرسال الطلب المعدلة لتعمل مع MySQL
+async function sendOrder() {
+    if (cart.length === 0) {
+        showAlert("⚠️ السلة فارغة");
+        closeConfirmSend();
+        return;
+    }
+    
+    const userData = JSON.parse(localStorage.getItem('userProfile'));
+    if (!userData || !userData.name || !userData.phone || !userData.cityData || !userData.address) {
+        showDataAlert();
+        closeConfirmSend();
+        return;
+    }
+    
     closeConfirmSend();
+    showAlert("⏳ يتم إرسال الطلب. يرجى الانتظار...", 5000);
+    
+    let subTotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    const shippingCost = getShippingCost();
+    const grandTotal = subTotal + shippingCost;
+    
+    // تجهيز بيانات الطلب
+    const orderData = {
+        customer: {
+            name: userData.name,
+            phone: userData.phone,
+            address: userData.address,
+            cityData: userData.cityData
+        },
+        items: cart,
+        subTotal: subTotal,
+        shippingCost: shippingCost,
+        total: grandTotal,
+        sendTelegram: true // إذا تبي تشغل إشعارات تيليجرام
+    };
+    
+    try {
+        // 🔥 إرسال الطلب إلى API
+        const result = await apiRequest('add-order.php', 'POST', orderData);
+        
+        if (result.status === 'success') {
+            showAlert(`✅ تم إرسال الطلب بنجاح! رقم الطلب: ${result.order_id}`);
+            
+            // تفريغ السلة
+            cart = [];
+            localStorage.setItem("cart", JSON.stringify(cart));
+            updateCart();
+            closeCart();
+            
+            // تحديث المخزون المحلي (اختياري)
+            setTimeout(() => {
+                loadAllProducts(); // إعادة تحميل المنتجات لتحديث المخزون
+            }, 1000);
+            
+        } else {
+            showAlert(`❌ خطأ: ${result.message}`, 5000);
+        }
+        
+    } catch (error) {
+        console.error('❌ خطأ في إرسال الطلب:', error);
+        showAlert('❌ فشل إرسال الطلب. تأكد من اتصال الإنترنت.', 5000);
+    }
 }
+
 
 // ============= دوال واجهة المستخدم (تظل كما هي) =============
 
