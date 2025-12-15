@@ -311,11 +311,11 @@ body {
     font-size: 14px;
     font-weight: bold;
     color: #d63384;
-    min-width: 40px; /* لضمان محاذاة جيدة */
+    min-width: 40px;
 }
 
 .option-radio {
-    display: none; /* إخفاء مدخل الراديو الأصلي */
+    display: none;
 }
 
 .option-chip {
@@ -331,7 +331,6 @@ body {
     user-select: none;
 }
 
-/* حالة الاختيار (محدد) */
 .option-radio:checked + .option-chip {
     background-color: #ff69b4;
     color: white;
@@ -340,7 +339,6 @@ body {
     transform: scale(1.05);
 }
 
-/* حالة التعطيل */
 .chip-disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -353,8 +351,6 @@ body {
 .chip-disabled:hover {
     transform: none !important;
 }
-/* نهاية تصميم الخيارات */
-
 
 /* ✅ قلب المفضلة */
 .heart-btn {
@@ -447,10 +443,10 @@ body {
 /* ✅ السلة */
 #cartPanel { 
     position: fixed; 
-    top: 60px; /* تم تعديل: لتبدأ بعد شريط التنقل العلوي (60 بكسل) */
+    top: 60px;
     right: -400px; 
     width: 360px; 
-    height: calc(100vh - 60px - 80px); /* تم تعديل: لتتوقف قبل الشريط السفلي (80 بكسل) */
+    height: calc(100vh - 60px - 80px);
     background: #fff; 
     box-shadow: -2px 0 10px rgba(0,0,0,0.3); 
     transition: right 0.4s ease; 
@@ -461,7 +457,6 @@ body {
 
 #cartPanel.open { right: 0; }
 
-/* 🆕 تنسيق جديد لعنوان السلة وزر الإغلاق */
 .cart-header {
     display: flex;
     justify-content: space-between;
@@ -478,7 +473,7 @@ body {
 .close-cart-btn {
     background: none;
     border: none;
-    color: #ff1493; /* لون أحمر/وردي قوي */
+    color: #ff1493;
     font-size: 1.8rem;
     cursor: pointer;
     font-weight: 300;
@@ -490,8 +485,6 @@ body {
     color: #e91e63;
 }
 
-
-/* ✅ صورة المنتج في السلة (جديد) */
 .cart-item-img {
     width: 50px;
     height: 50px;
@@ -501,7 +494,6 @@ body {
     border: 1px solid #eee;
 }
 
-/* ✅ تنبيه */
 .alert-custom { 
     position: fixed; 
     top: 80px; 
@@ -517,7 +509,6 @@ body {
     display: none; 
 }
 
-/* ✅ تصميم متجاوب */
 @media (max-width: 768px) {
     .products-grid {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -542,7 +533,7 @@ body {
     }
     
     .chip-group {
-        gap: 6px; /* تقليل الفجوة في الشاشات الصغيرة */
+        gap: 6px;
     }
 
     .option-chip {
@@ -562,19 +553,16 @@ body {
         font-size: 20px;
     }
     
-    /* السلة في شاشات الجوال */
     #cartPanel {
         width: 100%;
         right: -100%;
     }
 }
 
-/* ✅ باقي الأنماط */
 .confirm-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 5000; justify-content: center; align-items: center; }
 .confirm-content { background: white; padding: 25px; border-radius: 15px; text-align: center; box-shadow: 0 5px 25px rgba(0,0,0,0.3); max-width: 400px; width: 90%; }
 .confirm-buttons { margin-top: 20px; display: flex; gap: 10px; justify-content: center;}
 
-/* تنبيه البيانات */
 .data-alert { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #ff69b4, #ff1493); color: white; padding: 30px; border-radius: 20px; font-size: 1.2rem; font-weight: bold; z-index: 2000; display: none; box-shadow: 0 15px 40px rgba(255, 105, 180, 0.5); text-align: center; border: 3px solid white; animation: alertPop 0.5s ease; }
 .data-alert-buttons { margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
 .data-alert-btn { padding: 10px 20px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
@@ -583,7 +571,6 @@ body {
 .data-alert-btn:hover { transform: translateY(-2px); }
 @keyframes alertPop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 
-/* 🆕 معرض الصور الجديد */
 .product-gallery { position: relative; width: 100%; height: 200px; overflow: hidden; border-radius: 15px 15px 0 0; }
 .main-product-image { width: 100%; height: 100%; object-fit: cover; cursor: pointer; transition: transform 0.3s ease; }
 .main-product-image:hover { transform: scale(1.05); }
@@ -597,7 +584,6 @@ body {
 .image-nav-btn.next { left: 10px; }
 .image-counter { position: absolute; top: 10px; left: 10px; background: rgba(0, 0, 0, 0.6); color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; z-index: 10; }
 
-/* معرض الصور الموسع */
 .image-gallery-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 4000; justify-content: center; align-items: center; }
 .gallery-main-image { max-width: 90%; max-height: 80%; object-fit: contain; border-radius: 10px; }
 .gallery-thumbnails { position: absolute; bottom: 20px; left: 0; right: 0; display: flex; justify-content: center; gap: 10px; padding: 10px; }
@@ -654,7 +640,7 @@ body {
   <div id="cartTotal"></div>
   <button class="btn btn-success w-100 mt-2" onclick="confirmSendOrder()">✅ إرسال الطلب</button>
   <button class="btn btn-danger w-100 mt-2" onclick="confirmClearCart()">🗑️ تفريغ السلة</button>
-  </div>
+</div>
 
 <div id="alertBox" class="alert-custom"></div>
 
@@ -676,8 +662,7 @@ body {
         سيتم تأكيد و تجهيز الطلب بعد <span style="color: #ff1493;">{1 ساعة}</span>.<br>
         في حالة التراجع و إلغاء الطلب يمكنك إلغائه في هاذا الوقت من قسم "طلباتي"<br>
         <span style="color: #ff1493;">ولا يمكنك إلغائه بعد الوقت المحدد.</span>
-        <br>
-        <br>
+        <br><br>
         <span style="font-size: 0.9em; font-weight: normal;">"شكراً لتفهمكم و نتمنا لكم تسوق ممتع"</span>
     </p>
     <div class="confirm-buttons">
@@ -708,10 +693,9 @@ body {
 </div>
 
 <script>
-// ============= إعدادات API الجديدة =============
+// ============= إعدادات API =============
 const API_BASE_URL = 'https://foryoumyland.ly/api';
 
-// 🔥 دالة للتواصل مع API
 async function apiRequest(endpoint, method = 'GET', data = null) {
     try {
         const options = {
@@ -751,8 +735,6 @@ let currentGalleryIndex = 0;
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 // ============= دوال تحميل البيانات =============
-
-// 🔥 دالة تحميل الأقسام من MySQL
 async function loadCategories() {
     try {
         const result = await apiRequest('categories.php');
@@ -778,10 +760,8 @@ async function loadCategories() {
                 bar.appendChild(btn);
             });
             
-            // تحميل جميع المنتجات مرة واحدة
             loadAllProducts();
             
-            // البدء بعرض أول قسم
             if (firstCategoryName) {
                 showCategory(firstCategoryName);
             }
@@ -796,7 +776,6 @@ async function loadCategories() {
     }
 }
 
-// 🔥 دالة تحميل جميع المنتجات
 async function loadAllProducts() {
     try {
         const result = await apiRequest('products.php');
@@ -805,7 +784,6 @@ async function loadAllProducts() {
             allProductsData = result.data;
             productsCache = {};
             
-            // تنظيم المنتجات حسب القسم
             allProductsData.forEach(product => {
                 const categoryName = Object.keys(categoriesMap).find(key => categoriesMap[key] === product.category_id);
                 
@@ -817,7 +795,6 @@ async function loadAllProducts() {
                 }
             });
             
-            // إعادة عرض القسم الحالي إذا كان موجوداً
             if (currentCategory) {
                 renderProducts(currentCategory);
             }
@@ -827,9 +804,168 @@ async function loadAllProducts() {
     }
 }
 
-// ============= دوال العرض =============
+// ============= دوال المخزون التفصيلي =============
+function getVariantStock(product, color = "", size = "", type = "") {
+    // إذا لم يكن هناك مخزون تفصيلي، نستخدم المخزون الكلي
+    if (!product.stock_details || Object.keys(product.stock_details).length === 0) {
+        return parseInt(product.total_stock) || 0;
+    }
+    
+    // البحث في المخزون التفصيلي
+    let searchKey = "";
+    const parts = [];
+    
+    if (color) parts.push(color);
+    if (size) parts.push(size);
+    if (type) parts.push(type);
+    
+    searchKey = parts.join("|");
+    
+    // البحث الدقيق أولاً
+    if (product.stock_details[searchKey] !== undefined) {
+        return parseInt(product.stock_details[searchKey]) || 0;
+    }
+    
+    // إذا لم نجد تطابق دقيق، نبحث عن أقرب تطابق
+    for (const [key, stock] of Object.entries(product.stock_details)) {
+        const keyParts = key.split("|");
+        
+        // تحقق مما إذا كانت جميع الأجزاء المحددة موجودة في المفتاح
+        let allPartsMatch = true;
+        if (color && !keyParts.includes(color)) allPartsMatch = false;
+        if (size && !keyParts.includes(size)) allPartsMatch = false;
+        if (type && !keyParts.includes(type)) allPartsMatch = false;
+        
+        if (allPartsMatch) {
+            return parseInt(stock) || 0;
+        }
+    }
+    
+    // إذا لم نجد أي تطابق، نعود للمخزون الكلي
+    return parseInt(product.total_stock) || 0;
+}
 
-// 🔥 دالة عرض المنتجات
+function updateStockStatus(productId) {
+    const product = getProductById(productId);
+    if (!product) return;
+    
+    const color = getSelectedOptionValue(productId, 'color');
+    const size = getSelectedOptionValue(productId, 'size');
+    const type = getSelectedOptionValue(productId, 'type');
+    
+    const variantStock = getVariantStock(product, color, size, type);
+    const isOutOfStock = variantStock === 0;
+    
+    const stockAlert = document.getElementById(`stock-alert-${productId}`);
+    const addButton = document.getElementById(`add-btn-${productId}`);
+    const productCard = document.getElementById(`product-card-${productId}`);
+    
+    if (stockAlert) {
+        if (isOutOfStock) {
+            stockAlert.textContent = "🔴 المنتج غير متوفر حالياً";
+            stockAlert.style.color = "red";
+        } else {
+            stockAlert.textContent = `🟢 متوفر (${variantStock} قطعة)`;
+            stockAlert.style.color = "green";
+        }
+    }
+    
+    if (addButton) {
+        addButton.disabled = isOutOfStock;
+        addButton.style.opacity = isOutOfStock ? "0.5" : "1";
+        addButton.style.cursor = isOutOfStock ? "not-allowed" : "pointer";
+    }
+    
+    if (productCard) {
+        if (isOutOfStock) {
+            productCard.classList.add('out-of-stock');
+        } else {
+            productCard.classList.remove('out-of-stock');
+        }
+    }
+    
+    updateOptionChipsStatus(productId);
+}
+
+function updateOptionChipsStatus(productId) {
+    const product = getProductById(productId);
+    if (!product) return;
+    
+    const currentColor = getSelectedOptionValue(productId, 'color');
+    const currentSize = getSelectedOptionValue(productId, 'size');
+    const currentType = getSelectedOptionValue(productId, 'type');
+    
+    // تحديث حالة أزرار الألوان
+    if (product.colors && product.colors.length > 0) {
+        product.colors.forEach(color => {
+            const stock = getVariantStock(product, color, currentSize, currentType);
+            const chip = document.querySelector(`label[for="color-${productId}-${color.replace(/\s/g, '-')}"]`);
+            if (chip) {
+                chip.classList.toggle('chip-disabled', stock === 0);
+                chip.style.cursor = stock === 0 ? 'not-allowed' : 'pointer';
+            }
+        });
+    }
+    
+    // تحديث حالة أزرار المقاسات
+    if (product.sizes && product.sizes.length > 0) {
+        product.sizes.forEach(size => {
+            const stock = getVariantStock(product, currentColor, size, currentType);
+            const chip = document.querySelector(`label[for="size-${productId}-${size.replace(/\s/g, '-')}"]`);
+            if (chip) {
+                chip.classList.toggle('chip-disabled', stock === 0);
+                chip.style.cursor = stock === 0 ? 'not-allowed' : 'pointer';
+            }
+        });
+    }
+    
+    // تحديث حالة أزرار الأنواع
+    if (product.types && product.types.length > 0) {
+        product.types.forEach(type => {
+            const stock = getVariantStock(product, currentColor, currentSize, type);
+            const chip = document.querySelector(`label[for="type-${productId}-${type.replace(/\s/g, '-')}"]`);
+            if (chip) {
+                chip.classList.toggle('chip-disabled', stock === 0);
+                chip.style.cursor = stock === 0 ? 'not-allowed' : 'pointer';
+            }
+        });
+    }
+}
+
+function updateDependentOptions(productId, changedOption) {
+    const product = getProductById(productId);
+    if (!product) return;
+    
+    // إعادة تعيين الخيارات المعتمدة عندما يتغير أحدها
+    if (changedOption === 'color') {
+        const size = getSelectedOptionValue(productId, 'size');
+        const type = getSelectedOptionValue(productId, 'type');
+        
+        // إذا كان المقاس محدداً، تحقق مما إذا كان متوفراً مع اللون الجديد
+        if (size) {
+            const stock = getVariantStock(product, getSelectedOptionValue(productId, 'color'), size, type);
+            if (stock === 0) {
+                document.querySelector(`input[name="size-${productId}"]:checked`).checked = false;
+            }
+        }
+    }
+    
+    if (changedOption === 'size') {
+        const color = getSelectedOptionValue(productId, 'color');
+        const type = getSelectedOptionValue(productId, 'type');
+        
+        if (color) {
+            const stock = getVariantStock(product, color, getSelectedOptionValue(productId, 'size'), type);
+            if (stock === 0) {
+                document.querySelector(`input[name="color-${productId}"]:checked`).checked = false;
+            }
+        }
+    }
+    
+    updateStockStatus(productId);
+}
+
+// ============= دوال العرض =============
 function renderProducts(cat) {
     let container = document.getElementById("productsContainer");
     
@@ -846,40 +982,52 @@ function renderProducts(cat) {
     categoryProducts.forEach((p, i) => {
         const isFavorite = favorites[p.id];
         const hasMultipleImages = p.images && p.images.length > 1;
-        const currentTotalStock = p.total_stock || 0;
+        const currentTotalStock = parseInt(p.total_stock) || 0;
         const isOutOfStock = currentTotalStock === 0;
 
         // خيارات الألوان
         let colorsHTML = p.colors && p.colors.length > 0 ? 
             `<div class="chip-group" id="colors-group-${p.id}">
                 <label class="option-label">اللون:</label>
-                ${p.colors.map(c => `
+                ${p.colors.map(c => {
+                    const stock = getVariantStock(p, c, "", "");
+                    const disabled = stock === 0;
+                    return `
                     <input type="radio" name="color-${p.id}" id="color-${p.id}-${c.replace(/\s/g, '-')}" value="${c}" class="option-radio" data-option-type="color"
-                          onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'color')">
-                    <label for="color-${p.id}-${c.replace(/\s/g, '-')}" class="option-chip" data-value="${c}">${c}</label>
-                `).join("")}
+                          onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'color')"
+                          ${disabled ? 'disabled' : ''}>
+                    <label for="color-${p.id}-${c.replace(/\s/g, '-')}" class="option-chip ${disabled ? 'chip-disabled' : ''}" data-value="${c}">${c}</label>
+                `}).join("")}
             </div>` : "";
 
         // خيارات المقاسات
         let sizesHTML = p.sizes && p.sizes.length > 0 ? 
             `<div class="chip-group" id="sizes-group-${p.id}">
                 <label class="option-label">المقاس:</label>
-                ${p.sizes.map(s => `
+                ${p.sizes.map(s => {
+                    const stock = getVariantStock(p, "", s, "");
+                    const disabled = stock === 0;
+                    return `
                     <input type="radio" name="size-${p.id}" id="size-${p.id}-${s.replace(/\s/g, '-')}" value="${s}" class="option-radio" data-option-type="size"
-                          onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'size')">
-                    <label for="size-${p.id}-${s.replace(/\s/g, '-')}" class="option-chip" data-value="${s}">${s}</label>
-                `).join("")}
+                          onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'size')"
+                          ${disabled ? 'disabled' : ''}>
+                    <label for="size-${p.id}-${s.replace(/\s/g, '-')}" class="option-chip ${disabled ? 'chip-disabled' : ''}" data-value="${s}">${s}</label>
+                `}).join("")}
             </div>` : "";
         
         // خيارات الأنواع
         let typesHTML = p.types && p.types.length > 0 ? 
             `<div class="chip-group" id="types-group-${p.id}">
                 <label class="option-label">موديل:</label>
-                ${p.types.map(t => `
+                ${p.types.map(t => {
+                    const stock = getVariantStock(p, "", "", t);
+                    const disabled = stock === 0;
+                    return `
                     <input type="radio" name="type-${p.id}" id="type-${p.id}-${t.replace(/\s/g, '-')}" value="${t}" class="option-radio" data-option-type="type"
-                          onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'type')">
-                    <label for="type-${p.id}-${t.replace(/\s/g, '-')}" class="option-chip" data-value="${t}">${t}</label>
-                `).join("")}
+                          onchange="updateStockStatus('${p.id}'); updateDependentOptions('${p.id}', 'type')"
+                          ${disabled ? 'disabled' : ''}>
+                    <label for="type-${p.id}-${t.replace(/\s/g, '-')}" class="option-chip ${disabled ? 'chip-disabled' : ''}" data-value="${t}">${t}</label>
+                `}).join("")}
             </div>` : "";
         
         // الصور المصغرة
@@ -916,13 +1064,15 @@ function renderProducts(cat) {
                 </div>
                 <div class="product-body">
                 <h5 class="product-title">${p.name}</h5>
-                <div class="product-price">💵 ${p.price} د</div>
+                <div class="product-price">💵 ${parseFloat(p.price).toFixed(2)} د</div>
                 
                 ${colorsHTML}
                 ${sizesHTML}
                 ${typesHTML}
                 
-                <p id="stock-alert-${p.id}" style="font-size: 12px; color: red; font-weight: bold; margin-bottom: 5px;">${isOutOfStock ? '🔴 المنتج غير متوفر حالياً' : ''}</p>
+                <p id="stock-alert-${p.id}" style="font-size: 12px; color: ${isOutOfStock ? 'red' : 'green'}; font-weight: bold; margin-bottom: 5px;">
+                    ${isOutOfStock ? '🔴 المنتج غير متوفر حالياً' : `🟢 متوفر (${currentTotalStock} قطعة)`}
+                </p>
                 
                 <div class="input-group mb-2">
                     <button class="btn btn-outline-danger" style="font-size: 12px; padding: 4px 8px;" onclick="changeQty(${p.id},-1)">➖</button>
@@ -942,11 +1092,9 @@ function renderProducts(cat) {
     container.innerHTML = allProductsHTML;
 }
 
-// 🔥 دالة عرض القسم
 function showCategory(cat) {
     currentCategory = cat;
     
-    // تحديث أزرار الأقسام
     document.querySelectorAll('#categoriesBar .btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('#categoriesBar .btn').forEach(btn => {
         if (btn.innerText.trim() === cat.trim()) btn.classList.add('active');
@@ -965,13 +1113,23 @@ function showCategory(cat) {
 }
 
 // ============= دوال المنتج =============
-
 function getProductById(productId) {
     return allProductsData.find(p => p.id == productId) || null;
 }
 
-// ============= دوال السلة (تظل كما هي مع تعديلات بسيطة) =============
+function getSelectedOptionValue(productId, type) {
+    return document.querySelector(`input[name="${type}-${productId}"]:checked`)?.value || "";
+}
 
+function changeQty(id, delta) {
+    let input = document.getElementById(`qty-${id}`);
+    let value = parseInt(input.value) || 1;
+    value += delta;
+    if (value < 1) value = 1;
+    input.value = value;
+}
+
+// ============= دوال السلة =============
 function updateCart() {
     document.getElementById("cartCount").innerText = cart.length;
     let container = document.getElementById("cartItems");
@@ -1048,6 +1206,18 @@ function addToCart(productId) {
         return;
     }
 
+    // التحقق من المخزون التفصيلي قبل الإضافة
+    const variantStock = getVariantStock(product, color, size, type);
+    if (variantStock === 0) {
+        showAlert("❌ هذا الخيار غير متوفر في المخزون");
+        return;
+    }
+    
+    if (qty > variantStock) {
+        showAlert(`⚠️ الكمية المتاحة فقط ${variantStock} قطعة`);
+        return;
+    }
+
     const existingItemIndex = cart.findIndex(item => 
         item.id == productId && item.color === color && item.size === size && item.type === type
     );
@@ -1056,6 +1226,10 @@ function addToCart(productId) {
 
     if (existingItemIndex !== -1) {
         const newQty = cart[existingItemIndex].qty + qty;
+        if (newQty > variantStock) {
+            showAlert(`⚠️ الحد الأقصى للطلب ${variantStock} قطعة`);
+            return;
+        }
         cart[existingItemIndex].qty = newQty;
         cart[existingItemIndex].image = mainImage;
         showAlert("🔄 تم تحديث كمية المنتج في السلة");
@@ -1077,7 +1251,41 @@ function addToCart(productId) {
     updateCart();
 }
 
-// ============= دوال مساعدة (تظل كما هي) =============
+function editCartQty(index, delta) {
+    const item = cart[index];
+    const product = getProductById(item.id);
+    
+    if (!product) {
+        showAlert("❌ المنتج غير موجود");
+        return;
+    }
+    
+    const newQty = item.qty + delta;
+    
+    // التحقق من المخزون التفصيلي
+    const variantStock = getVariantStock(product, item.color, item.size, item.type);
+    
+    if (newQty < 1) {
+        removeFromCart(index);
+        return;
+    }
+    
+    if (newQty > variantStock) {
+        showAlert(`⚠️ الكمية المتاحة فقط ${variantStock} قطعة`);
+        return;
+    }
+    
+    item.qty = newQty;
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCart();
+}
+
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCart();
+    showAlert("🗑️ تم حذف المنتج من السلة");
+}
 
 function getShippingCost() {
     const userData = JSON.parse(localStorage.getItem('userProfile'));
@@ -1089,39 +1297,7 @@ function getShippingCost() {
     return shippingCost;
 }
 
-function getSelectedOptionValue(productId, type) {
-    return document.querySelector(`input[name="${type}-${productId}"]:checked`)?.value || "";
-}
-
-function changeQty(id, delta) {
-    let input = document.getElementById(`qty-${id}`);
-    let value = parseInt(input.value) || 1;
-    value += delta;
-    if (value < 1) value = 1;
-    input.value = value;
-}
-
-function editCartQty(index, delta) {
-    const item = cart[index];
-    item.qty += delta;
-    if (item.qty < 1) item.qty = 1;
-    if (item.qty === 0) {
-        removeFromCart(index);
-    } else {
-        localStorage.setItem("cart", JSON.stringify(cart));
-        updateCart();
-    }
-}
-
-function removeFromCart(index) {
-    cart.splice(index, 1);
-    localStorage.setItem("cart", JSON.stringify(cart));
-    updateCart();
-    showAlert("🗑️ تم حذف المنتج من السلة");
-}
-
 // ============= دوال الطلبات =============
-
 function confirmSendOrder() {
     if (cart.length === 0) {
         showAlert("⚠️ السلة فارغة، أضف منتجات أولاً");
@@ -1135,7 +1311,6 @@ function confirmSendOrder() {
     document.getElementById("confirmSendModal").style.display = "flex";
 }
 
-// 🔥 دالة إرسال الطلب المعدلة لتعمل مع MySQL
 async function sendOrder() {
     if (cart.length === 0) {
         showAlert("⚠️ السلة فارغة");
@@ -1169,11 +1344,10 @@ async function sendOrder() {
         subTotal: subTotal,
         shippingCost: shippingCost,
         total: grandTotal,
-        sendTelegram: true // إذا تبي تشغل إشعارات تيليجرام
+        sendTelegram: true
     };
     
     try {
-        // 🔥 إرسال الطلب إلى API
         const result = await apiRequest('add-order.php', 'POST', orderData);
         
         if (result.status === 'success') {
@@ -1185,9 +1359,9 @@ async function sendOrder() {
             updateCart();
             closeCart();
             
-            // تحديث المخزون المحلي (اختياري)
+            // تحديث المخزون المحلي
             setTimeout(() => {
-                loadAllProducts(); // إعادة تحميل المنتجات لتحديث المخزون
+                loadAllProducts();
             }, 1000);
             
         } else {
@@ -1200,9 +1374,7 @@ async function sendOrder() {
     }
 }
 
-
-// ============= دوال واجهة المستخدم (تظل كما هي) =============
-
+// ============= دوال واجهة المستخدم =============
 function toggleMenu() {
     const menu = document.getElementById('dropdownMenu');
     const overlay = document.getElementById('overlay');
@@ -1290,8 +1462,7 @@ function toggleFavorite(productId) {
     showAlert(favorites[productId] ? "❤️ تم الإضافة إلى المفضلة" : "🤍 تم الإزالة من المفضلة");
 }
 
-// ============= دوال الصور (تظل كما هي) =============
-
+// ============= دوال الصور =============
 function changeProductImage(productId, direction) {
     const product = getProductById(productId);
     if (!product || !product.images || product.images.length <= 1) return;
@@ -1382,7 +1553,6 @@ window.onload = function() {
     updateCart();
 };
 
-// معالجة زر الرجوع
 window.addEventListener('popstate', function(event) {
     const cartPanel = document.getElementById("cartPanel");
     const menu = document.getElementById('dropdownMenu');
@@ -1405,7 +1575,6 @@ window.addEventListener('popstate', function(event) {
     }
 });
 
-// إغلاق القائمة عند النقر خارجها
 document.addEventListener('click', function(event) {
     const menu = document.getElementById('dropdownMenu');
     const icon = document.querySelector('.menu-icon');
